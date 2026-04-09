@@ -1,17 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import {
-    formatCurrency,
-    formatQuantity,
-    formatPercentage,
-    formatSignedCurrency,
-    formatDate,
-} from '@/lib/formaters'
+import { formatCurrency, formatQuantity, formatPercentage, formatDate } from '@/lib/formaters'
+import { Currency } from '@/types/Transaction'
 
 // ─── formatCurrency ──────────────────────────────────────────────────────────
 
 describe('formatCurrency', () => {
     it('should format EUR values with pt-PT locale', () => {
-        const result = formatCurrency(1234.56, 'EUR')
+        const result = formatCurrency(1234.56, Currency.EUR)
         expect(result).toContain('1')
         expect(result).toContain('234')
         expect(result).toContain('56')
@@ -19,34 +14,34 @@ describe('formatCurrency', () => {
     })
 
     it('should format USD values', () => {
-        const result = formatCurrency(1000, 'USD')
+        const result = formatCurrency(1000, Currency.USD)
         expect(result).toContain('1')
         expect(result).toContain('000')
         expect(result).toContain('$')
     })
 
     it('should format zero', () => {
-        const result = formatCurrency(0, 'EUR')
+        const result = formatCurrency(0, Currency.EUR)
         expect(result).toContain('0')
         expect(result).toContain('€')
     })
 
     it('should format negative values', () => {
-        const result = formatCurrency(-500.5, 'EUR')
+        const result = formatCurrency(-500.5, Currency.EUR)
         expect(result).toContain('500')
         expect(result).toContain('50')
         expect(result).toContain('€')
     })
 
     it('should round to 2 decimal places', () => {
-        const result = formatCurrency(99.999, 'EUR')
+        const result = formatCurrency(99.999, Currency.EUR)
         // 99.999 rounded to 2 decimals = 100.00
         expect(result).toContain('100')
     })
 
     it('should cache formatter for same currency', () => {
-        const r1 = formatCurrency(1, 'EUR')
-        const r2 = formatCurrency(2, 'EUR')
+        const r1 = formatCurrency(1, Currency.EUR)
+        const r2 = formatCurrency(2, Currency.EUR)
         // Both should use EUR formatter (no errors)
         expect(r1).toContain('€')
         expect(r2).toContain('€')
@@ -108,29 +103,6 @@ describe('formatPercentage', () => {
 
     it('should round to 2 decimal places', () => {
         expect(formatPercentage(33.339)).toBe('33.34%')
-    })
-})
-
-// ─── formatSignedCurrency ────────────────────────────────────────────────────
-
-describe('formatSignedCurrency', () => {
-    it('should format positive values', () => {
-        const result = formatSignedCurrency(500, 'EUR')
-        expect(result).toContain('500')
-        expect(result).toContain('€')
-    })
-
-    it('should format negative values with sign', () => {
-        const result = formatSignedCurrency(-250.5, 'EUR')
-        expect(result).toContain('250')
-        expect(result).toContain('€')
-        expect(result).toMatch(/-/)
-    })
-
-    it('should format zero', () => {
-        const result = formatSignedCurrency(0, 'EUR')
-        expect(result).toContain('0')
-        expect(result).toContain('€')
     })
 })
 

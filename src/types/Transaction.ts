@@ -24,15 +24,18 @@ export enum Ticker {
     VUAA = 'VUAA',
     MON = 'MON',
     USD_EUR = 'EUR=X',
+    USDC_EUR = 'USDC-EUR',
 }
 
 export enum Currency {
     EUR = 'EUR',
     USD = 'USD',
+    USDC = 'USDC',
 }
 
 export type CambioRates = {
     usdToEur: number
+    usdcToEur: number
 }
 
 export type TickerData = {

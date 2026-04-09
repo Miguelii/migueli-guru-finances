@@ -1,3 +1,6 @@
+import { CRYPTO_CURRENCIES } from '@/lib/constants'
+import { Currency } from '@/types/Transaction'
+
 /**
  * Extracts a valid ISO 4217 currency code from a currency string.
  * Handles currency pairs like `'EUR-USD'` by returning the last segment (`'USD'`).
@@ -9,16 +12,19 @@ function toIsoCurrency(currency: string): string {
 }
 
 /**
- * Returns a cached `Intl.NumberFormat` for the given currency (pt-PT locale, 2 decimal places).
+ * Returns a `Intl.NumberFormat` for the given currency (pt-PT locale, 2 decimal places).
  * Creates and caches a new formatter on first access.
  *
  * @param currency - ISO 4217 currency code (e.g. `'EUR'`, `'USD'`).
  */
 function getCurrencyFormatter(currency: string, decimals = 2): Intl.NumberFormat {
     const iso = toIsoCurrency(currency)
+
+    const isCrptoCurrency = CRYPTO_CURRENCIES.has(iso)
+
     const formatter = new Intl.NumberFormat('pt-PT', {
-        style: 'currency',
-        currency: iso,
+        style: isCrptoCurrency ? undefined : 'currency',
+        currency: isCrptoCurrency ? undefined : iso,
         minimumFractionDigits: 2,
         maximumFractionDigits: decimals,
     })
@@ -31,7 +37,11 @@ function getCurrencyFormatter(currency: string, decimals = 2): Intl.NumberFormat
  * @param value - The numeric value to format.
  * @param currency - ISO 4217 currency code (e.g. `'EUR'`, `'USD'`).
  */
-export function formatCurrency(value: number, currency: string, decimals = 2): string {
+export function formatCurrency(value: number, currency: Currency, decimals = 2): string {
+    if (currency === Currency.USDC) {
+        return `${getCurrencyFormatter(currency, decimals).format(value)} USDC`
+    }
+
     return getCurrencyFormatter(currency, decimals).format(value)
 }
 
@@ -55,16 +65,6 @@ export function formatQuantity(value: number, decimals = 4): string {
  */
 export function formatPercentage(value: number): string {
     return `${value.toFixed(2)}%`
-}
-
-/**
- * Formats a number as a signed currency string (e.g. `-1 234,56 €`).
- *
- * @param value - The numeric value to format (sign is preserved).
- * @param currency - ISO 4217 currency code (e.g. `'EUR'`, `'USD'`).
- */
-export function formatSignedCurrency(value: number, currency: string, decimals = 2): string {
-    return `${getCurrencyFormatter(currency, decimals).format(value)}`
 }
 
 /**

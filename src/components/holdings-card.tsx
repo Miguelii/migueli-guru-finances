@@ -7,25 +7,22 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import {
-    formatCurrency,
-    formatQuantity,
-    formatPercentage,
-    formatSignedCurrency,
-} from '@/lib/formaters'
+import { formatCurrency, formatQuantity, formatPercentage } from '@/lib/formaters'
 import Image from 'next/image'
 import type { HoldingSummary } from '@/types/Holding'
-import { cn, getBuildId } from '@/lib/utils'
+import { cn, getBuildId, toEur } from '@/lib/utils'
 import { PUBLIC_ASSET_BUCKET_PATH } from '@/lib/constants.server'
+import { Currency, type CambioRates } from '@/types/Transaction'
 
 type Props = {
     holdings: HoldingSummary[]
     hidePrices: boolean
+    rates: CambioRates
 }
 
 const buildId = getBuildId()
 
-export function HoldingsCard({ holdings, hidePrices }: Props) {
+export function HoldingsCard({ holdings, hidePrices, rates }: Props) {
     return (
         <Card className="shadow-sm w-full min-w-0">
             <CardHeader className="flex flex-row items-center gap-2">
@@ -78,7 +75,7 @@ export function HoldingsCard({ holdings, hidePrices }: Props) {
                                         'blur-md select-none': hidePrices,
                                     })}
                                 >
-                                    {formatQuantity(h.total_quantity)}
+                                    {formatQuantity(h.total_quantity, 10)}
                                 </TableCell>
                                 <TableCell
                                     className={cn('text-right tabular-nums', {
@@ -106,7 +103,7 @@ export function HoldingsCard({ holdings, hidePrices }: Props) {
                                         'blur-md select-none': hidePrices,
                                     })}
                                 >
-                                    {formatCurrency(h.avg_cost_per_share, h.currency)}
+                                    {formatCurrency(h.avg_cost_per_share, h.currency, 5)}
                                 </TableCell>
                                 <TableCell
                                     className={cn('text-right tabular-nums', {
@@ -116,7 +113,10 @@ export function HoldingsCard({ holdings, hidePrices }: Props) {
                                         'blur-md select-none': hidePrices,
                                     })}
                                 >
-                                    {formatSignedCurrency(h.realized_gl, h.currency)}
+                                    {formatCurrency(
+                                        toEur(h.realized_gl, h.currency, rates),
+                                        Currency.EUR
+                                    )}
                                 </TableCell>
                                 <TableCell
                                     className={cn('text-right tabular-nums', {
@@ -136,7 +136,10 @@ export function HoldingsCard({ holdings, hidePrices }: Props) {
                                         'blur-md select-none': hidePrices,
                                     })}
                                 >
-                                    {formatSignedCurrency(h.total_gl, h.currency)}
+                                    {formatCurrency(
+                                        toEur(h.total_gl, h.currency, rates),
+                                        Currency.EUR
+                                    )}
                                 </TableCell>
                                 <TableCell
                                     className={cn('text-right tabular-nums', {
@@ -156,7 +159,10 @@ export function HoldingsCard({ holdings, hidePrices }: Props) {
                                         'blur-md select-none': hidePrices,
                                     })}
                                 >
-                                    {formatSignedCurrency(h.total_gl_with_fees, h.currency)}
+                                    {formatCurrency(
+                                        toEur(h.total_gl_with_fees, h.currency, rates),
+                                        Currency.EUR
+                                    )}
                                 </TableCell>
                                 <TableCell
                                     className={cn('text-right tabular-nums', {

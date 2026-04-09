@@ -1,5 +1,5 @@
 import type { HoldingSummary } from '@/types/Holding'
-import { formatCurrency, formatPercentage, formatSignedCurrency } from '@/lib/formaters'
+import { formatCurrency, formatPercentage } from '@/lib/formaters'
 import { Wallet, Bitcoin, BarChart3, TrendingUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -103,7 +103,7 @@ function PortfolioSummaryCard({
                             'text-destructive': totalRealize < 0,
                         })}
                     >
-                        {formatSignedCurrency(totalRealize, currency)}
+                        {formatCurrency(totalRealize, currency)}
                     </p>
                 </div>
                 <div
@@ -120,7 +120,7 @@ function PortfolioSummaryCard({
                         })}
                     >
                         <span className="tabular-nums">
-                            {formatSignedCurrency(glValue, currency)} · {formatPercentage(glPct)}
+                            {formatCurrency(glValue, currency)} · {formatPercentage(glPct)}
                         </span>
                     </div>
                 </div>

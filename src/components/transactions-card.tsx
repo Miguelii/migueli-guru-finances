@@ -26,7 +26,7 @@ type Props = {
 }
 
 export function TransactionsCard({ transactions, tickerData, hidePrices }: Props) {
-    const currencyMap = new Map<Ticker, string>(tickerData.map((td) => [td.ticker, td.currency]))
+    const currencyMap = new Map<Ticker, Currency>(tickerData.map((td) => [td.ticker, td.currency]))
 
     return (
         <Card className="flex w-full lg:w-[60%]! flex-col h-112.5 shadow-sm">

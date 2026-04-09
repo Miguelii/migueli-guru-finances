@@ -30,6 +30,7 @@ export default async function PortfolioPage(props: Props) {
 
     const rates: CambioRates = {
         usdToEur: data.find((item) => item.ticker === Ticker.USD_EUR)?.curr_price ?? 1,
+        usdcToEur: data.find((item) => item.ticker === Ticker.USDC_EUR)?.curr_price ?? 1,
     }
 
     return (
@@ -56,7 +57,7 @@ export default async function PortfolioPage(props: Props) {
                 />
             </section>
 
-            <HoldingsCard holdings={holdings} hidePrices={hidePrices} />
+            <HoldingsCard holdings={holdings} hidePrices={hidePrices} rates={rates} />
         </main>
     )
 }

@@ -28,3 +28,5 @@ export const ASSETS_GROUP_ORDER: TickerData['type'][] = [
     'STOCK',
     'CAMBIO',
 ] as const
+
+export const CRYPTO_CURRENCIES = new Set(['USDC', 'USDT'])

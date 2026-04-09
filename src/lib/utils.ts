@@ -41,6 +41,7 @@ export function getLatestUpdate(data: TickerData[]): string {
  */
 export function toEur(value: number, currency: TickerData['currency'], rates: CambioRates): number {
     if (currency === Currency.USD) return value * rates.usdToEur
+    if (currency === Currency.USDC) return value * rates.usdcToEur
     return value
 }
 
