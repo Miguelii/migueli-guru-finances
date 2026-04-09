@@ -175,7 +175,7 @@ export function aggregateHoldings(
         holdings.push(buildHolding(tickerId, txs, tickerDataMap.get(tickerId)))
     }
 
-    return holdings
+    return holdings.toSorted((a, b) => a.ticker_id.localeCompare(b.ticker_id))
 }
 
 type PortfolioTotals = {
@@ -212,9 +212,11 @@ export function computePortfolioTotals(
         0
     )
 
-    const glValue = currentValue - totalInvested + totalRealize
+    const netInvested = totalInvested - totalRealize
 
-    const glPct = totalInvested !== 0 ? (glValue / totalInvested) * 100 : 0
+    const glValue = currentValue - netInvested
 
-    return { totalInvested, currentValue, glValue, glPct, totalRealize }
+    const glPct = netInvested !== 0 ? (glValue / netInvested) * 100 : 0
+
+    return { totalInvested: netInvested, currentValue, glValue, glPct, totalRealize }
 }
