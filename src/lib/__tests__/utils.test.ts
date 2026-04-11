@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { cn, getBuildId, getLatestUpdate, groupAssetsByType } from '@/lib/utils'
+import { cn, getBuildId, getCambioRates, getLatestUpdate, groupAssetsByType } from '@/lib/utils'
 import type { TickerData } from '@/types/Transaction'
 import { Currency, Ticker } from '@/types/Transaction'
 
@@ -156,5 +156,48 @@ describe('groupAssetsByType', () => {
         expect(result.size).toBe(1)
         expect(result.get('ETF')).toHaveLength(1)
         expect(result.get('ETF')![0].ticker).toBe(Ticker.VUAA)
+    })
+})
+
+// ─── getCambioRates ──────────────────────────────────────────────────────
+
+type PickTickerData = Pick<TickerData, 'currency' | 'curr_price'>
+
+describe('getCambioRates', () => {
+    it('should return correct rates for USD and USDC', () => {
+        const data: PickTickerData[] = [
+            { currency: Currency.USD, curr_price: 0.92 },
+            { currency: Currency.USDC, curr_price: 0.91 },
+        ]
+
+        expect(getCambioRates(data as TickerData[])).toEqual({
+            usdToEur: 0.92,
+            usdcToEur: 0.91,
+        })
+    })
+
+    it('should return 0 when USD is missing', () => {
+        const data: PickTickerData[] = [{ currency: Currency.USDC, curr_price: 0.91 }]
+
+        expect(getCambioRates(data as TickerData[])).toEqual({
+            usdToEur: 0,
+            usdcToEur: 0.91,
+        })
+    })
+
+    it('should return 0 when USDC is missing', () => {
+        const data: PickTickerData[] = [{ currency: Currency.USD, curr_price: 0.92 }]
+
+        expect(getCambioRates(data as TickerData[])).toEqual({
+            usdToEur: 0.92,
+            usdcToEur: 0,
+        })
+    })
+
+    it('should return 0 for both when data is empty', () => {
+        expect(getCambioRates([])).toEqual({
+            usdToEur: 0,
+            usdcToEur: 0,
+        })
     })
 })

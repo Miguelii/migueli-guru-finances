@@ -6,9 +6,8 @@ import { AllocationCardWithChart } from '@/components/allocation-card-with-chart
 import { HoldingsCard } from '@/components/holdings-card'
 import type { Metadata } from 'next'
 import { PortfolioSummaryCards } from '@/components/portfolio-summary-cards'
-import { Ticker, type CambioRates } from '@/types/Transaction'
 import { searchParamsCache } from '@/lib/searchParams'
-import { getLatestUpdate } from '@/lib/utils'
+import { getCambioRates, getLatestUpdate } from '@/lib/utils'
 import { RefreshApp } from '@/components/refresh-app'
 
 export const metadata: Metadata = {
@@ -28,10 +27,7 @@ export default async function PortfolioPage(props: Props) {
 
     const holdings = aggregateHoldings(transactions, data)
 
-    const rates: CambioRates = {
-        usdToEur: data.find((item) => item.ticker === Ticker.USD_EUR)?.curr_price ?? 1,
-        usdcToEur: data.find((item) => item.ticker === Ticker.USDC_EUR)?.curr_price ?? 1,
-    }
+    const rates = getCambioRates(data)
 
     return (
         <main className="flex flex-col gap-6 mb-24 min-w-0" id="#main">

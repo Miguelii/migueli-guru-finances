@@ -7,7 +7,7 @@ import { Currency } from '@/types/Transaction'
  *
  * @param currency - Currency code or pair (e.g. `'EUR'`, `'EUR-USD'`).
  */
-function toIsoCurrency(currency: string): string {
+function toIsoCurrency(currency: Currency): string {
     return currency.includes('-') ? currency.split('-').pop()! : currency
 }
 
@@ -17,7 +17,7 @@ function toIsoCurrency(currency: string): string {
  *
  * @param currency - ISO 4217 currency code (e.g. `'EUR'`, `'USD'`).
  */
-function getCurrencyFormatter(currency: string, decimals = 2): Intl.NumberFormat {
+function getCurrencyFormatter(currency: Currency, decimals = 2): Intl.NumberFormat {
     const iso = toIsoCurrency(currency)
 
     const isCrptoCurrency = CRYPTO_CURRENCIES.has(iso)

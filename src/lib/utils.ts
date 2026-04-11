@@ -63,3 +63,20 @@ export function groupAssetsByType(items: TickerData[]): Map<TickerData['type'], 
 
     return groups
 }
+
+/**
+ * Extracts EUR exchange rates for USD and USDC from a list of ticker data.
+ *
+ * @param data - List of ticker data to search for exchange rates
+ * @returns Object containing the EUR rates for USD and USDC
+ */
+export function getCambioRates(data: TickerData[]): CambioRates {
+    const rates: CambioRates = { usdToEur: 0, usdcToEur: 0 }
+
+    for (const { currency, curr_price } of data) {
+        if (currency === Currency.USD) rates.usdToEur = curr_price ?? 0
+        if (currency === Currency.USDC) rates.usdcToEur = curr_price ?? 0
+    }
+
+    return rates
+}
