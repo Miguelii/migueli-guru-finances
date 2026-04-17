@@ -39,7 +39,6 @@ export function HoldingsCard({ holdings, hidePrices, rates }: Props) {
                             <TableHead className="text-right">Market Value</TableHead>
                             <TableHead className="text-right">AC/Share</TableHead>
                             <TableHead className="text-right">R G/L</TableHead>
-                            <TableHead className="text-right">R G/L %</TableHead>
                             <TableHead className="text-right">UNR G/L</TableHead>
                             <TableHead className="text-right">UNR G/L %</TableHead>
                             <TableHead className="text-right">UNR G/L (w/ fees)</TableHead>
@@ -117,16 +116,6 @@ export function HoldingsCard({ holdings, hidePrices, rates }: Props) {
                                         toEur(h.realized_gl, h.currency, rates),
                                         Currency.EUR
                                     )}
-                                </TableCell>
-                                <TableCell
-                                    className={cn('text-right tabular-nums', {
-                                        'text-success': h.realized_gl_pct > 0,
-                                        'text-destructive': h.realized_gl_pct < 0,
-                                        'text-muted-foreground': h.realized_gl_pct == 0,
-                                        'blur-md select-none': hidePrices,
-                                    })}
-                                >
-                                    {formatPercentage(h.realized_gl_pct)}
                                 </TableCell>
                                 <TableCell
                                     className={cn('text-right tabular-nums', {

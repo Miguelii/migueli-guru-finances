@@ -6,8 +6,9 @@ import { toEur } from '@/lib/utils'
 type CostBasis = {
     totalQuantity: number
     totalInvested: number
-    totalFees: number
+    buyFees: number
     avgCost: number
+    otherFees: number
 }
 
 type RealizedMetrics = {
@@ -15,6 +16,7 @@ type RealizedMetrics = {
     totalInvested: number
     realizedGl: number
     realizedCostBasis: number
+    totalSellFees: number
 }
 
 /**
@@ -56,21 +58,25 @@ function groupByTicker(transactions: Transaction[]): Map<Ticker, Transaction[]> 
 function buildCostBasis(txs: Transaction[]): CostBasis {
     let totalQuantity = 0
     let totalInvested = 0
-    let totalFees = 0
+    let buyFees = 0
+    let otherFees = 0
 
     for (const tx of txs) {
         if (tx.type === TransactionType.Buy) {
             totalQuantity += tx.quantity ?? 0
             totalInvested += tx.value ?? 0
+            buyFees += tx.fee
         } else if (tx.type === TransactionType.Reward) {
             totalQuantity += tx.quantity ?? 0
+            otherFees += tx.fee
+        } else if (tx.type === TransactionType.Fee) {
+            otherFees += tx.fee
         }
-        totalFees += tx.fee
     }
 
     const avgCost = totalQuantity > 0 ? totalInvested / totalQuantity : 0
 
-    return { totalQuantity, totalInvested, totalFees, avgCost }
+    return { totalQuantity, totalInvested, buyFees, avgCost, otherFees }
 }
 
 /**
@@ -84,6 +90,7 @@ function applysells(txs: Transaction[], basis: CostBasis): RealizedMetrics {
     let { totalQuantity, totalInvested } = basis
     let realizedGl = 0
     let realizedCostBasis = 0
+    let totalSellFees = 0
 
     for (const tx of txs) {
         if (tx.type !== TransactionType.Sell) continue
@@ -92,14 +99,16 @@ function applysells(txs: Transaction[], basis: CostBasis): RealizedMetrics {
         const quantity = tx.quantity ?? 0
         const costOfSold = basis.avgCost * quantity
         const sellProceeds = sellPrice * quantity
+        const sellFee = tx.fee
 
-        realizedGl += sellProceeds - costOfSold
+        realizedGl += sellProceeds - costOfSold - sellFee
         realizedCostBasis += costOfSold
+        totalSellFees += sellFee
         totalQuantity -= quantity
         totalInvested -= costOfSold
     }
 
-    return { totalQuantity, totalInvested, realizedGl, realizedCostBasis }
+    return { totalQuantity, totalInvested, realizedGl, realizedCostBasis, totalSellFees }
 }
 
 /**
@@ -117,19 +126,20 @@ function buildHolding(
     const basis = buildCostBasis(txs)
     const sells = applysells(txs, basis)
 
-    const { totalQuantity, totalInvested, realizedGl, realizedCostBasis } = sells
-    const { totalFees } = basis
+    const { totalQuantity, totalInvested, realizedGl, realizedCostBasis, totalSellFees } = sells
+    const { buyFees, otherFees } = basis
 
     const currentPrice = td?.curr_price ?? 0
     const currentValue = totalQuantity * currentPrice
     const avgCostPerShare = totalQuantity > 0 ? totalInvested / totalQuantity : basis.avgCost
 
     const unrealizedGl = currentValue - totalInvested
-    const costBasis = totalInvested + totalFees
+    const costBasis = totalInvested + buyFees
     const unrealizedGlWithFees = currentValue - costBasis
 
     const totalGl = realizedGl + unrealizedGl
     const totalCostBasis = totalInvested + realizedCostBasis
+    const totalFees = buyFees + totalSellFees + otherFees
     const totalGlWithFees = totalGl - totalFees
     const totalCostBasisWithFees = totalCostBasis + totalFees
 
@@ -147,7 +157,6 @@ function buildHolding(
         current_value: currentValue,
         avg_cost_per_share: avgCostPerShare,
         realized_gl: realizedGl,
-        realized_gl_pct: pct(realizedGl, realizedCostBasis),
         unrealized_gl: unrealizedGl,
         unrealized_gl_pct: pct(unrealizedGl, totalInvested),
         unrealized_gl_with_fees: unrealizedGlWithFees,

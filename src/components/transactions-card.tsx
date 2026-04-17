@@ -1,3 +1,5 @@
+'use client'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Table,
@@ -9,6 +11,12 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
     Currency,
     TransactionType,
     type Ticker,
@@ -18,6 +26,9 @@ import {
 import { formatCurrency, formatDate, formatQuantity } from '@/lib/formaters'
 import { TYPE_BADGE_VARIANT, TYPE_LABEL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { ChevronDown } from 'lucide-react'
+import { parseAsString, useQueryState } from 'nuqs'
+import { paramsUrlKeys } from '@/lib/searchParams'
 
 type Props = {
     transactions: Transaction[]
@@ -26,12 +37,47 @@ type Props = {
 }
 
 export function TransactionsCard({ transactions, tickerData, hidePrices }: Props) {
+    const [selectedAsset, setSelectedAsset] = useQueryState(
+        paramsUrlKeys.filter_asset!,
+        parseAsString.withDefault('all')
+    )
+
     const currencyMap = new Map<Ticker, Currency>(tickerData.map((td) => [td.ticker, td.currency]))
+
+    const uniqueAssets = Array.from(new Set(transactions.map((tx) => tx.ticker_id))).sort()
+
+    const filteredTransactions =
+        selectedAsset === 'all'
+            ? transactions
+            : transactions.filter((tx) => tx.ticker_id === selectedAsset)
 
     return (
         <Card className="flex w-full lg:w-[60%]! flex-col h-112.5 shadow-sm">
-            <CardHeader className="shrink-0 flex flex-row items-center gap-2">
+            <CardHeader className="shrink-0 flex flex-row items-center justify-between gap-2">
                 <CardTitle>Transactions</CardTitle>
+                <DropdownMenu>
+                    <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-2 py-1.5 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                        {selectedAsset === 'all' ? 'All Assets' : selectedAsset}
+                        <ChevronDown className="h-4 w-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                            onClick={() => setSelectedAsset('all')}
+                            className={selectedAsset === 'all' ? 'bg-accent' : ''}
+                        >
+                            All Assets
+                        </DropdownMenuItem>
+                        {uniqueAssets.map((asset) => (
+                            <DropdownMenuItem
+                                key={asset}
+                                onClick={() => setSelectedAsset(asset)}
+                                className={selectedAsset === asset ? 'bg-accent' : ''}
+                            >
+                                {asset}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </CardHeader>
             <CardContent className="min-h-0 flex-1 overflow-y-auto">
                 <Table>
@@ -47,7 +93,7 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {transactions.map((tx) => {
+                        {filteredTransactions.map((tx) => {
                             const currency = currencyMap.get(tx.ticker_id) ?? Currency.EUR
                             return (
                                 <TableRow

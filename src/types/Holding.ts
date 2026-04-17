@@ -14,7 +14,6 @@ export type HoldingSummary = {
     current_value: number
     avg_cost_per_share: number
     realized_gl: number
-    realized_gl_pct: number
     unrealized_gl: number
     unrealized_gl_pct: number
     unrealized_gl_with_fees: number

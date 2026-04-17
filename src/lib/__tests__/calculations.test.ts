@@ -157,7 +157,7 @@ describe('aggregateHoldings — FEE', () => {
         ]
         const [h] = aggregateHoldings(txs, [ethTd])
 
-        expect(h.total_fees).toBe(17) // 5 + 10 + 2
+        expect(h.total_fees).toBe(17)
     })
 
     it('should affect unrealized G/L with fees', () => {
@@ -193,7 +193,6 @@ describe('aggregateHoldings — SELL', () => {
         // avgCost = 2000, costOfSold = 2000 * 0.5 = 1000
         // realizedGl = 1500 - 1000 = 500
         expect(h.realized_gl).toBeCloseTo(500)
-        expect(h.realized_gl_pct).toBeCloseTo(50) // 500 / 1000 * 100
         expect(h.total_quantity).toBeCloseTo(0.5)
         expect(h.total_invested).toBeCloseTo(1000) // 2000 - 1000
     })
@@ -213,7 +212,6 @@ describe('aggregateHoldings — SELL', () => {
 
         // costOfSold = 2000 * 0.5 = 1000, realizedGl = 500 - 1000 = -500
         expect(h.realized_gl).toBeCloseTo(-500)
-        expect(h.realized_gl_pct).toBeCloseTo(-50)
     })
 
     it('should handle selling entire position', () => {
@@ -336,14 +334,6 @@ describe('aggregateHoldings — total G/L', () => {
 // ─── Percentage calculations (pct edge cases) ───────────────────────────────
 
 describe('aggregateHoldings — percentage edge cases', () => {
-    it('should return 0% for realized_gl_pct when no sells', () => {
-        const txs = [makeTx({ id: '1', ticker_id: Ticker.ETH, value: 1000, quantity: 0.5 })]
-        const [h] = aggregateHoldings(txs, [ethTd])
-
-        // realizedCostBasis = 0, so pct returns 0
-        expect(h.realized_gl_pct).toBe(0)
-    })
-
     it('should return 0% for unrealized_gl_pct when total_invested is 0', () => {
         // Only rewards, no buys
         const txs = [
