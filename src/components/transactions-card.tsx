@@ -77,8 +77,8 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                                             'blur-md select-none': hidePrices,
                                         })}
                                     >
-                                        {tx.buy_price != null
-                                            ? formatCurrency(tx.buy_price, currency)
+                                        {tx.transaction_price != null
+                                            ? formatCurrency(tx.transaction_price, currency)
                                             : '—'}
                                     </TableCell>
                                     <TableCell

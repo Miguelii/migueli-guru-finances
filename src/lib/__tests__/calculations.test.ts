@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { aggregateHoldings } from '@/lib/calculations'
+import { aggregateHoldings, computePortfolioTotals } from '@/lib/calculations'
 import type { Transaction, TickerData } from '@/types/Transaction'
 import { TransactionType, Ticker, Currency } from '@/types/Transaction'
 
@@ -184,7 +184,7 @@ describe('aggregateHoldings — SELL', () => {
                 id: '2',
                 ticker_id: Ticker.ETH,
                 type: TransactionType.Sell,
-                value: 1500,
+                transaction_price: 3000,
                 quantity: 0.5,
             }),
         ]
@@ -205,7 +205,7 @@ describe('aggregateHoldings — SELL', () => {
                 id: '2',
                 ticker_id: Ticker.ETH,
                 type: TransactionType.Sell,
-                value: 500,
+                transaction_price: 1000,
                 quantity: 0.5,
             }),
         ]
@@ -223,7 +223,7 @@ describe('aggregateHoldings — SELL', () => {
                 id: '2',
                 ticker_id: Ticker.ETH,
                 type: TransactionType.Sell,
-                value: 3000,
+                transaction_price: 3000,
                 quantity: 1,
             }),
         ]
@@ -242,14 +242,14 @@ describe('aggregateHoldings — SELL', () => {
                 id: '2',
                 ticker_id: Ticker.ETH,
                 type: TransactionType.Sell,
-                value: 1500,
+                transaction_price: 3000,
                 quantity: 0.5,
             }),
             makeTx({
                 id: '3',
                 ticker_id: Ticker.ETH,
                 type: TransactionType.Sell,
-                value: 2500,
+                transaction_price: 5000,
                 quantity: 0.5,
             }),
         ]
@@ -307,7 +307,7 @@ describe('aggregateHoldings — total G/L', () => {
                 id: '2',
                 ticker_id: Ticker.ETH,
                 type: TransactionType.Sell,
-                value: 1500,
+                transaction_price: 3000,
                 quantity: 0.5,
             }),
         ]
@@ -388,5 +388,87 @@ describe('aggregateHoldings — multi-ticker', () => {
 
         expect(eth.total_fees).toBe(10)
         expect(sol.total_fees).toBe(3)
+    })
+})
+
+// ─── computePortfolioTotals ──────────────────────────────────────────────────
+
+describe('computePortfolioTotals', () => {
+    const rates = { usdToEur: 0.85, usdcToEur: 1 } // Mock rates
+
+    it('should compute totals for holdings with no sells', () => {
+        const holdings = [
+            {
+                ticker_id: Ticker.ETH,
+                total_invested: 1000,
+                current_value: 2000,
+                realized_gl: 0,
+                currency: Currency.EUR,
+            } as any,
+        ]
+        const result = computePortfolioTotals(holdings, rates)
+
+        expect(result.totalInvested).toBe(1000)
+        expect(result.currentValue).toBe(2000)
+        expect(result.glValue).toBe(1000)
+        expect(result.glPct).toBe(100)
+        expect(result.totalRealize).toBe(0)
+    })
+
+    it('should compute totals including realized gains', () => {
+        const holdings = [
+            {
+                ticker_id: Ticker.ETH,
+                total_invested: 500, // After selling half
+                current_value: 1000,
+                realized_gl: 500, // Profit from selling half
+                currency: Currency.EUR,
+            } as any,
+        ]
+        const result = computePortfolioTotals(holdings, rates)
+
+        expect(result.totalInvested).toBe(500)
+        expect(result.currentValue).toBe(1000)
+        expect(result.glValue).toBe(1000) // 1000 - 500 + 500
+        expect(result.glPct).toBe(200)
+        expect(result.totalRealize).toBe(500)
+    })
+
+    it('should handle sold everything scenario', () => {
+        const holdings = [
+            {
+                ticker_id: Ticker.ETH,
+                total_invested: 0, // Sold everything
+                current_value: 0,
+                realized_gl: 500, // Profit from selling
+                currency: Currency.EUR,
+            } as any,
+        ]
+        const result = computePortfolioTotals(holdings, rates)
+
+        expect(result.totalInvested).toBe(0)
+        expect(result.currentValue).toBe(0)
+        expect(result.glValue).toBe(500) // 0 - 0 + 500
+        expect(result.glPct).toBe(0) // Since totalInvested is 0
+        expect(result.totalRealize).toBe(500)
+    })
+
+    it('should handle multiple currencies with conversion', () => {
+        const holdings = [
+            {
+                ticker_id: Ticker.ETH,
+                total_invested: 1000,
+                current_value: 2000,
+                realized_gl: 0,
+                currency: Currency.USD,
+            } as any,
+        ]
+        const result = computePortfolioTotals(holdings, rates)
+
+        expect(result.totalInvested).toBeCloseTo(850) // 1000 * 0.85
+        expect(result.currentValue).toBeCloseTo(1700) // 2000 * 0.85
+        expect(result.glValue).toBeCloseTo(850) // 1700 - 850 + 0
+        expect(result.glPct).toBe(100)
+        expect(result.totalRealize).toBe(0)
     })
 })

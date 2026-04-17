@@ -88,10 +88,14 @@ function applysells(txs: Transaction[], basis: CostBasis): RealizedMetrics {
     for (const tx of txs) {
         if (tx.type !== TransactionType.Sell) continue
 
-        const costOfSold = basis.avgCost * (tx.quantity ?? 0)
-        realizedGl += (tx.value ?? 0) - costOfSold
+        const sellPrice = tx.transaction_price ?? 0
+        const quantity = tx.quantity ?? 0
+        const costOfSold = basis.avgCost * quantity
+        const sellProceeds = sellPrice * quantity
+
+        realizedGl += sellProceeds - costOfSold
         realizedCostBasis += costOfSold
-        totalQuantity -= tx.quantity ?? 0
+        totalQuantity -= quantity
         totalInvested -= costOfSold
     }
 
@@ -212,9 +216,9 @@ export function computePortfolioTotals(
         0
     )
 
-    const netInvested = totalInvested - totalRealize
+    const netInvested = totalInvested
 
-    const glValue = currentValue - netInvested
+    const glValue = currentValue - netInvested + totalRealize
 
     const glPct = netInvested !== 0 ? (glValue / netInvested) * 100 : 0
 

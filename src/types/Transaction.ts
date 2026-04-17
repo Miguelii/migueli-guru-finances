@@ -12,7 +12,7 @@ export type Transaction = {
     buy_date: `${number}-${number}-${number} ${number}:${number}:${number}`
     value?: number
     quantity?: number
-    buy_price?: number
+    transaction_price?: number
     fee: number
 }
 
