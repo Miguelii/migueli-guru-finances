@@ -161,13 +161,13 @@ describe('groupAssetsByType', () => {
 
 // ─── getCambioRates ──────────────────────────────────────────────────────
 
-type PickTickerData = Pick<TickerData, 'currency' | 'curr_price'>
+type PickTickerData = Pick<TickerData, 'ticker' | 'curr_price'>
 
 describe('getCambioRates', () => {
     it('should return correct rates for USD and USDC', () => {
         const data: PickTickerData[] = [
-            { currency: Currency.USD, curr_price: 0.92 },
-            { currency: Currency.USDC, curr_price: 0.91 },
+            { ticker: Ticker.USD_EUR, curr_price: 0.92 },
+            { ticker: Ticker.USDC_EUR, curr_price: 0.91 },
         ]
 
         expect(getCambioRates(data as TickerData[])).toEqual({
@@ -177,7 +177,7 @@ describe('getCambioRates', () => {
     })
 
     it('should return 0 when USD is missing', () => {
-        const data: PickTickerData[] = [{ currency: Currency.USDC, curr_price: 0.91 }]
+        const data: PickTickerData[] = [{ ticker: Ticker.USDC_EUR, curr_price: 0.91 }]
 
         expect(getCambioRates(data as TickerData[])).toEqual({
             usdToEur: 0,
@@ -186,7 +186,7 @@ describe('getCambioRates', () => {
     })
 
     it('should return 0 when USDC is missing', () => {
-        const data: PickTickerData[] = [{ currency: Currency.USD, curr_price: 0.92 }]
+        const data: PickTickerData[] = [{ ticker: Ticker.USD_EUR, curr_price: 0.92 }]
 
         expect(getCambioRates(data as TickerData[])).toEqual({
             usdToEur: 0.92,

@@ -54,8 +54,9 @@ function groupByTicker(transactions: Transaction[]): Map<Ticker, Transaction[]> 
  * invested totals, and fees to build the cost basis.
  *
  * @param txs - Transactions for a single ticker.
+ * @param currency - The currency of this ticker.
  */
-function buildCostBasis(txs: Transaction[]): CostBasis {
+function buildCostBasis(txs: Transaction[], currency: TickerData['currency']): CostBasis {
     let totalQuantity = 0
     let totalInvested = 0
     let buyFees = 0
@@ -64,7 +65,16 @@ function buildCostBasis(txs: Transaction[]): CostBasis {
     for (const tx of txs) {
         if (tx.type === TransactionType.Buy) {
             totalQuantity += tx.quantity ?? 0
-            totalInvested += tx.value ?? 0
+
+            // Calculate investment value: use value if available, otherwise calculate from transaction_price
+            let investmentValue = tx.value ?? (tx.transaction_price ?? 0) * (tx.quantity ?? 0)
+
+            // Convert from USD to EUR if needed (exchange_rate = EUR/USD means 1 EUR = X USD)
+            if (currency === Currency.USD && tx.exchange_rate) {
+                investmentValue = investmentValue / tx.exchange_rate
+            }
+
+            totalInvested += investmentValue
             buyFees += tx.fee
         } else if (tx.type === TransactionType.Reward) {
             totalQuantity += tx.quantity ?? 0
@@ -85,8 +95,13 @@ function buildCostBasis(txs: Transaction[]): CostBasis {
  *
  * @param txs - Transactions for a single ticker.
  * @param basis - The cost basis computed from the first pass.
+ * @param currency - The currency of this ticker.
  */
-function applysells(txs: Transaction[], basis: CostBasis): RealizedMetrics {
+function applysells(
+    txs: Transaction[],
+    basis: CostBasis,
+    currency: TickerData['currency']
+): RealizedMetrics {
     let { totalQuantity, totalInvested } = basis
     let realizedGl = 0
     let realizedCostBasis = 0
@@ -95,10 +110,17 @@ function applysells(txs: Transaction[], basis: CostBasis): RealizedMetrics {
     for (const tx of txs) {
         if (tx.type !== TransactionType.Sell) continue
 
-        const sellPrice = tx.transaction_price ?? 0
         const quantity = tx.quantity ?? 0
         const costOfSold = basis.avgCost * quantity
-        const sellProceeds = sellPrice * quantity
+
+        // Calculate sell proceeds: use value if available, otherwise calculate from transaction_price
+        let sellProceeds = tx.value ?? (tx.transaction_price ?? 0) * quantity
+
+        // Convert from USD to EUR if needed (exchange_rate = EUR/USD means 1 EUR = X USD)
+        if (currency === Currency.USD && tx.exchange_rate) {
+            sellProceeds = sellProceeds / tx.exchange_rate
+        }
+
         const sellFee = tx.fee
 
         realizedGl += sellProceeds - costOfSold - sellFee
@@ -123,23 +145,26 @@ function buildHolding(
     txs: Transaction[],
     td: TickerData | undefined
 ): HoldingSummary {
-    const basis = buildCostBasis(txs)
-    const sells = applysells(txs, basis)
+    const tickerCurrency = td?.currency ?? Currency.EUR
+
+    const basis = buildCostBasis(txs, tickerCurrency)
+    const sells = applysells(txs, basis, tickerCurrency)
 
     const { totalQuantity, totalInvested, realizedGl, realizedCostBasis, totalSellFees } = sells
     const { buyFees, otherFees } = basis
+    const totalFees = buyFees + totalSellFees + otherFees
 
     const currentPrice = td?.curr_price ?? 0
     const currentValue = totalQuantity * currentPrice
     const avgCostPerShare = totalQuantity > 0 ? totalInvested / totalQuantity : basis.avgCost
 
     const unrealizedGl = currentValue - totalInvested
-    const costBasis = totalInvested + buyFees
-    const unrealizedGlWithFees = currentValue - costBasis
+    const unrealizedGlWithFees = currentValue - totalInvested - totalFees
+    const unrealizedGlPct = pct(unrealizedGl, totalInvested)
+    const unrealizedGlWithFeesPct = pct(unrealizedGlWithFees, totalInvested + totalFees)
 
     const totalGl = realizedGl + unrealizedGl
     const totalCostBasis = totalInvested + realizedCostBasis
-    const totalFees = buyFees + totalSellFees + otherFees
     const totalGlWithFees = totalGl - totalFees
     const totalCostBasisWithFees = totalCostBasis + totalFees
 
@@ -158,9 +183,9 @@ function buildHolding(
         avg_cost_per_share: avgCostPerShare,
         realized_gl: realizedGl,
         unrealized_gl: unrealizedGl,
-        unrealized_gl_pct: pct(unrealizedGl, totalInvested),
+        unrealized_gl_pct: unrealizedGlPct,
         unrealized_gl_with_fees: unrealizedGlWithFees,
-        unrealized_gl_with_fees_pct: pct(unrealizedGlWithFees, costBasis),
+        unrealized_gl_with_fees_pct: unrealizedGlWithFeesPct,
         total_gl: totalGl,
         total_gl_pct: pct(totalGl, totalCostBasis),
         total_gl_with_fees: totalGlWithFees,

@@ -44,7 +44,9 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
 
     const currencyMap = new Map<Ticker, Currency>(tickerData.map((td) => [td.ticker, td.currency]))
 
-    const uniqueAssets = Array.from(new Set(transactions.map((tx) => tx.ticker_id))).sort()
+    const uniqueAssets = Array.from(new Set(transactions.map((tx) => tx.ticker_id))).toSorted(
+        (a, b) => a.localeCompare(b)
+    )
 
     const filteredTransactions =
         selectedAsset === 'all'

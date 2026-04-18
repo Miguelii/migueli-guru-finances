@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { Currency, type CambioRates, type TickerData } from '@/types/Transaction'
+import { Currency, Ticker, type CambioRates, type TickerData } from '@/types/Transaction'
 
 /**
  * Merges Tailwind CSS classes with `clsx` and `tailwind-merge`,
@@ -73,9 +73,9 @@ export function groupAssetsByType(items: TickerData[]): Map<TickerData['type'], 
 export function getCambioRates(data: TickerData[]): CambioRates {
     const rates: CambioRates = { usdToEur: 0, usdcToEur: 0 }
 
-    for (const { currency, curr_price } of data) {
-        if (currency === Currency.USD) rates.usdToEur = curr_price ?? 0
-        if (currency === Currency.USDC) rates.usdcToEur = curr_price ?? 0
+    for (const { curr_price, ticker } of data) {
+        if (ticker === Ticker.USD_EUR) rates.usdToEur = curr_price ?? 0
+        if (ticker === Ticker.USDC_EUR) rates.usdcToEur = curr_price ?? 0
     }
 
     return rates

@@ -14,6 +14,7 @@ export type Transaction = {
     quantity?: number
     transaction_price?: number
     fee: number
+    exchange_rate?: number // EUR/USD rate at time of transaction (for USD-denominated assets)
 }
 
 export enum Ticker {
