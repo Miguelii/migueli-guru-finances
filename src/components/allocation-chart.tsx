@@ -37,7 +37,7 @@ export function AllocationChart({ holdings, rates, hidePrices }: Props) {
                     value: valueInEur,
                     percentage: totalValue > 0 ? (valueInEur / totalValue) * 100 : 0,
                     currency: Currency.EUR,
-                    fill: h.tickerHexColor,
+                    fill: h?.tickerHexColor ?? '#fffff',
                 }
             }),
         [holdings, rates, totalValue]
