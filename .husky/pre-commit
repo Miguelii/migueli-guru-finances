@@ -1,0 +1,4 @@
+pnpm fmt
+git diff --quiet || git add -A
+pnpm check
+pnpm knip

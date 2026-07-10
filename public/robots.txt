@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /portfolio/
+
+Sitemap: https://migueli-guru-finances.vercel.app/sitemap.xml
