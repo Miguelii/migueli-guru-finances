@@ -105,6 +105,10 @@ export function TransactionDrawer({ open, onOpenChange, tickerData, transaction 
         }
     }
 
+    const getButtonLabel = () => {
+        return isEdit ? 'Save changes' : 'Add transaction'
+    }
+
     const assets = tickerData.filter((tick) => tick.type !== 'CAMBIO')
 
     return (
@@ -302,10 +306,8 @@ export function TransactionDrawer({ open, onOpenChange, tickerData, transaction 
                                     <Loader2Icon className="size-4 animate-spin" />
                                     Saving...
                                 </span>
-                            ) : isEdit ? (
-                                'Save changes'
                             ) : (
-                                'Add transaction'
+                                getButtonLabel()
                             )}
                         </Button>
                     </SheetFooter>

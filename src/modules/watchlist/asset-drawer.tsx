@@ -82,6 +82,10 @@ export function AssetDrawer({ open, onOpenChange, asset }: Props) {
         else createAsset.mutate(payload)
     }
 
+    const getButtonLabel = () => {
+        return isEdit ? 'Save changes' : 'Add asset'
+    }
+
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent side="right" className="overflow-y-auto">
@@ -268,10 +272,8 @@ export function AssetDrawer({ open, onOpenChange, asset }: Props) {
                                     <Loader2Icon className="size-4 animate-spin" />
                                     {isEdit ? 'Saving...' : 'Creating...'}
                                 </span>
-                            ) : isEdit ? (
-                                'Save changes'
                             ) : (
-                                'Add asset'
+                                getButtonLabel()
                             )}
                         </Button>
                     </SheetFooter>

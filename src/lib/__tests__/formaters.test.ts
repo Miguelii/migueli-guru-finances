@@ -5,52 +5,31 @@ import { Currency } from '@/types/Transaction'
 // ─── formatCurrency ──────────────────────────────────────────────────────────
 
 describe('formatCurrency', () => {
-    it('should format EUR values', () => {
-        const result = formatCurrency(1234.56, Currency.EUR)
-        expect(result).toContain('1')
-        expect(result).toContain('234')
-        expect(result).toContain('56')
-        expect(result).toContain('€')
-    })
-
-    it('should format USD values', () => {
-        const result = formatCurrency(1000, Currency.USD)
-        expect(result).toContain('1')
-        expect(result).toContain('000')
-        expect(result).toContain('$')
-    })
-
-    it('should round to 2 decimal places by default', () => {
-        const result = formatCurrency(99.999, Currency.EUR)
-        // 99.999 rounded to 2 decimals = 100.00
-        expect(result).toContain('100')
-    })
-
-    it('should format USD values', () => {
-        const result = formatCurrency(1000, Currency.USDC)
-        expect(result).toContain('1')
-        expect(result).toContain('000')
-        expect(result).toContain('USDC')
+    it.each([
+        ['EUR values', 1234.56, Currency.EUR, ['1', '234', '56', '€']],
+        ['USD values', 1000, Currency.USD, ['1', '000', '$']],
+        ['values rounded to 2 decimal places by default', 99.999, Currency.EUR, ['100']],
+        ['USDC values', 1000, Currency.USDC, ['1', '000', 'USDC']],
+    ])('should format %s', (_label, value, currency, expected) => {
+        const result = formatCurrency(value, currency)
+        for (const part of expected) {
+            expect(result).toContain(part)
+        }
     })
 })
 
 // ─── formatQuantity ──────────────────────────────────────────────────────────
 
 describe('formatQuantity', () => {
-    it('should format integer without trailing decimals', () => {
-        expect(formatQuantity(5)).toBe('5')
-    })
-
-    it('should format with up to 4 decimal places by default', () => {
-        expect(formatQuantity(1.23456)).toBe('1,2346')
-    })
-
-    it('should respect custom decimal places', () => {
-        expect(formatQuantity(1.23456, 2)).toBe('1,23')
-    })
-
-    it('should use pt-PT locale (comma as decimal separator)', () => {
-        expect(formatQuantity(0.5)).toBe('0,5')
+    it.each([
+        ['integer without trailing decimals', 5, undefined, '5'],
+        ['with up to 4 decimal places by default', 1.23456, undefined, '1,2346'],
+        ['with custom decimal places', 1.23456, 2, '1,23'],
+        ['with pt-PT locale (comma as decimal separator)', 0.5, undefined, '0,5'],
+        ['zero', 0, undefined, '0'],
+        ['stripping unnecessary trailing zeros', 1.1, undefined, '1,1'],
+    ])('should format %s', (_label, value, decimals, expected) => {
+        expect(formatQuantity(value, decimals)).toBe(expected)
     })
 
     it('should format large numbers with thousand separator', () => {
@@ -58,69 +37,35 @@ describe('formatQuantity', () => {
         // jsdom may use narrow no-break space instead of dot as thousand separator
         expect(result.replaceAll(/\s/g, '')).toBe('10000')
     })
-
-    it('should format zero', () => {
-        expect(formatQuantity(0)).toBe('0')
-    })
-
-    it('should strip unnecessary trailing zeros', () => {
-        expect(formatQuantity(1.1)).toBe('1,1')
-    })
 })
 
 // ─── formatPercentage ────────────────────────────────────────────────────────
 
 describe('formatPercentage', () => {
-    it('should format positive percentage', () => {
-        expect(formatPercentage(12.345)).toBe('12.35%')
-    })
-
-    it('should format negative percentage', () => {
-        expect(formatPercentage(-5.1)).toBe('-5.10%')
-    })
-
-    it('should format zero', () => {
-        expect(formatPercentage(0)).toBe('0.00%')
-    })
-
-    it('should always show 2 decimal places', () => {
-        expect(formatPercentage(100)).toBe('100.00%')
-    })
-
-    it('should round to 2 decimal places', () => {
-        expect(formatPercentage(33.339)).toBe('33.34%')
+    it.each([
+        ['positive percentage', 12.345, '12.35%'],
+        ['negative percentage', -5.1, '-5.10%'],
+        ['zero', 0, '0.00%'],
+        ['always showing 2 decimal places', 100, '100.00%'],
+        ['rounding to 2 decimal places', 33.339, '33.34%'],
+    ])('should format %s', (_label, value, expected) => {
+        expect(formatPercentage(value)).toBe(expected)
     })
 })
 
 // ─── formatDate ──────────────────────────────────────────────────────────────
 
 describe('formatDate', () => {
-    it('should format a date string with space separator', () => {
-        const result = formatDate('2026-03-17 10:00:00')
-        expect(result).toContain('17')
-        expect(result).toContain('2026')
-    })
-
-    it('should format a date string with T separator', () => {
-        const result = formatDate('2026-03-17T10:00:00')
-        expect(result).toContain('17')
-        expect(result).toContain('2026')
-    })
-
-    it('should include day and year for January date', () => {
-        const result = formatDate('2026-01-15 08:00:00')
-        expect(result).toContain('15')
-        expect(result).toContain('2026')
-    })
-
-    it('should include day and year for December date', () => {
-        const result = formatDate('2026-12-25 00:00:00')
-        expect(result).toContain('25')
-        expect(result).toContain('2026')
-    })
-
-    it('should pad single-digit days with leading zero', () => {
-        const result = formatDate('2026-06-05 12:00:00')
-        expect(result).toContain('05')
+    it.each([
+        ['date string with space separator', '2026-03-17 10:00:00', ['17', '2026']],
+        ['date string with T separator', '2026-03-17T10:00:00', ['17', '2026']],
+        ['January date with day and year', '2026-01-15 08:00:00', ['15', '2026']],
+        ['December date with day and year', '2026-12-25 00:00:00', ['25', '2026']],
+        ['single-digit day padded with leading zero', '2026-06-05 12:00:00', ['05']],
+    ])('should format %s', (_label, input, expected) => {
+        const result = formatDate(input)
+        for (const part of expected) {
+            expect(result).toContain(part)
+        }
     })
 })

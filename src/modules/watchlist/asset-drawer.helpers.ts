@@ -36,7 +36,9 @@ export function readFileAsDataUrl(file: File) {
     return new Promise<string>((resolve, reject) => {
         const reader = new FileReader()
         reader.addEventListener('load', () => resolve(reader.result as string))
-        reader.addEventListener('error', () => reject(reader.error))
+        reader.addEventListener('error', () =>
+            reject(new Error('Failed to read file', { cause: reader.error }))
+        )
         reader.readAsDataURL(file)
     })
 }
