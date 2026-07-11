@@ -171,7 +171,7 @@ scripts/
 - **Secrets**: API key and endpoint URL stored in Supabase Vault (`update_tickers_api_key`, `update_tickers_url`)
 
 ### tRPC API Layer
-- **appRouter** (`src/_trpc/api/index.ts`): `auth` (login, signOut), `assets` (getAll, create, updateTickersPrices), `transactions` (getAll, create, update, delete); served by `app/api/trpc/[trpc]/route.ts` (fetch adapter)
+- **appRouter** (`src/_trpc/router/index.ts`): `auth` (login, signOut), `assets` (getAll, create, updateTickersPrices), `transactions` (getAll, create, update, delete); served by `app/api/trpc/[trpc]/route.ts` (fetch adapter)
 - **Mutations + caching**: create/update/delete mutations end with `revalidateTag(...)` + `revalidatePath(PRIVATE_ROUTE_PATH, 'layout')`; the client calls `router.refresh()` on success — without the tag revalidation the `unstable_cache` data would stay stale. Transactions cache entries carry two tags: the global `getAllTransactions` (invalidated by the ticker-prices flows, which affect every user) and a per-user `getAllTransactions:<userId>` (built via `getAllTransactionsCacheTag`, invalidated by that user's create/update/delete mutations). Assets keep a single global `getAssets` tag because the `data` table is shared across users
 - **Transactions CRUD**: inserts/updates/deletes are scoped by `user_id = ctx.user.id` (explicit column filter on top of RLS)
 - **Procedure pattern**: each `*.service.ts` keeps the Effect business-logic function **private** and exports the tRPC procedure named `<ACTION>_<PUBLIC|PROTECTED>_CONTROLLER`; the module's `*.router.ts` only composes controllers into `<FEATURE>_ROUTER`

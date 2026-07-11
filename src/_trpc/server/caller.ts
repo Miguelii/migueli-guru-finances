@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { appRouter } from '@/_trpc/api'
+import { appRouter } from '@/_trpc/router'
 import { createContext } from '@/_trpc/context'
 
 export const createCaller = async () => {
