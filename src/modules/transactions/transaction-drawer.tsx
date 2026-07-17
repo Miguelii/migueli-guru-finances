@@ -228,7 +228,7 @@ export function TransactionDrawer({ open, onOpenChange, tickerData, transaction 
                         control={form.control}
                         render={({ field }) => (
                             <Field>
-                                <FieldLabel htmlFor={field.name}>Price</FieldLabel>
+                                <FieldLabel htmlFor={field.name}>Buy Price</FieldLabel>
                                 <Input
                                     {...field}
                                     id={field.name}
@@ -246,7 +246,7 @@ export function TransactionDrawer({ open, onOpenChange, tickerData, transaction 
                         control={form.control}
                         render={({ field }) => (
                             <Field>
-                                <FieldLabel htmlFor={field.name}>Value</FieldLabel>
+                                <FieldLabel htmlFor={field.name}>Invested Value</FieldLabel>
                                 <Input
                                     {...field}
                                     id={field.name}
