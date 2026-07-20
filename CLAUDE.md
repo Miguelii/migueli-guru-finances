@@ -136,6 +136,7 @@ Transaction types: `BUY`, `SELL`, `REWARD`, `FEE`
 - Deep Analysis enabled via Vercel Dashboard → Firewall → Rules
 
 ### Code Quality
+- **Component helpers/constants files (STRICTLY MANDATORY — no exceptions)**: helper functions used by a component live in a sibling `<component-name>.helpers.ts` file, and constants in `<component-name>.constants.ts` — never inline in the component file. Example: `transactions-card.tsx` imports from `transactions-card.helpers.ts` and `transactions-card.constants.ts`
 - No barrel exports (index.ts re-exports)
 - Import directly from the specific file
 - Always use the `@/*` path alias for imports — never use relative paths like `'./label'` or `'../utils'`

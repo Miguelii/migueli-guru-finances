@@ -32,26 +32,14 @@ import { parseAsString, useQueryState } from 'nuqs'
 import { paramsUrlKeys } from '@/lib/searchParams'
 import { TransactionDrawer } from '@/modules/transactions/transaction-drawer'
 import { DeleteTransactionDialog } from '@/modules/transactions/delete-transaction-dialog'
+import { getSellEligibility, getSellEligibilityLabel } from './transactions-card.helpers'
+import { TYPE_BADGE_VARIANT, TYPE_LABEL } from './transactions-card.constants'
 
 type Props = {
     transactions: Transaction[]
     tickerData: TickerData[]
     hidePrices: boolean
 }
-
-const TYPE_BADGE_VARIANT = {
-    [TransactionType.Buy]: 'success',
-    [TransactionType.Sell]: 'alert',
-    [TransactionType.Reward]: 'secondary',
-    [TransactionType.Fee]: 'outline',
-} as const
-
-const TYPE_LABEL = {
-    [TransactionType.Buy]: 'Buy',
-    [TransactionType.Sell]: 'Sell',
-    [TransactionType.Reward]: 'Reward',
-    [TransactionType.Fee]: 'Fee',
-} as const
 
 export function TransactionsCard({ transactions, tickerData, hidePrices }: Props) {
     const [selectedAsset, setSelectedAsset] = useQueryState(
@@ -64,6 +52,10 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
     const [deleting, setDeleting] = useState<Transaction | null>(null)
 
     const currencyMap = new Map<Ticker, Currency>(tickerData.map((td) => [td.ticker, td.currency]))
+
+    const assetTypeMap = new Map<Ticker, TickerData['type']>(
+        tickerData.map((td) => [td.ticker, td.type])
+    )
 
     const uniqueAssets = Array.from(new Set(transactions.map((tx) => tx.ticker_id))).toSorted(
         (a, b) => a.localeCompare(b)
@@ -120,6 +112,7 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                             <TableHead>Date</TableHead>
                             <TableHead>Asset</TableHead>
                             <TableHead>Type</TableHead>
+                            <TableHead>Can I Sell</TableHead>
                             <TableHead className="text-right">Quantity</TableHead>
                             <TableHead className="text-right">Price</TableHead>
                             <TableHead className="text-right">Value</TableHead>
@@ -130,6 +123,10 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                     <TableBody>
                         {filteredTransactions.map((tx) => {
                             const currency = currencyMap.get(tx.ticker_id) ?? Currency.EUR
+                            const sellEligibility = getSellEligibility(
+                                tx,
+                                assetTypeMap.get(tx.ticker_id)
+                            )
                             return (
                                 <TableRow
                                     key={tx.id}
@@ -143,6 +140,14 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                                         <Badge variant={TYPE_BADGE_VARIANT[tx.type]}>
                                             {TYPE_LABEL[tx.type]}
                                         </Badge>
+                                    </TableCell>
+                                    <TableCell
+                                        className={cn('text-xs font-medium', {
+                                            'text-success': sellEligibility?.canSell,
+                                            'text-muted-foreground': sellEligibility === null,
+                                        })}
+                                    >
+                                        {getSellEligibilityLabel(sellEligibility)}
                                     </TableCell>
                                     <TableCell
                                         className={cn('text-right tabular-nums', {
