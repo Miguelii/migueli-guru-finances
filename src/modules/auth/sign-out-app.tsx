@@ -22,14 +22,14 @@ export function SignOutApp() {
             size="icon"
             onClick={onClick}
             disabled={signOut.isPending}
-            className="h-9 w-full cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
+            className="h-8 w-full cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
         >
             {signOut.isPending ? (
                 <Loader2Icon className="size-4 animate-spin" />
             ) : (
                 <LogOutIcon className="size-4" />
             )}
-            <span>Sign Out</span>
+            <span className="group-data-[collapsible=icon]:hidden">Sign Out</span>
         </Button>
     )
 }

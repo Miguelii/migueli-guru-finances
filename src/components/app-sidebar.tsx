@@ -8,79 +8,50 @@ import {
     SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarTrigger,
     useSidebar,
 } from '@/components/ui/sidebar'
-import { CircleDollarSignIcon, LayoutDashboardIcon, type LucideProps } from 'lucide-react'
+import { NAV_GROUPS, type NavGroup } from '@/components/app-sidebar.constants'
 import Image from 'next/image'
-import { PRICES_ROUTE_PATH, PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import Link from 'next/link'
 import { SignOutApp } from '@/modules/auth/sign-out-app'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
-
-type NavIcon = React.ForwardRefExoticComponent<
-    Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
->
-
-type NavMain = {
-    title: string
-    url: string
-    Icon: NavIcon
-}
-
-const data: { navMain: NavMain[] } = {
-    navMain: [
-        {
-            title: 'Portfolio',
-            url: PRIVATE_ROUTE_PATH,
-            Icon: LayoutDashboardIcon,
-        },
-        {
-            title: 'Watchlist',
-            url: PRICES_ROUTE_PATH,
-            Icon: CircleDollarSignIcon,
-        },
-    ],
-}
+import { usePathname, useSearchParams } from 'next/navigation'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
-        <Sidebar collapsible="offcanvas" {...props}>
+        <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton className="data-[slot=sidebar-menu-button]:p-1.5! h-full">
-                            <div className="flex items-center gap-2.5 h-full w-full">
-                                <Image
-                                    src="/assets/logo.webp"
-                                    width={32}
-                                    height={32}
-                                    className="object-cover"
-                                    alt="Migueli Guru Finances Logo"
-                                    unoptimized
-                                />
-                                <span className="text-base font-bold tracking-tight flex-wrap">
-                                    Migueli Finances
-                                </span>
-                            </div>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                <div className="flex items-center gap-2.5 p-1.5">
+                    <Image
+                        src="/assets/logo.webp"
+                        width={32}
+                        height={32}
+                        className="object-cover shrink-0 group-data-[collapsible=icon]:hidden"
+                        alt="Migueli Guru Finances Logo"
+                        unoptimized
+                    />
+                    <span className="text-base font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+                        Migueli Finances
+                    </span>
+                    <SidebarTrigger className="ml-auto cursor-pointer group-data-[collapsible=icon]:ml-0" />
+                </div>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
+                <NavMain groups={NAV_GROUPS} />
             </SidebarContent>
-            <SidebarFooter className="p-3 flex flex-col gap-5">
+            <SidebarFooter className="py-3 flex flex-col gap-5">
                 <Image
                     src="/assets/funny.webp"
                     width={280}
                     height={200}
-                    className="w-full rounded-none"
+                    className="w-full rounded-none group-data-[collapsible=icon]:hidden"
                     alt="Vais ser pobre para sempre"
                     unoptimized
                     loading="eager"
@@ -91,10 +62,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     )
 }
 
-function NavMain({ items }: { items: NavMain[] }) {
+function NavMain({ groups }: { groups: NavGroup[] }) {
     const sidebar = useSidebar()
     const isMobile = useIsMobile()
 
+    const pathname = usePathname()
     const searchParams = useSearchParams()
 
     const onClick = useCallback(() => {
@@ -102,33 +74,39 @@ function NavMain({ items }: { items: NavMain[] }) {
     }, [isMobile, sidebar])
 
     return (
-        <SidebarGroup>
-            <SidebarGroupContent className="flex flex-col gap-2">
-                <SidebarMenu>
-                    {items?.map((item) => {
-                        const Icon = item.Icon
-                        return (
-                            <Link
-                                key={item.title}
-                                className="contents"
-                                prefetch={false}
-                                href={`${item.url}?${searchParams.toString()}`}
-                                onClick={() => onClick()}
-                            >
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton
-                                        tooltip={item.title}
-                                        className="cursor-pointer!"
+        <>
+            {groups.map((group, index) => (
+                <SidebarGroup key={group.label ?? index}>
+                    {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+                    <SidebarGroupContent className="flex flex-col gap-2">
+                        <SidebarMenu>
+                            {group.items.map((item) => {
+                                const Icon = item.Icon
+                                return (
+                                    <Link
+                                        key={item.title}
+                                        className="contents"
+                                        prefetch={false}
+                                        href={`${item.url}?${searchParams.toString()}`}
+                                        onClick={() => onClick()}
                                     >
-                                        {Icon && <Icon />}
-                                        <span>{item.title}</span>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </Link>
-                        )
-                    })}
-                </SidebarMenu>
-            </SidebarGroupContent>
-        </SidebarGroup>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton
+                                                tooltip={item.title}
+                                                isActive={pathname === item.url}
+                                                className="cursor-pointer!"
+                                            >
+                                                {Icon && <Icon />}
+                                                <span>{item.title}</span>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </Link>
+                                )
+                            })}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            ))}
+        </>
     )
 }
