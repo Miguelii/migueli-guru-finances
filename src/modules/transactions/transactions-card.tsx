@@ -224,6 +224,7 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                     }
                 }}
                 tickerData={tickerData}
+                transactions={transactions}
                 transaction={editing}
             />
 

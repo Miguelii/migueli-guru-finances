@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -22,10 +22,16 @@ import {
 } from '@/components/ui/sheet'
 import { trpcClient } from '@/_trpc/client'
 import { TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
+import { TransactionPreview } from '@/modules/transactions/transaction-preview'
 import { Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { toDbDate, toFormValues, toNumber } from './transaction-drawer.helpers'
+import {
+    computeHoldingPreview,
+    toDbDate,
+    toFormValues,
+    toNumber,
+} from '@/modules/transactions/transaction-drawer.helpers'
 
 export type FormValues = {
     ticker_id: string
@@ -42,6 +48,7 @@ type Props = {
     open: boolean
     onOpenChange: (open: boolean) => void
     tickerData: TickerData[]
+    transactions: Transaction[]
     transaction: Transaction | null
 }
 
@@ -56,11 +63,25 @@ const EMPTY_VALUES: FormValues = {
     exchange_rate: '',
 }
 
-export function TransactionDrawer({ open, onOpenChange, tickerData, transaction }: Props) {
+export function TransactionDrawer({
+    open,
+    onOpenChange,
+    tickerData,
+    transactions,
+    transaction,
+}: Props) {
     const router = useRouter()
     const isEdit = transaction !== null
 
     const form = useForm<FormValues>({ defaultValues: EMPTY_VALUES })
+
+    const watched = useWatch({ control: form.control })
+    const preview = computeHoldingPreview({
+        values: { ...EMPTY_VALUES, ...watched },
+        transactions,
+        tickerData,
+        editingId: transaction?.id ?? null,
+    })
 
     useEffect(() => {
         if (open) form.reset(transaction ? toFormValues(transaction) : EMPTY_VALUES)
@@ -298,6 +319,8 @@ export function TransactionDrawer({ open, onOpenChange, tickerData, transaction 
                             </Field>
                         )}
                     />
+
+                    {preview && <TransactionPreview preview={preview} />}
 
                     <SheetFooter className="px-0">
                         <Button type="submit" disabled={isPending} className="cursor-pointer">

@@ -8,7 +8,7 @@
         "start": "next start",
         "lint": "vp lint",
         "fmt": "vp fmt",
-        "typecheck": "npx tsc --noEmit",
+        "typecheck": "next typegen && npx tsc --noEmit",
         "check": "pnpm lint && pnpm typecheck && pnpm test",
         "convert:webp": "npx tsx scripts/convert-to-webp.ts",
         "test": "vp test run",
