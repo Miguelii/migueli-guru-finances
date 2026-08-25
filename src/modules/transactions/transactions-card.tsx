@@ -1,6 +1,5 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Table,
     TableBody,
@@ -34,6 +33,7 @@ import { TransactionDrawer } from '@/modules/transactions/transaction-drawer'
 import { DeleteTransactionDialog } from '@/modules/transactions/delete-transaction-dialog'
 import { getSellEligibility, getSellEligibilityLabel } from './transactions-card.helpers'
 import { TYPE_BADGE_VARIANT, TYPE_LABEL } from './transactions-card.constants'
+import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 
 type Props = {
     transactions: Transaction[]
@@ -67,10 +67,12 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
             : transactions.filter((tx) => tx.ticker_id === selectedAsset)
 
     return (
-        <Card className="flex w-full flex-col h-112.5 shadow-sm">
-            <CardHeader className="shrink-0 flex flex-row items-center justify-between gap-2">
-                <CardTitle>Transactions</CardTitle>
-                <div className="flex flex-row items-center gap-2">
+        <PortfolioCard
+            cardId="transactions"
+            title="Transactions"
+            className="flex flex-col"
+            actions={
+                <>
                     <Button
                         variant="outline"
                         size="sm"
@@ -103,117 +105,112 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                </div>
-            </CardHeader>
-            <CardContent className="min-h-0 flex-1 overflow-y-auto">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Asset</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Can I Sell</TableHead>
-                            <TableHead className="text-right">Quantity</TableHead>
-                            <TableHead className="text-right">Price</TableHead>
-                            <TableHead className="text-right">Value</TableHead>
-                            <TableHead className="text-right">Fee</TableHead>
-                            <TableHead className="w-20 text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filteredTransactions.map((tx) => {
-                            const currency = currencyMap.get(tx.ticker_id) ?? Currency.EUR
-                            const sellEligibility = getSellEligibility(
-                                tx,
-                                assetTypeMap.get(tx.ticker_id)
-                            )
-                            return (
-                                <TableRow
-                                    key={tx.id}
-                                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                </>
+            }
+            contentClassName="min-h-0 flex-1 overflow-y-auto"
+        >
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Asset</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Can I Sell</TableHead>
+                        <TableHead className="text-right">Quantity</TableHead>
+                        <TableHead className="text-right">Price</TableHead>
+                        <TableHead className="text-right">Value</TableHead>
+                        <TableHead className="text-right">Fee</TableHead>
+                        <TableHead className="w-20 text-right">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredTransactions.map((tx) => {
+                        const currency = currencyMap.get(tx.ticker_id) ?? Currency.EUR
+                        const sellEligibility = getSellEligibility(
+                            tx,
+                            assetTypeMap.get(tx.ticker_id)
+                        )
+                        return (
+                            <TableRow
+                                key={tx.id}
+                                className="cursor-pointer hover:bg-muted/50 transition-colors"
+                            >
+                                <TableCell className="text-muted-foreground">
+                                    {formatDate(tx.buy_date)}
+                                </TableCell>
+                                <TableCell className="font-medium">{tx.ticker_id}</TableCell>
+                                <TableCell>
+                                    <Badge variant={TYPE_BADGE_VARIANT[tx.type]}>
+                                        {TYPE_LABEL[tx.type]}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell
+                                    className={cn('text-xs font-medium', {
+                                        'text-success': sellEligibility?.canSell,
+                                        'text-muted-foreground': sellEligibility === null,
+                                    })}
                                 >
-                                    <TableCell className="text-muted-foreground">
-                                        {formatDate(tx.buy_date)}
-                                    </TableCell>
-                                    <TableCell className="font-medium">{tx.ticker_id}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={TYPE_BADGE_VARIANT[tx.type]}>
-                                            {TYPE_LABEL[tx.type]}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell
-                                        className={cn('text-xs font-medium', {
-                                            'text-success': sellEligibility?.canSell,
-                                            'text-muted-foreground': sellEligibility === null,
-                                        })}
-                                    >
-                                        {getSellEligibilityLabel(sellEligibility)}
-                                    </TableCell>
-                                    <TableCell
-                                        className={cn('text-right tabular-nums', {
-                                            'blur-md select-none': hidePrices,
-                                        })}
-                                    >
-                                        {tx.quantity != null && tx.type !== TransactionType.Fee
-                                            ? formatQuantity(tx.quantity)
-                                            : '—'}
-                                    </TableCell>
-                                    <TableCell
-                                        className={cn('text-right tabular-nums', {
-                                            'blur-md select-none': hidePrices,
-                                        })}
-                                    >
-                                        {tx.transaction_price != null
-                                            ? formatCurrency(tx.transaction_price, currency)
-                                            : '—'}
-                                    </TableCell>
-                                    <TableCell
-                                        className={cn('text-right tabular-nums', {
-                                            'blur-md select-none': hidePrices,
-                                        })}
-                                    >
-                                        {tx.value != null
-                                            ? formatCurrency(tx.value, currency)
-                                            : '—'}
-                                    </TableCell>
-                                    <TableCell
-                                        className={cn(
-                                            'text-right tabular-nums text-muted-foreground',
-                                            {
-                                                'blur-md select-none': hidePrices,
-                                            }
-                                        )}
-                                    >
-                                        {formatCurrency(tx.fee, currency)}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                aria-label="Edit transaction"
-                                                className="cursor-pointer"
-                                                onClick={() => setEditing(tx)}
-                                            >
-                                                <Pencil />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                aria-label="Delete transaction"
-                                                className="cursor-pointer text-destructive hover:text-destructive"
-                                                onClick={() => setDeleting(tx)}
-                                            >
-                                                <Trash2 />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        })}
-                    </TableBody>
-                </Table>
-            </CardContent>
+                                    {getSellEligibilityLabel(sellEligibility)}
+                                </TableCell>
+                                <TableCell
+                                    className={cn('text-right tabular-nums', {
+                                        'blur-md select-none': hidePrices,
+                                    })}
+                                >
+                                    {tx.quantity != null && tx.type !== TransactionType.Fee
+                                        ? formatQuantity(tx.quantity)
+                                        : '—'}
+                                </TableCell>
+                                <TableCell
+                                    className={cn('text-right tabular-nums', {
+                                        'blur-md select-none': hidePrices,
+                                    })}
+                                >
+                                    {tx.transaction_price != null
+                                        ? formatCurrency(tx.transaction_price, currency)
+                                        : '—'}
+                                </TableCell>
+                                <TableCell
+                                    className={cn('text-right tabular-nums', {
+                                        'blur-md select-none': hidePrices,
+                                    })}
+                                >
+                                    {tx.value != null ? formatCurrency(tx.value, currency) : '—'}
+                                </TableCell>
+                                <TableCell
+                                    className={cn('text-right tabular-nums text-muted-foreground', {
+                                        'blur-md select-none': hidePrices,
+                                    })}
+                                >
+                                    {formatCurrency(tx.fee, currency)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-1">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            aria-label="Edit transaction"
+                                            className="cursor-pointer"
+                                            onClick={() => setEditing(tx)}
+                                        >
+                                            <Pencil />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            aria-label="Delete transaction"
+                                            className="cursor-pointer text-destructive hover:text-destructive"
+                                            onClick={() => setDeleting(tx)}
+                                        >
+                                            <Trash2 />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )
+                    })}
+                </TableBody>
+            </Table>
 
             <TransactionDrawer
                 open={createOpen || editing !== null}
@@ -235,6 +232,6 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                 }}
                 transaction={deleting}
             />
-        </Card>
+        </PortfolioCard>
     )
 }

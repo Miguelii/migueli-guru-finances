@@ -1,8 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table } from '@/components/ui/table'
 import type { HoldingSummary } from '@/types/Holding'
 import { HoldingsCardTableHeader } from '@/modules/holdings-table/holding-card-table-header'
 import { HoldingsCardTableContent } from '@/modules/holdings-table/holdings-card-table-content'
+import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 
 export type HoldingsCardProps = {
     holdings: HoldingSummary[]
@@ -11,16 +11,17 @@ export type HoldingsCardProps = {
 
 export function HoldingsCard({ holdings, hidePrices }: HoldingsCardProps) {
     return (
-        <Card className="shadow-sm w-full min-w-0">
-            <CardHeader className="flex flex-row items-center gap-2">
-                <CardTitle>Positions</CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-x-auto">
-                <Table>
-                    <HoldingsCardTableHeader />
-                    <HoldingsCardTableContent holdings={holdings} hidePrices={hidePrices} />
-                </Table>
-            </CardContent>
-        </Card>
+        <PortfolioCard
+            cardId="holdings"
+            title="Positions"
+            className="min-w-0"
+            contentClassName="overflow-x-auto"
+            openHeightClassName="h-138"
+        >
+            <Table>
+                <HoldingsCardTableHeader />
+                <HoldingsCardTableContent holdings={holdings} hidePrices={hidePrices} />
+            </Table>
+        </PortfolioCard>
     )
 }
