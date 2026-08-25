@@ -107,7 +107,7 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                     </DropdownMenu>
                 </>
             }
-            contentClassName="min-h-0 flex-1 overflow-y-auto"
+            contentClassName="h-full min-h-0 overflow-y-auto"
         >
             <Table>
                 <TableHeader>
