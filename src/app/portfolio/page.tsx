@@ -10,6 +10,10 @@ import { AllocationCardWithChart } from '@/modules/allocation-chart/allocation-c
 import { TypeAllocationCardWithChart } from '@/modules/type-allocation-chart/type-allocation-card-with-chart'
 import { HoldingsCard } from '@/modules/holdings-table/holdings-card'
 import { MonthlyPurchasesCard } from '@/modules/monthly-purchases/monthly-purchases-card'
+import { cookies } from 'next/headers'
+import { PORTFOLIO_CARD_DISCLOSURE_COOKIE } from '@/modules/portfolio-card/portfolio-card.constants'
+import { parsePortfolioCardState } from '@/modules/portfolio-card/portfolio-card.helpers'
+import { PortfolioCardProvider } from '@/modules/portfolio-card/portfolio-card.provider'
 
 export const metadata: Metadata = {
     title: 'Portfolio | Migueli Guru Finances',
@@ -18,7 +22,11 @@ export const metadata: Metadata = {
 type Props = PageProps<'/portfolio'>
 
 export default async function PortfolioPage(props: Props) {
-    const trpc = await createCaller()
+    const [trpc, cookieStore] = await Promise.all([createCaller(), cookies()])
+
+    const cardState = parsePortfolioCardState(
+        cookieStore.get(PORTFOLIO_CARD_DISCLOSURE_COOKIE)?.value
+    )
 
     const [transactions, data, searchParams] = await Promise.all([
         trpc.transactions.getAll(),
@@ -43,24 +51,26 @@ export default async function PortfolioPage(props: Props) {
 
             <PortfolioSummaryCards holdings={holdings} hidePrices={hidePrices} />
 
-            <section className="flex flex-col lg:flex-row gap-6">
-                <AllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
-                <TypeAllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
-            </section>
+            <PortfolioCardProvider initialState={cardState}>
+                <section className="flex flex-col items-start gap-6 lg:flex-row">
+                    <AllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
+                    <TypeAllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
+                </section>
 
-            <TransactionsCard
-                transactions={transactions}
-                tickerData={data}
-                hidePrices={hidePrices}
-            />
+                <TransactionsCard
+                    transactions={transactions}
+                    tickerData={data}
+                    hidePrices={hidePrices}
+                />
 
-            <MonthlyPurchasesCard
-                transactions={transactions}
-                tickerData={data}
-                hidePrices={hidePrices}
-            />
+                <MonthlyPurchasesCard
+                    transactions={transactions}
+                    tickerData={data}
+                    hidePrices={hidePrices}
+                />
 
-            <HoldingsCard holdings={holdings} hidePrices={hidePrices} />
+                <HoldingsCard holdings={holdings} hidePrices={hidePrices} />
+            </PortfolioCardProvider>
         </main>
     )
 }

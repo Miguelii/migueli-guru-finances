@@ -1,6 +1,5 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Table,
     TableBody,
@@ -23,6 +22,7 @@ import { cn } from '@/lib/utils'
 import { parseAsInteger, useQueryState } from 'nuqs'
 import { paramsUrlKeys } from '@/lib/searchParams'
 import { LogoAvatar } from '@/components/logo-avatar'
+import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 
 type Props = {
     transactions: Transaction[]
@@ -64,9 +64,12 @@ export function MonthlyPurchasesCard({ transactions, tickerData, hidePrices }: P
     const rows = aggregateMonthlyPurchases(transactions, tickerData, selectedYear)
 
     return (
-        <Card className="shadow-sm w-full min-w-0">
-            <CardHeader className="flex flex-row items-center justify-between gap-2">
-                <CardTitle>Monthly Purchases</CardTitle>
+        <PortfolioCard
+            cardId="monthly-purchases"
+            title="Monthly Purchases"
+            className="min-w-0"
+            openHeightClassName="h-134"
+            actions={
                 <Select
                     value={String(selectedYear)}
                     onValueChange={(year) => setSelectedYear(Number(year))}
@@ -82,8 +85,9 @@ export function MonthlyPurchasesCard({ transactions, tickerData, hidePrices }: P
                         ))}
                     </SelectContent>
                 </Select>
-            </CardHeader>
-            <CardContent className="overflow-x-auto">
+            }
+        >
+            <div className="overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -154,7 +158,7 @@ export function MonthlyPurchasesCard({ transactions, tickerData, hidePrices }: P
                         })}
                     </TableBody>
                 </Table>
-            </CardContent>
-        </Card>
+            </div>
+        </PortfolioCard>
     )
 }
