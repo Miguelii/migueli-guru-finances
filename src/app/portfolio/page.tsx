@@ -22,7 +22,8 @@ export const metadata: Metadata = {
 type Props = PageProps<'/portfolio'>
 
 export default async function PortfolioPage(props: Props) {
-    const [trpc, cookieStore] = await Promise.all([createCaller(), cookies()])
+    const trpc = await createCaller()
+    const cookieStore = await cookies()
 
     const cardState = parsePortfolioCardState(
         cookieStore.get(PORTFOLIO_CARD_DISCLOSURE_COOKIE)?.value
