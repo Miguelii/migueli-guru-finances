@@ -142,4 +142,25 @@ describe('createSbServerClient', () => {
             cookieHandlers.setAll([{ name: 'sb-token', value: 'xyz', options: {} }])
         ).not.toThrow()
     })
+
+    it('should call onSetAll when cookieStore.set fails', async () => {
+        mockSet.mockImplementation(() => {
+            throw new Error('Cannot set cookies in Server Component')
+        })
+        const onSetAll = vi.fn()
+
+        await createSbServerClient(false, { onSetAll })
+
+        const cookiesToSet = [{ name: 'sb-token', value: 'xyz', options: {} }]
+        const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2]
+            .cookies as unknown as {
+            setAll: (
+                cookies: { name: string; value: string; options: object }[],
+                headers?: Record<string, string>
+            ) => void
+        }
+        cookieHandlers.setAll(cookiesToSet)
+
+        expect(onSetAll).toHaveBeenCalledWith(cookiesToSet, expect.anything())
+    })
 })
