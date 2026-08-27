@@ -15,8 +15,8 @@ export function HoldingsCard({ holdings, hidePrices }: HoldingsCardProps) {
             cardId="holdings"
             title="Positions"
             className="min-w-0"
-            contentClassName="overflow-x-auto"
             openHeightClassName="h-138"
+            contentClassName="h-full min-h-0 overflow-x-auto overflow-y-auto"
         >
             <Table>
                 <HoldingsCardTableHeader />
