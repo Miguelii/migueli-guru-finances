@@ -60,7 +60,7 @@ namespaces the module routers:
 - `transactions` — buy/sell/reward/fee transactions (`Transaction`)
 
 ### Server Client
-- `createSbServerClient(useSecretKey?, hooks?)` in `_bff/common/supabase/supabase.client.ts` creates a per-request Supabase client using `@supabase/ssr` with cookie-based session management
+- `createDBServerClient(useSecretKey?, hooks?)` in `_bff/common/db/db.utils.ts` creates a per-request Supabase client using `@supabase/ssr` with cookie-based session management
 - `useSecretKey` (default `false`): when `true`, uses the service role key to bypass RLS — use only for server-to-server operations (cron jobs, webhooks) with no user session
 - Accepts optional `hooks` parameter with `onGetAll` and `onSetAll` callbacks that run **after** the default cookie handlers (used by `sbProxy` to sync cookies onto middleware request/response)
 - Always create a new client per request (required for Fluid compute)

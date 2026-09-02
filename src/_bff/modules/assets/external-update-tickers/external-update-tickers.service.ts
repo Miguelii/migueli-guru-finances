@@ -1,7 +1,7 @@
 import { ServerEnv } from '@/env/server'
 import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
-import { createSbServerClient, verifyApiKey } from '@/_bff/common/supabase/supabase.client'
+import { createDBServerClient, verifyApiKey } from '@/_bff/common/db/db.utils'
 import { updateTickersPrices } from '@/_bff/modules/assets/update-tickers-prices/update-tickers-prices.service'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
 import { GET_ALL_TRANSACTIONS_CACHE_KEY } from '@/_bff/modules/transactions/transactions.constants'
@@ -31,8 +31,8 @@ async function isAuthorizedHandler(request: NextRequest): Promise<boolean> {
 
     if (isBot) return false
 
-    const supabase = await createSbServerClient()
-    const { data } = await supabase.auth.getUser()
+    const bd = await createDBServerClient()
+    const { data } = await bd.auth.getUser()
 
     return !!data.user
 }

@@ -18,7 +18,7 @@ import { timingSafeEqual } from 'node:crypto'
  * @param hooks.onGetAll - Runs after reading all cookies from the cookie store.
  * @param hooks.onSetAll - Runs after writing cookies to the cookie store, receives the cookies that were set.
  */
-export async function createSbServerClient(
+export async function createDBServerClient(
     useSecretKey?: boolean,
     hooks?: {
         onGetAll?: GetAllCookies

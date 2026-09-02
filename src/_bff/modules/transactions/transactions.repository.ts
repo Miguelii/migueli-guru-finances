@@ -1,7 +1,7 @@
 import { type Transaction } from '@/types/Transaction'
-import { SbTables } from '@/_bff/common/supabase/types'
+import { DBTables } from '@/_bff/common/db/types'
 import { unstable_cache } from 'next/cache'
-import type { SbClient } from '@/_bff/common/supabase/types'
+import type { SbClient } from '@/_bff/common/db/types'
 import {
     GET_ALL_TRANSACTIONS_CACHE_KEY,
     GET_ALL_TRANSACTIONS_REVALIDATE_TIME,
@@ -22,7 +22,7 @@ export const getAllTransactionsByUserIdFn = (supabaseClient: SbClient, userId: s
     unstable_cache(
         async () => {
             const { data, error } = await supabaseClient
-                .from(SbTables.TRANSACTIONS)
+                .from(DBTables.TRANSACTIONS)
                 .select('*')
                 .eq('user_id', userId)
                 .order('buy_date', { ascending: false })
@@ -50,7 +50,7 @@ export function insertTransaction(
     userId: string,
     props: CreateTransactionProps
 ) {
-    return supabaseClient.from(SbTables.TRANSACTIONS).insert({
+    return supabaseClient.from(DBTables.TRANSACTIONS).insert({
         ...props,
         quantity: props.quantity ?? null,
         transaction_price: props.transaction_price ?? null,
@@ -76,7 +76,7 @@ export function updateTransactionById(
     const { id, ...fields } = props
 
     return supabaseClient
-        .from(SbTables.TRANSACTIONS)
+        .from(DBTables.TRANSACTIONS)
         .update({
             ...fields,
             quantity: fields.quantity ?? null,
@@ -96,5 +96,5 @@ export function updateTransactionById(
  * @param id - Transaction id to delete
  */
 export function deleteTransactionById(supabaseClient: SbClient, userId: string, id: string) {
-    return supabaseClient.from(SbTables.TRANSACTIONS).delete().eq('id', id).eq('user_id', userId)
+    return supabaseClient.from(DBTables.TRANSACTIONS).delete().eq('id', id).eq('user_id', userId)
 }

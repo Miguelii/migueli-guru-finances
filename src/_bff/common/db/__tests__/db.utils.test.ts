@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createSbServerClient, verifyApiKey } from '@/_bff/common/supabase/supabase.client'
+import { createDBServerClient, verifyApiKey } from '@/_bff/common/db/db.utils'
 import { createServerClient } from '@supabase/ssr'
 
 // Mock server-only
@@ -58,15 +58,15 @@ describe('verifyApiKey', () => {
     })
 })
 
-// ─── createSbServerClient ────────────────────────────────────────────────────
+// ─── createDBServerClient ────────────────────────────────────────────────────
 
-describe('createSbServerClient', () => {
+describe('createDBServerClient', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
 
     it('should call createServerClient with correct env values', async () => {
-        await createSbServerClient()
+        await createDBServerClient()
 
         expect(createServerClient).toHaveBeenCalledWith(
             'https://test.supabase.co',
@@ -81,7 +81,7 @@ describe('createSbServerClient', () => {
     })
 
     it('should use cookieStore.getAll by default', async () => {
-        await createSbServerClient()
+        await createDBServerClient()
 
         // Extract the getAll handler passed to createServerClient
         const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2].cookies as {
@@ -95,7 +95,7 @@ describe('createSbServerClient', () => {
 
     it('should call onGetAll hook after default getAll', async () => {
         const onGetAll = vi.fn()
-        await createSbServerClient(false, { onGetAll })
+        await createDBServerClient(false, { onGetAll })
 
         const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2].cookies as {
             getAll: () => { name: string; value: string }[]
@@ -108,7 +108,7 @@ describe('createSbServerClient', () => {
 
     it('should call onSetAll hook after default setAll', async () => {
         const onSetAll = vi.fn()
-        await createSbServerClient(false, { onSetAll })
+        await createDBServerClient(false, { onSetAll })
 
         const cookiesToSet = [{ name: 'sb-token', value: 'xyz', options: {} }]
         const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2].cookies as {
@@ -128,7 +128,7 @@ describe('createSbServerClient', () => {
             throw new Error('Cannot set cookies in Server Component')
         })
 
-        await createSbServerClient()
+        await createDBServerClient()
 
         const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2].cookies as {
             setAll: (
@@ -149,7 +149,7 @@ describe('createSbServerClient', () => {
         })
         const onSetAll = vi.fn()
 
-        await createSbServerClient(false, { onSetAll })
+        await createDBServerClient(false, { onSetAll })
 
         const cookiesToSet = [{ name: 'sb-token', value: 'xyz', options: {} }]
         const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2]

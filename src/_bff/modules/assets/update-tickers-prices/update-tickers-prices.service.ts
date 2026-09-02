@@ -1,8 +1,8 @@
 import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { Logger } from '@/_bff/common/logger/logger'
-import { createSbServerClient } from '@/_bff/common/supabase/supabase.client'
+import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { type TickerData } from '@/types/Transaction'
-import type { SbClient } from '@/_bff/common/supabase/types'
+import type { SbClient } from '@/_bff/common/db/types'
 import { Effect, Schedule } from 'effect'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
@@ -47,13 +47,13 @@ const retryPolicy = Schedule.exponential('2 second').pipe(
  */
 export async function updateTickersPrices(): Promise<UpdateReturn> {
     const program = Effect.gen(function* () {
-        const supabaseClient = yield* Effect.tryPromise({
-            try: () => createSbServerClient(true),
+        const bd = yield* Effect.tryPromise({
+            try: () => createDBServerClient(true),
             catch: (cause) => new CreateSbClientError({ cause }),
         })
 
         const { data: tickerRows } = yield* Effect.tryPromise({
-            try: () => selectAllTickers(supabaseClient),
+            try: () => selectAllTickers(bd),
             catch: (cause) => new SbQueryError({ cause }),
         })
 
@@ -61,7 +61,7 @@ export async function updateTickersPrices(): Promise<UpdateReturn> {
             (t) => t.service in priceFetchers
         )
 
-        yield* Effect.forEach(tickers, (t) => updateTicker(supabaseClient, t), {
+        yield* Effect.forEach(tickers, (t) => updateTicker(bd, t), {
             concurrency: 'unbounded',
         })
 

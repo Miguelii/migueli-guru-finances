@@ -1,4 +1,4 @@
-import { createSbServerClient } from '@/_bff/common/supabase/supabase.client'
+import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { checkBotId } from 'botid/server'
 import { Effect } from 'effect'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
@@ -25,15 +25,15 @@ export const login = Effect.fn('login')(function* (props: LoginProps) {
         })
     }
 
-    const supabase = yield* Effect.tryPromise({
-        try: () => createSbServerClient(),
+    const bd = yield* Effect.tryPromise({
+        try: () => createDBServerClient(),
         catch: (cause) =>
-            new CreateSbClientError({ cause, error_hash: ErrorCode.AUTH_LOGIN_SB_CLIENT }),
+            new CreateSbClientError({ cause, error_hash: ErrorCode.AUTH_LOGIN_DB_CLIENT }),
     })
 
     const { error } = yield* Effect.tryPromise({
         try: () =>
-            supabase.auth.signInWithPassword({
+            bd.auth.signInWithPassword({
                 email: props.email,
                 password: props.password,
             }),

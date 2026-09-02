@@ -2,7 +2,7 @@ import 'server-only'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { HOME_PAGE_PATH, PRIVATE_ROUTE_PATH } from '@/lib/constants'
-import { createSbServerClient } from '@/_bff/common/supabase/supabase.client'
+import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { ServerEnv } from '@/env/server'
 
 /**
@@ -13,20 +13,20 @@ import { ServerEnv } from '@/env/server'
  * @param request - The incoming Next.js middleware request.
  */
 export async function sbProxy(request: NextRequest) {
-    let supabaseResponse = NextResponse.next({
+    let response = NextResponse.next({
         request,
     })
 
     // With Fluid compute, don't put this client in a global environment
     // variable. Always create a new one on each request.
-    const supabase = await createSbServerClient(false, {
+    const bd = await createDBServerClient(false, {
         onSetAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-            supabaseResponse = NextResponse.next({
+            response = NextResponse.next({
                 request,
             })
             cookiesToSet.forEach(({ name, value, options }) =>
-                supabaseResponse.cookies.set(name, value, options)
+                response.cookies.set(name, value, options)
             )
         },
     })
@@ -36,7 +36,7 @@ export async function sbProxy(request: NextRequest) {
     // issues with users being randomly logged out.
     // IMPORTANT: If you remove getClaims() and you use server-side rendering
     // with the Supabase client, your users may be randomly logged out.
-    const { data } = await supabase.auth.getClaims()
+    const { data } = await bd.auth.getClaims()
 
     const user = data?.claims
 
@@ -64,7 +64,7 @@ export async function sbProxy(request: NextRequest) {
     //    return myNewResponse
     // If this is not done, you may be causing the browser and server to go out
     // of sync and terminate the user's session prematurely!
-    return supabaseResponse
+    return response
 }
 
 export const buildBucketAssetUrl = (path: string) => {

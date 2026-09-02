@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { Effect } from 'effect'
 import type { SupabaseClient, User } from '@supabase/supabase-js'
-import { createSbServerClient } from '@/_bff/common/supabase/supabase.client'
+import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError } from '@/_bff/common/errors/shared.errors'
 import { GetUserError } from './auth.errors'
@@ -24,16 +24,16 @@ type SessionResult =
  * Effect layer can map them back to the same error types as before.
  */
 const resolveUser = cache(async (): Promise<SessionResult> => {
-    let supabase: SupabaseClient
+    let bd: SupabaseClient
 
     try {
-        supabase = await createSbServerClient()
+        bd = await createDBServerClient()
     } catch (cause) {
         return { ok: false, kind: 'sb-client', cause }
     }
 
     try {
-        const { data, error } = await supabase.auth.getUser()
+        const { data, error } = await bd.auth.getUser()
         return { ok: true, user: error ? null : (data?.user ?? null) }
     } catch (cause) {
         return { ok: false, kind: 'get-user', cause }
@@ -50,7 +50,7 @@ export const getSession = Effect.fn('getSession')(function* (_client?: SupabaseC
         if (result.kind === 'sb-client') {
             return yield* new CreateSbClientError({
                 cause: result.cause,
-                error_hash: ErrorCode.AUTH_SESSION_SB_CLIENT,
+                error_hash: ErrorCode.AUTH_SESSION_DB_CLIENT,
             })
         }
 

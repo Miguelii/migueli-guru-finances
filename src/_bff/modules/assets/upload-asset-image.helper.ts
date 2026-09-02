@@ -1,5 +1,5 @@
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
-import { SbBuckets, type SbClient } from '@/_bff/common/supabase/types'
+import { DBBuckets, type SbClient } from '@/_bff/common/db/types'
 import { UploadAssetImageError } from '@/_bff/modules/assets/assets.errors'
 import { Effect } from 'effect'
 import sharp from 'sharp'
@@ -31,7 +31,7 @@ export const uploadAssetImage = Effect.fn('uploadAssetImage')(function* (
 
     const { error } = yield* Effect.tryPromise({
         try: () =>
-            supabase.storage.from(SbBuckets.PUBLIC_ASSETS).upload(fileName, webpBuffer, {
+            supabase.storage.from(DBBuckets.PUBLIC_ASSETS).upload(fileName, webpBuffer, {
                 contentType: 'image/webp',
                 upsert: true,
             }),

@@ -1,5 +1,5 @@
 import { cache } from 'react'
-import { createSbServerClient } from '@/_bff/common/supabase/supabase.client'
+import { createDBServerClient } from '@/_bff/common/db/db.utils'
 
 /**
  * Best-effort current user id for logging. Reads the `sub` claim from the
@@ -10,8 +10,8 @@ import { createSbServerClient } from '@/_bff/common/supabase/supabase.client'
  */
 export const getCachedUserId = cache(async (): Promise<string | undefined> => {
     try {
-        const supabase = await createSbServerClient()
-        const { data } = await supabase.auth.getClaims()
+        const bd = await createDBServerClient()
+        const { data } = await bd.auth.getClaims()
         return data?.claims?.sub ?? undefined
     } catch {
         return undefined

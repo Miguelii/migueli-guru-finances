@@ -1,7 +1,7 @@
-import { SbTables } from '@/_bff/common/supabase/types'
+import { DBTables } from '@/_bff/common/db/types'
 import { type TickerData } from '@/types/Transaction'
 import { unstable_cache } from 'next/cache'
-import type { SbClient } from '@/_bff/common/supabase/types'
+import type { SbClient } from '@/_bff/common/db/types'
 import {
     GET_ASSETS_CACHE_KEY,
     GET_DATA_REVALIDATE_TIME,
@@ -18,7 +18,7 @@ export const getAssetsFn = (supabaseClient: SbClient, userId: string) =>
     unstable_cache(
         async () => {
             const { data, error } = await supabaseClient
-                .from(SbTables.DATA)
+                .from(DBTables.DATA)
                 .select('*')
                 .order('ticker')
 
@@ -39,7 +39,7 @@ export const getAssetsFn = (supabaseClient: SbClient, userId: string) =>
  * @param supabaseClient
  */
 export function selectAllTickers(supabaseClient: SbClient) {
-    return supabaseClient.from(SbTables.DATA).select('*')
+    return supabaseClient.from(DBTables.DATA).select('*')
 }
 
 /**
@@ -56,7 +56,7 @@ export function insertAsset(
         last_updated_at: string
     }
 ) {
-    return supabaseClient.from(SbTables.DATA).insert(props)
+    return supabaseClient.from(DBTables.DATA).insert(props)
 }
 
 /**
@@ -72,7 +72,7 @@ export function updateAssetByTicker(
 ) {
     const { ticker, ...fields } = props
 
-    return supabaseClient.from(SbTables.DATA).update(fields).eq('ticker', ticker)
+    return supabaseClient.from(DBTables.DATA).update(fields).eq('ticker', ticker)
 }
 
 /**
@@ -82,7 +82,7 @@ export function updateAssetByTicker(
  * @param ticker - The ticker symbol to delete
  */
 export function deleteAssetByTicker(supabaseClient: SbClient, ticker: string) {
-    return supabaseClient.from(SbTables.DATA).delete().eq('ticker', ticker)
+    return supabaseClient.from(DBTables.DATA).delete().eq('ticker', ticker)
 }
 
 /**
@@ -98,7 +98,7 @@ export function updateAssetPrice(
     price: number
 ) {
     return supabaseClient
-        .from(SbTables.DATA)
+        .from(DBTables.DATA)
         .update({ curr_price: price, last_updated_at: 'now()' })
         .eq('ticker', ticker)
 }
