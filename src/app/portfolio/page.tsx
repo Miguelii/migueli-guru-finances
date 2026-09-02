@@ -67,6 +67,7 @@ export default async function PortfolioPage(props: Props) {
                 <MonthlyPurchasesCard
                     transactions={transactions}
                     tickerData={data}
+                    rates={rates}
                     hidePrices={hidePrices}
                 />
 

@@ -161,6 +161,34 @@ export type MonthlyPurchasesRow = {
     avg: number
 }
 
+export type MonthlyPurchasesTotal = {
+    currency: Currency
+    monthly: number[]
+}
+
+export function aggregateMonthlyPurchasesTotals(
+    rows: MonthlyPurchasesRow[],
+    rates: CambioRates
+): MonthlyPurchasesTotal[] {
+    const totalsByCurrency = new Map<Currency, number[]>()
+
+    for (const row of rows) {
+        const currency = row.currency !== Currency.EUR ? Currency.EUR : row.currency
+
+        let monthly = totalsByCurrency.get(currency)
+        if (!monthly) {
+            monthly = Array.from({ length: 12 }, () => 0)
+            totalsByCurrency.set(currency, monthly)
+        }
+
+        for (const [month, value] of row.monthly.entries()) {
+            monthly[month]! += toEur(value, row.currency, rates)
+        }
+    }
+
+    return Array.from(totalsByCurrency, ([currency, monthly]) => ({ currency, monthly }))
+}
+
 /**
  * Aggregates the amount spent on BUY transactions per asset per month for a given
  * year, in each asset's own currency (no EUR conversion). Only assets with at least

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
     aggregateHoldings,
     aggregateMonthlyPurchases,
+    aggregateMonthlyPurchasesTotals,
     computePortfolioTotals,
 } from '@/lib/calculations'
 import type { CambioRates, Transaction, TickerData } from '@/types/Transaction'
@@ -802,6 +803,62 @@ describe('aggregateMonthlyPurchases', () => {
         expect(row.monthly[2]).toBeCloseTo(200)
         expect(row.total).toBeCloseTo(350)
         expect(row.avg).toBeCloseTo(350 / 12)
+    })
+
+    it('should aggregate monthly totals by currency', () => {
+        const rows = aggregateMonthlyPurchases(
+            [
+                makeTx({
+                    id: '1',
+                    ticker_id: Ticker.ETH,
+                    value: 100,
+                    buy_date: '2026-01-15 10:00:00',
+                }),
+                makeTx({
+                    id: '2',
+                    ticker_id: Ticker.ETH,
+                    value: 50,
+                    buy_date: '2026-01-20 10:00:00',
+                }),
+            ],
+            [ethTd],
+            2026
+        )
+
+        const [total] = aggregateMonthlyPurchasesTotals(rows, rates)
+
+        expect(total.currency).toBe(Currency.EUR)
+        expect(total.monthly[0]).toBeCloseTo(150)
+        expect(total.monthly[1]).toBe(0)
+    })
+
+    it('should convert USDC to EUR when calculating totals', () => {
+        const totals = aggregateMonthlyPurchasesTotals(
+            [
+                {
+                    ticker_id: Ticker.ETH,
+                    currency: Currency.EUR,
+                    monthly: [100, ...Array.from({ length: 11 }, () => 0)],
+                    total: 100,
+                    avg: 100 / 12,
+                },
+                {
+                    ticker_id: Ticker.SOL,
+                    currency: Currency.USDC,
+                    monthly: [50, ...Array.from({ length: 11 }, () => 0)],
+                    total: 50,
+                    avg: 50 / 12,
+                },
+            ],
+            rates
+        )
+
+        expect(totals).toEqual([
+            {
+                currency: Currency.EUR,
+                monthly: [145, ...Array.from({ length: 11 }, () => 0)],
+            },
+        ])
     })
 
     it('should ignore SELL, REWARD and FEE transactions', () => {

@@ -15,8 +15,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import type { TickerData, Transaction } from '@/types/Transaction'
-import { aggregateMonthlyPurchases } from '@/lib/calculations'
+import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
+import { aggregateMonthlyPurchases, aggregateMonthlyPurchasesTotals } from '@/lib/calculations'
 import { formatCurrency } from '@/lib/formaters'
 import { cn } from '@/lib/utils'
 import { parseAsInteger, useQueryState } from 'nuqs'
@@ -27,6 +27,7 @@ import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 type Props = {
     transactions: Transaction[]
     tickerData: TickerData[]
+    rates: CambioRates
     hidePrices: boolean
 }
 
@@ -47,7 +48,7 @@ const MONTH_LABELS = [
     'Dec',
 ] as const
 
-export function MonthlyPurchasesCard({ transactions, tickerData, hidePrices }: Props) {
+export function MonthlyPurchasesCard({ transactions, tickerData, rates, hidePrices }: Props) {
     const currentYear = new Date().getFullYear()
 
     const logoPathByTicker = new Map(
@@ -62,13 +63,14 @@ export function MonthlyPurchasesCard({ transactions, tickerData, hidePrices }: P
     const years = Array.from({ length: currentYear - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i)
 
     const rows = aggregateMonthlyPurchases(transactions, tickerData, selectedYear)
+    const totals = aggregateMonthlyPurchasesTotals(rows, rates)
 
     return (
         <PortfolioCard
             cardId="monthly-purchases"
             title="Monthly Purchases"
             className="min-w-0"
-            openHeightClassName="h-134"
+            openHeightClassName="h-158"
             actions={
                 <Select
                     value={String(selectedYear)}
@@ -156,6 +158,52 @@ export function MonthlyPurchasesCard({ transactions, tickerData, hidePrices }: P
                                 </TableRow>
                             )
                         })}
+                        {totals.length > 0 && (
+                            <TableRow>
+                                <TableCell className="font-medium">Total</TableCell>
+                                {MONTH_LABELS.map((month, monthIndex) => {
+                                    const values = totals
+                                        .map((total) => {
+                                            const value = total.monthly[monthIndex]!
+                                            return value !== 0
+                                                ? formatCurrency(value, total.currency, 0)
+                                                : null
+                                        })
+                                        .filter((value): value is string => value !== null)
+
+                                    return (
+                                        <TableCell
+                                            key={month}
+                                            className={cn('text-right tabular-nums font-medium', {
+                                                'blur-md select-none': hidePrices,
+                                                'text-muted-foreground': values.length === 0,
+                                            })}
+                                        >
+                                            {values.length > 0 ? values.join(' / ') : '—'}
+                                        </TableCell>
+                                    )
+                                })}
+                                <TableCell
+                                    className={cn('text-right tabular-nums font-medium', {
+                                        'blur-md select-none': hidePrices,
+                                    })}
+                                >
+                                    {totals
+                                        .map((total) =>
+                                            formatCurrency(
+                                                total.monthly.reduce(
+                                                    (sum, value) => sum + value,
+                                                    0
+                                                ),
+                                                total.currency,
+                                                0
+                                            )
+                                        )
+                                        .join(' / ')}
+                                </TableCell>
+                                <TableCell />
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </div>
