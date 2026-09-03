@@ -59,10 +59,10 @@ describe('createPortfolioOverview', () => {
 
         expect(overview).toBe(
             'CRYPTO - 90,0%\n' +
-                'ETH  | allocation 40,0% | invested 400,00 €\n' +
-                'SOL  | allocation 10,0% | invested 100,00 €\n\n' +
+                'ETH  | Quantity 1 | AC/Share 100,00 € | Allocation 40,0% | Invested 400,00 €\n' +
+                'SOL  | Quantity 1 | AC/Share 100,00 € | Allocation 10,0% | Invested 100,00 €\n\n' +
                 'STOCK - 10,0%\n' +
-                'ATCH | allocation 50,0% | invested 500,00 €\n\n' +
+                'ATCH | Quantity 1 | AC/Share 100,00 € | Allocation 50,0% | Invested 500,00 €\n\n' +
                 'Total Invested: 1000,00 €'
         )
     })
@@ -78,7 +78,7 @@ describe('createPortfolioOverview', () => {
         ])
 
         expect(overview).toContain('CRYPTO - 0,0%')
-        expect(overview).toContain('allocation 0,0%')
+        expect(overview).toContain('Allocation 0,0%')
         expect(overview).toContain('Total Invested: 0,00 €')
     })
 })
