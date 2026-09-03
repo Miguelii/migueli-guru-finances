@@ -21,7 +21,7 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet'
 import { trpcClient } from '@/_trpc/client'
-import { TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
+import { TickerType, TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
 import { TransactionPreview } from '@/modules/transactions/transaction-preview'
 import { Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -130,7 +130,7 @@ export function TransactionDrawer({
         return isEdit ? 'Save changes' : 'Add transaction'
     }
 
-    const assets = tickerData.filter((tick) => tick.type !== 'CAMBIO')
+    const assets = tickerData.filter((tick) => tick.type !== TickerType.Cambio)
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>

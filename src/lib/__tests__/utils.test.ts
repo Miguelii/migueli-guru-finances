@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { cn, getBuildId, getCambioRates, getLatestUpdate, groupAssetsByType } from '@/lib/utils'
 import type { TickerData } from '@/types/Transaction'
-import { Currency, Ticker } from '@/types/Transaction'
+import { Currency, Ticker, TickerService, TickerType } from '@/types/Transaction'
 
 // ─── cn ──────────────────────────────────────────────────────────────────────
 
@@ -64,12 +64,12 @@ describe('getBuildId', () => {
 
 const baseTicker: Omit<TickerData, 'ticker' | 'last_updated_at'> = {
     curr_price: 2000,
-    service: 'coinbase',
+    service: TickerService.Coinbase,
     currency: Currency.EUR,
     symbol: '€',
     logo: '/assets/ethereum.webp',
     hex_color: '#627EEA' as TickerData['hex_color'],
-    type: 'CRYPTO',
+    type: TickerType.Crypto,
 }
 
 describe('getLatestUpdate', () => {
@@ -119,29 +119,32 @@ describe('groupAssetsByType', () => {
 
     it('should group tickers by their asset type', () => {
         const data: TickerData[] = [
-            makeTicker(Ticker.ETH, 'CRYPTO'),
-            makeTicker(Ticker.VUAA, 'ETF'),
-            makeTicker(Ticker.BTC, 'CRYPTO'),
-            makeTicker(Ticker.ATCH, 'STOCK'),
+            makeTicker(Ticker.ETH, TickerType.Crypto),
+            makeTicker(Ticker.VUAA, TickerType.Etf),
+            makeTicker(Ticker.BTC, TickerType.Crypto),
+            makeTicker(Ticker.ATCH, TickerType.Stock),
         ]
 
         const result = groupAssetsByType(data)
 
         expect(result.size).toBe(3)
-        expect(result.get('CRYPTO')?.map((t) => t.ticker)).toEqual([Ticker.ETH, Ticker.BTC])
-        expect(result.get('ETF')?.map((t) => t.ticker)).toEqual([Ticker.VUAA])
-        expect(result.get('STOCK')?.map((t) => t.ticker)).toEqual([Ticker.ATCH])
+        expect(result.get(TickerType.Crypto)?.map((t) => t.ticker)).toEqual([
+            Ticker.ETH,
+            Ticker.BTC,
+        ])
+        expect(result.get(TickerType.Etf)?.map((t) => t.ticker)).toEqual([Ticker.VUAA])
+        expect(result.get(TickerType.Stock)?.map((t) => t.ticker)).toEqual([Ticker.ATCH])
     })
 
     it('should preserve insertion order within each group', () => {
         const data: TickerData[] = [
-            makeTicker(Ticker.SOL, 'CRYPTO'),
-            makeTicker(Ticker.ETH, 'CRYPTO'),
-            makeTicker(Ticker.BTC, 'CRYPTO'),
+            makeTicker(Ticker.SOL, TickerType.Crypto),
+            makeTicker(Ticker.ETH, TickerType.Crypto),
+            makeTicker(Ticker.BTC, TickerType.Crypto),
         ]
 
         const result = groupAssetsByType(data)
-        expect(result.get('CRYPTO')?.map((t) => t.ticker)).toEqual([
+        expect(result.get(TickerType.Crypto)?.map((t) => t.ticker)).toEqual([
             Ticker.SOL,
             Ticker.ETH,
             Ticker.BTC,
@@ -149,13 +152,13 @@ describe('groupAssetsByType', () => {
     })
 
     it('should handle a single ticker', () => {
-        const data: TickerData[] = [makeTicker(Ticker.VUAA, 'ETF')]
+        const data: TickerData[] = [makeTicker(Ticker.VUAA, TickerType.Etf)]
 
         const result = groupAssetsByType(data)
 
         expect(result.size).toBe(1)
-        expect(result.get('ETF')).toHaveLength(1)
-        expect(result.get('ETF')![0].ticker).toBe(Ticker.VUAA)
+        expect(result.get(TickerType.Etf)).toHaveLength(1)
+        expect(result.get(TickerType.Etf)![0].ticker).toBe(Ticker.VUAA)
     })
 })
 

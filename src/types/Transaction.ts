@@ -34,6 +34,18 @@ export enum Currency {
     USDC = 'USDC',
 }
 
+export enum TickerType {
+    Crypto = 'CRYPTO',
+    Etf = 'ETF',
+    Stock = 'STOCK',
+    Cambio = 'CAMBIO',
+}
+
+export enum TickerService {
+    Coinbase = 'coinbase',
+    Yahoo = 'yahoo',
+}
+
 export type CambioRates = {
     usdToEur: number
     usdcToEur: number
@@ -45,10 +57,10 @@ export type TickerData = {
     last_updated_at:
         | `${number}-${number}-${number} ${number}:${number}:${number}`
         | `${number}-${number}-${number}T${number}:${number}:${number}`
-    service: 'coinbase' | 'yahoo'
+    service: TickerService
     currency: Currency
     symbol: '€' | '$' | '€-$' | '$-€'
     logo?: `/${string}` | null
     hex_color?: `#${number}`
-    type: 'CRYPTO' | 'ETF' | 'STOCK' | 'CAMBIO'
+    type: TickerType
 }

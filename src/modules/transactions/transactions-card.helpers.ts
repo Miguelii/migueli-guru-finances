@@ -1,5 +1,5 @@
 import { formatDate } from '@/lib/formaters'
-import { type Transaction, type TickerData, TransactionType } from '@/types/Transaction'
+import { type Transaction, type TickerData, TickerType, TransactionType } from '@/types/Transaction'
 
 type SellEligibility = {
     canSell: boolean
@@ -15,7 +15,7 @@ export function getSellEligibility(
     tx: Transaction,
     assetType: TickerData['type'] | undefined
 ): SellEligibility | null {
-    if (assetType !== 'CRYPTO' || tx.type !== TransactionType.Buy) return null
+    if (assetType !== TickerType.Crypto || tx.type !== TransactionType.Buy) return null
     const unlockDate = new Date(tx.buy_date.replace(' ', 'T'))
     unlockDate.setFullYear(unlockDate.getFullYear() + 1)
     return { canSell: unlockDate <= new Date(), unlockDate }

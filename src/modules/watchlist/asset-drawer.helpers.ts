@@ -1,4 +1,4 @@
-import { Currency, type TickerData } from '@/types/Transaction'
+import { Currency, TickerService, TickerType, type TickerData } from '@/types/Transaction'
 
 export type AssetFormValues = {
     ticker: string
@@ -12,9 +12,9 @@ export type AssetFormValues = {
 
 export const EMPTY_VALUES: AssetFormValues = {
     ticker: '',
-    type: 'CRYPTO',
+    type: TickerType.Crypto,
     currency: Currency.EUR,
-    service: 'coinbase',
+    service: TickerService.Coinbase,
     symbol: '€',
     hex_color: '',
     image: null,
@@ -22,8 +22,13 @@ export const EMPTY_VALUES: AssetFormValues = {
 
 export const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024
 
-export const ASSET_TYPES: TickerData['type'][] = ['CRYPTO', 'ETF', 'STOCK', 'CAMBIO']
-export const SERVICES: TickerData['service'][] = ['coinbase', 'yahoo']
+export const ASSET_TYPES: TickerData['type'][] = [
+    TickerType.Crypto,
+    TickerType.Etf,
+    TickerType.Stock,
+    TickerType.Cambio,
+]
+export const SERVICES: TickerData['service'][] = [TickerService.Coinbase, TickerService.Yahoo]
 export const SYMBOLS: TickerData['symbol'][] = ['€', '$', '€-$', '$-€']
 
 /**

@@ -6,6 +6,7 @@ import { PortfolioSummaryCards } from '@/modules/summary/portfolio-summary-cards
 import { searchParamsCache } from '@/lib/searchParams'
 import { getCambioRates, getLatestUpdate } from '@/lib/utils'
 import { RefreshApp } from '@/components/refresh-app'
+import { PortfolioExport } from '@/modules/portfolio-export/portfolio-export'
 import { AllocationCardWithChart } from '@/modules/allocation-chart/allocation-card-with-chart'
 import { TypeAllocationCardWithChart } from '@/modules/type-allocation-chart/type-allocation-card-with-chart'
 import { HoldingsCard } from '@/modules/holdings-table/holdings-card'
@@ -47,7 +48,10 @@ export default async function PortfolioPage(props: Props) {
                 <span className="text-xs text-muted-foreground">
                     Last Update: {getLatestUpdate(data)}
                 </span>
-                <RefreshApp />
+                <div className="flex flex-row gap-2">
+                    <RefreshApp />
+                    <PortfolioExport holdings={holdings} />
+                </div>
             </div>
 
             <PortfolioSummaryCards holdings={holdings} hidePrices={hidePrices} />

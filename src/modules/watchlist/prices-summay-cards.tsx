@@ -1,4 +1,4 @@
-import type { TickerData } from '@/types/Transaction'
+import { TickerType, type TickerData } from '@/types/Transaction'
 import { formatCurrency } from '@/lib/formaters'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,7 +11,12 @@ type Props = {
     data: TickerData[]
 }
 
-const ASSETS_GROUP_ORDER: TickerData['type'][] = ['CRYPTO', 'ETF', 'STOCK', 'CAMBIO'] as const
+const ASSETS_GROUP_ORDER: TickerData['type'][] = [
+    TickerType.Crypto,
+    TickerType.Etf,
+    TickerType.Stock,
+    TickerType.Cambio,
+]
 
 export function PricesSummaryCards({ data }: Props) {
     const groups = groupAssetsByType(data)

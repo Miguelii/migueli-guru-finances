@@ -1,4 +1,4 @@
-import { Currency } from '@/types/Transaction'
+import { Currency, TickerService, TickerType } from '@/types/Transaction'
 import { z } from 'zod'
 
 export const createAssetSchema = z.object({
@@ -8,9 +8,9 @@ export const createAssetSchema = z.object({
         .min(1)
         .max(15)
         .regex(/^[A-Z0-9.\-=]+$/u),
-    type: z.enum(['CRYPTO', 'ETF', 'STOCK', 'CAMBIO']),
+    type: z.enum(TickerType),
     currency: z.enum(Currency),
-    service: z.enum(['coinbase', 'yahoo']),
+    service: z.enum(TickerService),
     symbol: z.enum(['€', '$', '€-$', '$-€']),
     hex_color: z
         .string()
