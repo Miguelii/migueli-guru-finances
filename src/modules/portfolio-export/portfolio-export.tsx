@@ -31,7 +31,7 @@ export function PortfolioExport({ holdings }: Props) {
             onClick={onClick}
             title="Download portfolio overview"
             aria-label="Download portfolio overview"
-            className="h-9 w-fit cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
+            className="h-9 w-full md:w-fit cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
         >
             <DownloadIcon className="size-4" />
             <span>Download overview</span>

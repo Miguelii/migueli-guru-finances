@@ -44,11 +44,11 @@ export default async function PortfolioPage(props: Props) {
 
     return (
         <main className="flex flex-col gap-6 mb-24 min-w-0" id="#main">
-            <div className="flex flex-row gap-6 justify-between items-center">
+            <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
                 <span className="text-xs text-muted-foreground">
                     Last Update: {getLatestUpdate(data)}
                 </span>
-                <div className="flex flex-row gap-2">
+                <div className="flex flex-col md:flex-row gap-5 md:gap-2 w-full md:w-fit">
                     <RefreshApp />
                     <PortfolioExport holdings={holdings} />
                 </div>

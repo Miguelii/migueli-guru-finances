@@ -27,7 +27,7 @@ export function RefreshApp() {
             size="icon"
             onClick={onClick}
             disabled={updatePrices.isPending}
-            className="h-9 w-fit cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
+            className="h-9 w-full md:w-fit cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
         >
             {updatePrices.isPending ? (
                 <Loader2Icon className="size-4 animate-spin" />
