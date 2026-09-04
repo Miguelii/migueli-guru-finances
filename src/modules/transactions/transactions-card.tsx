@@ -31,7 +31,11 @@ import { parseAsString, useQueryState } from 'nuqs'
 import { paramsUrlKeys } from '@/lib/searchParams'
 import { TransactionDrawer } from '@/modules/transactions/transaction-drawer'
 import { DeleteTransactionDialog } from '@/modules/transactions/delete-transaction-dialog'
-import { getSellEligibility, getSellEligibilityLabel } from './transactions-card.helpers'
+import {
+    calculateTransactionInvested,
+    getSellEligibility,
+    getSellEligibilityLabel,
+} from './transactions-card.helpers'
 import { TYPE_BADGE_VARIANT, TYPE_LABEL } from './transactions-card.constants'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 
@@ -65,6 +69,11 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
         selectedAsset === 'all'
             ? transactions
             : transactions.filter((tx) => tx.ticker_id === selectedAsset)
+    const displayedTransactions = filteredTransactions.toSorted((a, b) =>
+        b.buy_date.localeCompare(a.buy_date)
+    )
+
+    const investedByTransaction = calculateTransactionInvested(transactions, tickerData)
 
     return (
         <PortfolioCard
@@ -115,16 +124,17 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                         <TableHead>Date</TableHead>
                         <TableHead>Asset</TableHead>
                         <TableHead>Type</TableHead>
-                        <TableHead>Can I Sell</TableHead>
+                        <TableHead>IRS Free (&gt;1year crypto)</TableHead>
                         <TableHead className="text-right">Quantity</TableHead>
                         <TableHead className="text-right">Price</TableHead>
                         <TableHead className="text-right">Value</TableHead>
                         <TableHead className="text-right">Fee</TableHead>
+                        <TableHead className="text-right">Net Worth</TableHead>
                         <TableHead className="w-20 text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {filteredTransactions.map((tx) => {
+                    {displayedTransactions.map((tx) => {
                         const currency = currencyMap.get(tx.ticker_id) ?? Currency.EUR
                         const sellEligibility = getSellEligibility(
                             tx,
@@ -183,6 +193,16 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                                     })}
                                 >
                                     {formatCurrency(tx.fee, currency)}
+                                </TableCell>
+                                <TableCell
+                                    className={cn('text-right tabular-nums', {
+                                        'blur-md select-none': hidePrices,
+                                    })}
+                                >
+                                    {formatCurrency(
+                                        investedByTransaction.get(tx.id) ?? 0,
+                                        Currency.EUR
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-1">

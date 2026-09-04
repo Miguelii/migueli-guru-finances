@@ -1,5 +1,14 @@
 import { formatDate } from '@/lib/formaters'
-import { type Transaction, type TickerData, TickerType, TransactionType } from '@/types/Transaction'
+import { getCambioRates } from '@/lib/utils'
+import { processTransactions } from '@/lib/fifo'
+import {
+    Currency,
+    type Transaction,
+    type Ticker,
+    type TickerData,
+    TickerType,
+    TransactionType,
+} from '@/types/Transaction'
 
 type SellEligibility = {
     canSell: boolean
@@ -47,4 +56,38 @@ export function getSellEligibilityLabel(sel: SellEligibility | null) {
     if (sel.canSell) return 'SIM'
 
     return `${formatDate(sel.unlockDate.toISOString())} (${formatTimeUntil(sel.unlockDate)})`
+}
+
+export function calculateTransactionInvested(
+    transactions: Transaction[],
+    tickerData: TickerData[]
+): Map<string, number> {
+    const currencyMap = new Map<Ticker, Currency>(
+        tickerData.map((ticker) => [ticker.ticker, ticker.currency])
+    )
+    const rates = getCambioRates(tickerData)
+    const investedByTransaction = new Map<string, number>()
+    const transactionsByTicker = new Map<Ticker, Transaction[]>()
+
+    for (const transaction of transactions.toSorted((a, b) =>
+        a.buy_date.localeCompare(b.buy_date)
+    )) {
+        const tickerTransactions = transactionsByTicker.get(transaction.ticker_id) ?? []
+        tickerTransactions.push(transaction)
+        transactionsByTicker.set(transaction.ticker_id, tickerTransactions)
+
+        let totalInvested = 0
+        for (const [ticker, currentTransactions] of transactionsByTicker) {
+            const currency = currencyMap.get(ticker) ?? Currency.EUR
+            totalInvested += processTransactions(
+                currentTransactions,
+                currency,
+                rates
+            ).totalInvestedEur
+        }
+
+        investedByTransaction.set(transaction.id, totalInvested)
+    }
+
+    return investedByTransaction
 }
