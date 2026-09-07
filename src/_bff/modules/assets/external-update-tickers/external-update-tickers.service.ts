@@ -12,7 +12,7 @@ import {
 import { Effect, Match } from 'effect'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
-import { checkBotId } from 'botid/server'
+//import { checkBotId } from 'botid/server'
 
 /**
  * Validates request authorization and bot protection.
@@ -27,9 +27,8 @@ async function isAuthorizedHandler(request: NextRequest): Promise<boolean> {
         return verifyApiKey(apiKey, ServerEnv.NEXT_UPDATE_TICKERS_SECRET_KEY)
     }
 
-    const { isBot } = await checkBotId()
-
-    if (isBot) return false
+    //const { isBot } = await checkBotId()
+    //if (isBot) return false
 
     const bd = await createDBServerClient()
     const { data } = await bd.auth.getUser()
