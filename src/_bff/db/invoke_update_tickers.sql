@@ -26,9 +26,6 @@ BEGIN
 END;
 $$;
 
-
-SELECT cron.unschedule('update-tickers-every-24h');
-
 SELECT cron.schedule(
   'update-tickers-every-hour',
   '0 * * * *',
