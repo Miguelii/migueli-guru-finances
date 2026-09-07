@@ -1,13 +1,12 @@
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
-import { checkBotId } from 'botid/server'
 import { Effect } from 'effect'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError } from '@/_bff/common/errors/shared.errors'
-import { IsBotError, SignInWithPasswordError } from '@/_bff/modules/auth/auth.errors'
+import { SignInWithPasswordError } from '@/_bff/modules/auth/auth.errors'
 import { type LoginProps } from '@/_bff/modules/auth/auth.dto'
 
 export const login = Effect.fn('login')(function* (props: LoginProps) {
-    const { isBot } = yield* Effect.tryPromise({
+    /* const { isBot } = yield* Effect.tryPromise({
         try: () => checkBotId(),
         catch: (cause) =>
             new IsBotError({
@@ -23,7 +22,7 @@ export const login = Effect.fn('login')(function* (props: LoginProps) {
             message: 'Not Acceptable',
             error_hash: ErrorCode.AUTH_LOGIN_IS_BOT,
         })
-    }
+    } */
 
     const bd = yield* Effect.tryPromise({
         try: () => createDBServerClient(),

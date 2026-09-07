@@ -6,7 +6,6 @@ import type { SbClient } from '@/_bff/common/db/types'
 import { Effect, Schedule } from 'effect'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
-import { IsBotError } from '@/_bff/modules/auth/auth.errors'
 import { UpdateTickersError } from '@/_bff/modules/assets/assets.errors'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
 import { GET_ALL_TRANSACTIONS_CACHE_KEY } from '@/_bff/modules/transactions/transactions.constants'
@@ -14,7 +13,6 @@ import { getCoinbasePrice } from '@/_bff/modules/assets/providers/coinbase.provi
 import { getFinancePrice } from '@/_bff/modules/assets/providers/yahoo.provider'
 import { selectAllTickers, updateAssetPrice } from '@/_bff/modules/assets/assets.repository'
 import { revalidatePath, revalidateTag } from 'next/cache'
-import { checkBotId } from 'botid/server'
 
 type UpdateReturn = {
     success: boolean
@@ -138,7 +136,7 @@ function updateTicker(supabaseClient: SbClient, tick: TickerData): Effect.Effect
  * HTTP route stays alongside for the Supabase cron (x-api-key auth).
  */
 export const updateTickers = Effect.fn('updateTickers')(function* () {
-    const { isBot } = yield* Effect.tryPromise({
+    /* const { isBot } = yield* Effect.tryPromise({
         try: () => checkBotId(),
         catch: (cause) =>
             new IsBotError({
@@ -154,7 +152,7 @@ export const updateTickers = Effect.fn('updateTickers')(function* () {
             message: 'Not Acceptable',
             error_hash: ErrorCode.ASSETS_UPDATE_TICKERS_IS_BOT,
         })
-    }
+    } */
 
     const result = yield* Effect.promise(() => updateTickersPrices())
 
