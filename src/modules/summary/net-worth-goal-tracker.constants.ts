@@ -1,0 +1,1 @@
+export const DEFAULT_NET_WORTH_GOAL = 50_000

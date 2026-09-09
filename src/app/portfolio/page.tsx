@@ -15,6 +15,7 @@ import { cookies } from 'next/headers'
 import { PORTFOLIO_CARD_DISCLOSURE_COOKIE } from '@/modules/portfolio-card/portfolio-card.constants'
 import { parsePortfolioCardState } from '@/modules/portfolio-card/portfolio-card.helpers'
 import { PortfolioCardProvider } from '@/modules/portfolio-card/portfolio-card.provider'
+import { NetWorthGoalTracker } from '@/modules/summary/net-worth-goal-tracker'
 
 export const metadata: Metadata = {
     title: 'Portfolio | Migueli Guru Finances',
@@ -54,9 +55,11 @@ export default async function PortfolioPage(props: Props) {
                 </div>
             </div>
 
-            <PortfolioSummaryCards holdings={holdings} hidePrices={hidePrices} />
-
             <PortfolioCardProvider initialState={cardState}>
+                <PortfolioSummaryCards holdings={holdings} hidePrices={hidePrices} />
+
+                <NetWorthGoalTracker holdings={holdings} hidePrices={hidePrices} />
+
                 <section className="flex flex-col items-start gap-6 lg:flex-row">
                     <AllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
                     <TypeAllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
