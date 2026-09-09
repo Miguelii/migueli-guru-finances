@@ -3,9 +3,9 @@ import { formatCurrency } from '@/lib/formaters'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { groupAssetsByType } from '@/lib/utils'
-import { AddAssetApp } from '@/modules/watchlist/add-asset-app'
-import { AssetActions } from '@/modules/watchlist/asset-actions'
-import { LogoAvatar } from '@/components/logo-avatar'
+import { AddAssetApp } from '@/modules/assets/add-asset-app'
+import { AssetActions } from '@/modules/assets/asset-actions'
+import { LogoAvatar } from '@/components/ui/logo-avatar'
 
 type Props = {
     data: TickerData[]

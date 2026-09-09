@@ -1,7 +1,7 @@
 import { AuthCard } from '@/modules/auth/auth-card'
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { ToggleTheme } from '@/components/toggle-theme'
+import { ToggleTheme } from '@/modules/dashboard-actions/toggle-theme'
 
 export const dynamic = 'force-static'
 

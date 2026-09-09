@@ -4,8 +4,8 @@ import { formatCurrency } from '@/lib/formaters'
 import { cn } from '@/lib/utils'
 import { Currency } from '@/types/Transaction'
 import type { HoldingSummary } from '@/types/Holding'
-import { DEFAULT_NET_WORTH_GOAL } from '@/modules/summary/net-worth-goal-tracker.constants'
-import { getNetWorthGoalProgress } from '@/modules/summary/net-worth-goal-tracker.helpers'
+import { DEFAULT_NET_WORTH_GOAL } from '@/modules/net-worth-goal-tracker/net-worth-goal-tracker.constants'
+import { getNetWorthGoalProgress } from '@/modules/net-worth-goal-tracker/net-worth-goal-tracker.helpers'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 
 type Props = {

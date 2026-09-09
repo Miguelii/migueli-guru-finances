@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { AssetDrawer } from '@/modules/watchlist/asset-drawer'
-import { DeleteAssetDialog } from '@/modules/watchlist/delete-asset-dialog'
+import { AssetDrawer } from '@/modules/assets/asset-drawer'
+import { DeleteAssetDialog } from '@/modules/assets/delete-asset-dialog'
 import type { TickerData } from '@/types/Transaction'
 import { Pencil, Trash2 } from 'lucide-react'
 

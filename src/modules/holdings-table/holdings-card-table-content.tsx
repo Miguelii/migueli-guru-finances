@@ -3,7 +3,7 @@ import { formatCurrency, formatQuantity, formatPercentage } from '@/lib/formater
 import { cn } from '@/lib/utils'
 import { Currency } from '@/types/Transaction'
 import type { HoldingsCardProps } from '@/modules/holdings-table/holdings-card'
-import { LogoAvatar } from '@/components/logo-avatar'
+import { LogoAvatar } from '@/components/ui/logo-avatar'
 
 export const HoldingsCardTableContent = ({ holdings, hidePrices }: HoldingsCardProps) => {
     return (

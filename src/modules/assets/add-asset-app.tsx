@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { AssetDrawer } from '@/modules/watchlist/asset-drawer'
+import { AssetDrawer } from '@/modules/assets/asset-drawer'
 import { Plus } from 'lucide-react'
 
 export function AddAssetApp() {

@@ -21,7 +21,7 @@ import { formatCurrency } from '@/lib/formaters'
 import { cn } from '@/lib/utils'
 import { parseAsInteger, useQueryState } from 'nuqs'
 import { paramsUrlKeys } from '@/lib/searchParams'
-import { LogoAvatar } from '@/components/logo-avatar'
+import { LogoAvatar } from '@/components/ui/logo-avatar'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 
 type Props = {

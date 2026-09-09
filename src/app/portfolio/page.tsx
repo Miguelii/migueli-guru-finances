@@ -1,21 +1,14 @@
 import { createCaller } from '@/_trpc/server/caller'
 import { aggregateHoldings } from '@/lib/calculations'
-import { TransactionsCard } from '@/modules/transactions/transactions-card'
 import type { Metadata } from 'next'
 import { PortfolioSummaryCards } from '@/modules/summary/portfolio-summary-cards'
 import { searchParamsCache } from '@/lib/searchParams'
 import { getCambioRates, getLatestUpdate } from '@/lib/utils'
-import { RefreshApp } from '@/components/refresh-app'
+import { RefreshApp } from '@/modules/dashboard-actions/refresh-app'
 import { PortfolioExport } from '@/modules/portfolio-export/portfolio-export'
 import { AllocationCardWithChart } from '@/modules/allocation-chart/allocation-card-with-chart'
 import { TypeAllocationCardWithChart } from '@/modules/type-allocation-chart/type-allocation-card-with-chart'
-import { HoldingsCard } from '@/modules/holdings-table/holdings-card'
-import { MonthlyPurchasesCard } from '@/modules/monthly-purchases/monthly-purchases-card'
-import { cookies } from 'next/headers'
-import { PORTFOLIO_CARD_DISCLOSURE_COOKIE } from '@/modules/portfolio-card/portfolio-card.constants'
-import { parsePortfolioCardState } from '@/modules/portfolio-card/portfolio-card.helpers'
-import { PortfolioCardProvider } from '@/modules/portfolio-card/portfolio-card.provider'
-import { NetWorthGoalTracker } from '@/modules/summary/net-worth-goal-tracker'
+import { NetWorthGoalTracker } from '@/modules/net-worth-goal-tracker/net-worth-goal-tracker'
 
 export const metadata: Metadata = {
     title: 'Portfolio | Migueli Guru Finances',
@@ -25,11 +18,6 @@ type Props = PageProps<'/portfolio'>
 
 export default async function PortfolioPage(props: Props) {
     const trpc = await createCaller()
-    const cookieStore = await cookies()
-
-    const cardState = parsePortfolioCardState(
-        cookieStore.get(PORTFOLIO_CARD_DISCLOSURE_COOKIE)?.value
-    )
 
     const [transactions, data, searchParams] = await Promise.all([
         trpc.transactions.getAll(),
@@ -55,31 +43,14 @@ export default async function PortfolioPage(props: Props) {
                 </div>
             </div>
 
-            <PortfolioCardProvider initialState={cardState}>
-                <PortfolioSummaryCards holdings={holdings} hidePrices={hidePrices} />
+            <PortfolioSummaryCards holdings={holdings} hidePrices={hidePrices} />
 
-                <NetWorthGoalTracker holdings={holdings} hidePrices={hidePrices} />
+            <NetWorthGoalTracker holdings={holdings} hidePrices={hidePrices} />
 
-                <section className="flex flex-col items-start gap-6 lg:flex-row">
-                    <AllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
-                    <TypeAllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
-                </section>
-
-                <TransactionsCard
-                    transactions={transactions}
-                    tickerData={data}
-                    hidePrices={hidePrices}
-                />
-
-                <MonthlyPurchasesCard
-                    transactions={transactions}
-                    tickerData={data}
-                    rates={rates}
-                    hidePrices={hidePrices}
-                />
-
-                <HoldingsCard holdings={holdings} hidePrices={hidePrices} />
-            </PortfolioCardProvider>
+            <section className="flex flex-col items-start gap-6 lg:flex-row">
+                <AllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
+                <TypeAllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
+            </section>
         </main>
     )
 }

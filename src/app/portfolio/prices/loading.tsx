@@ -14,7 +14,7 @@ export default function Loading() {
             <Skeleton className="h-4 w-48" />
             <Card className="shadow-sm w-full min-w-0">
                 <CardHeader className="flex flex-row items-center gap-2">
-                    <CardTitle>Watchlist</CardTitle>
+                    <CardTitle>Assets</CardTitle>
                     <Skeleton className="h-5 w-6 rounded-none" />
                 </CardHeader>
                 <CardContent className="grid gap-0 p-0">

@@ -30,7 +30,7 @@ import {
     SERVICES,
     SYMBOLS,
     toFormValues,
-} from '@/modules/watchlist/asset-drawer.helpers'
+} from '@/modules/assets/asset-drawer.helpers'
 import { Currency, type TickerData } from '@/types/Transaction'
 import { Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'

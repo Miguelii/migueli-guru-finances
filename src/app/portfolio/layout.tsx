@@ -1,20 +1,36 @@
 import { cookies } from 'next/headers'
-import { AppSidebar } from '@/components/app-sidebar'
+import { AppSidebar } from '@/components/app-sidebar/app-sidebar'
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { HidePrices } from '@/components/hide-prices'
-import { ToggleTheme } from '@/components/toggle-theme'
+import { HidePrices } from '@/modules/dashboard-actions/hide-prices'
+import { ToggleTheme } from '@/modules/dashboard-actions/toggle-theme'
+import { Effect } from 'effect'
+import { PORTFOLIO_CARD_DISCLOSURE_COOKIE } from '@/modules/portfolio-card/portfolio-card.constants'
+import { parsePortfolioCardState } from '@/modules/portfolio-card/portfolio-card.helpers'
+import { PortfolioCardProvider } from '@/modules/portfolio-card/portfolio-card.provider'
 
 type Props = LayoutProps<'/portfolio'>
 
 export const dynamic = 'force-dynamic'
 
 export default async function PortfolioDashboard({ children }: Props) {
-    const cookieStore = await cookies()
+    const { sidebarState, cardState } = await Effect.runPromise(
+        Effect.gen(function* () {
+            const cookieStore = yield* Effect.promise(() => cookies())
+            const cookieValues = yield* Effect.sync(() => ({
+                sidebarState: cookieStore.get('sidebar_state')?.value,
+                cardState: cookieStore.get(PORTFOLIO_CARD_DISCLOSURE_COOKIE)?.value,
+            }))
 
-    const sidebarStateCookie = cookieStore.get('sidebar_state')
-    const sidebarState =
-        sidebarStateCookie?.value == null ? true : sidebarStateCookie.value !== 'false'
+            return {
+                sidebarState:
+                    cookieValues.sidebarState == null
+                        ? true
+                        : cookieValues.sidebarState !== 'false',
+                cardState: parsePortfolioCardState(cookieValues.cardState),
+            }
+        })
+    )
 
     return (
         <SidebarProvider
@@ -28,21 +44,23 @@ export default async function PortfolioDashboard({ children }: Props) {
         >
             <AppSidebar variant="inset" />
             <SidebarInset className="min-w-0 overflow-hidden">
-                <div className="flex flex-col gap-6 p-4 pt-2 md:p-6 md:pt-4 w-full min-w-0 overflow-hidden">
-                    <div className="flex w-full items-center gap-1 justify-center border-b border-muted-foreground/10 pt-2 sm:pt-0 pb-4">
-                        <SidebarTrigger className="-ml-1 h-8 cursor-pointer md:hidden" />
-                        <Separator
-                            orientation="vertical"
-                            className="mx-2 h-4 top-2 relative md:hidden"
-                        />
-                        <h1 className="text-base font-bold w-full">Portfolio</h1>
-                        <div className="flex flex-row gap-3">
-                            <HidePrices />
-                            <ToggleTheme />
+                <PortfolioCardProvider initialState={cardState}>
+                    <div className="flex flex-col gap-6 p-4 pt-2 md:p-6 md:pt-4 w-full min-w-0 overflow-hidden">
+                        <div className="flex w-full items-center gap-1 justify-center border-b border-muted-foreground/10 pt-2 sm:pt-0 pb-4">
+                            <SidebarTrigger className="-ml-1 h-8 cursor-pointer md:hidden" />
+                            <Separator
+                                orientation="vertical"
+                                className="mx-2 h-4 top-2 relative md:hidden"
+                            />
+                            <h1 className="text-base font-bold w-full">Portfolio</h1>
+                            <div className="flex flex-row gap-3">
+                                <HidePrices />
+                                <ToggleTheme />
+                            </div>
                         </div>
+                        {children}
                     </div>
-                    {children}
-                </div>
+                </PortfolioCardProvider>
             </SidebarInset>
         </SidebarProvider>
     )

@@ -1,4 +1,4 @@
-import { PricesSummaryCards } from '@/modules/watchlist/prices-summay-cards'
+import { PricesSummaryCards } from '@/modules/assets/prices-summay-cards'
 import { getLatestUpdate } from '@/lib/utils'
 import { createCaller } from '@/_trpc/server/caller'
 import type { Metadata } from 'next/types'
@@ -6,7 +6,7 @@ import type { Metadata } from 'next/types'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-    title: 'Watchlist | Migueli Guru Finances',
+    title: 'Assets | Migueli Guru Finances',
 }
 
 export default async function PortfolioPage() {

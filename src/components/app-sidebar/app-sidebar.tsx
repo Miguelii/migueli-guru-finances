@@ -16,7 +16,7 @@ import {
     SidebarTrigger,
     useSidebar,
 } from '@/components/ui/sidebar'
-import { NAV_GROUPS, type NavGroup } from '@/components/app-sidebar.constants'
+import { NAV_GROUPS, type NavGroup } from '@/components/app-sidebar/app-sidebar.constants'
 import Image from 'next/image'
 import Link from 'next/link'
 import { SignOutApp } from '@/modules/auth/sign-out-app'
