@@ -1,28 +1,15 @@
-'use client'
-
 import * as React from 'react'
 
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
     SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
     SidebarTrigger,
-    useSidebar,
 } from '@/components/ui/sidebar'
-import { NAV_GROUPS, type NavGroup } from '@/components/app-sidebar/app-sidebar.constants'
 import Image from 'next/image'
-import Link from 'next/link'
 import { SignOutApp } from '@/modules/auth/sign-out-app'
-import { useIsMobile } from '@/hooks/use-mobile'
-import { useCallback } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { NavMain } from '@/components/app-sidebar/app-sidebar-nav'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
@@ -44,7 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain groups={NAV_GROUPS} />
+                <NavMain />
             </SidebarContent>
             <SidebarFooter className="py-3 flex flex-col gap-5">
                 <Image
@@ -59,54 +46,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SignOutApp />
             </SidebarFooter>
         </Sidebar>
-    )
-}
-
-function NavMain({ groups }: { groups: NavGroup[] }) {
-    const sidebar = useSidebar()
-    const isMobile = useIsMobile()
-
-    const pathname = usePathname()
-    const searchParams = useSearchParams()
-
-    const onClick = useCallback(() => {
-        if (isMobile) sidebar.toggleSidebar()
-    }, [isMobile, sidebar])
-
-    return (
-        <>
-            {groups.map((group, index) => (
-                <SidebarGroup key={group.label ?? index}>
-                    {group.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
-                    <SidebarGroupContent className="flex flex-col gap-2">
-                        <SidebarMenu>
-                            {group.items.map((item) => {
-                                const Icon = item.Icon
-                                return (
-                                    <Link
-                                        key={item.title}
-                                        className="contents"
-                                        prefetch={false}
-                                        href={`${item.url}?${searchParams.toString()}`}
-                                        onClick={() => onClick()}
-                                    >
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton
-                                                tooltip={item.title}
-                                                isActive={pathname === item.url}
-                                                className="cursor-pointer!"
-                                            >
-                                                {Icon && <Icon />}
-                                                <span>{item.title}</span>
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </Link>
-                                )
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            ))}
-        </>
     )
 }
