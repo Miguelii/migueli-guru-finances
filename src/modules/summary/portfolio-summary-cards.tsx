@@ -1,6 +1,6 @@
 import type { HoldingSummary } from '@/types/Holding'
 import { TickerType } from '@/types/Transaction'
-import { Wallet, Bitcoin, BarChart3, TrendingUp } from 'lucide-react'
+import { Wallet, Bitcoin, BarChart3, TrendingUp, Landmark } from 'lucide-react'
 import { PortfolioSummaryCardsItem } from '@/modules/summary/portfolio-summary-cards-item'
 
 type Props = {
@@ -12,9 +12,10 @@ export function PortfolioSummaryCards({ holdings, hidePrices }: Props) {
     const cryptoHoldings = holdings.filter((h) => h.tickerType === TickerType.Crypto)
     const etfHoldings = holdings.filter((h) => h.tickerType === TickerType.Etf)
     const stockHoldings = holdings.filter((h) => h.tickerType === TickerType.Stock)
+    const nonCryptoHoldings = holdings.filter((h) => h.tickerType !== TickerType.Crypto)
 
     return (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 lg:gap-6">
             <PortfolioSummaryCardsItem
                 title="Net Worth"
                 icon={Wallet}
@@ -37,6 +38,12 @@ export function PortfolioSummaryCards({ holdings, hidePrices }: Props) {
                 title="Stocks"
                 icon={TrendingUp}
                 holdings={stockHoldings}
+                hidePrices={hidePrices}
+            />
+            <PortfolioSummaryCardsItem
+                title="Net Worth (no crypto)"
+                icon={Landmark}
+                holdings={nonCryptoHoldings}
                 hidePrices={hidePrices}
             />
         </section>

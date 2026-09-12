@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { MetricCardSkeleton } from '@/components/ui/metric-card'
 
-const METRIC_KEYS = ['metric-1', 'metric-2', 'metric-3', 'metric-4'] as const
+const METRIC_KEYS = ['metric-1', 'metric-2', 'metric-3', 'metric-4', 'metric-5'] as const
 const CHART_KEYS = ['chart-1', 'chart-2'] as const
 
 export default function Loading() {
@@ -16,7 +16,7 @@ export default function Loading() {
                 </div>
             </div>
 
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
                 {METRIC_KEYS.map((key) => (
                     <MetricCardSkeleton key={key} />
                 ))}
