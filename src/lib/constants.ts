@@ -4,6 +4,8 @@ export const UPDATE_TICKERS_API_PATH = '/api/updateTickers' as const
 
 export const TRPC_API_PATH = '/api/trpc' as const
 
+export const FORCE_SIGN_OUT_API_PATH = '/api/auth/sign-out' as const
+
 export const PRIVATE_ROUTE_PATH = '/portfolio' as const
 
 export const TRANSACTIONS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/transactions` as const

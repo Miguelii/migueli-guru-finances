@@ -1,6 +1,11 @@
 import { cache } from 'react'
 import { Effect } from 'effect'
-import type { SupabaseClient, User } from '@supabase/supabase-js'
+import {
+    isAuthApiError,
+    isAuthSessionMissingError,
+    type SupabaseClient,
+    type User,
+} from '@supabase/supabase-js'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError } from '@/_bff/common/errors/shared.errors'
@@ -10,6 +15,18 @@ type SessionResult =
     | { ok: true; user: User | null }
     | { ok: false; kind: 'sb-client'; cause: unknown }
     | { ok: false; kind: 'get-user'; cause: unknown }
+
+const INVALID_SESSION_STATUSES = new Set([400, 401, 403, 404])
+
+/**
+ * Whether a `getUser()` error means the session itself is invalid (missing, expired,
+ * revoked, refresh token already used) rather than an infrastructure failure.
+ * @param error - The error returned by `supabase.auth.getUser()`.
+ */
+export function isInvalidSessionError(error: unknown): boolean {
+    if (isAuthSessionMissingError(error)) return true
+    return isAuthApiError(error) && INVALID_SESSION_STATUSES.has(error.status)
+}
 
 /**
  * Resolves the current user once per request.
@@ -34,7 +51,15 @@ const resolveUser = cache(async (): Promise<SessionResult> => {
 
     try {
         const { data, error } = await bd.auth.getUser()
-        return { ok: true, user: error ? null : (data?.user ?? null) }
+
+        if (!error) return { ok: true, user: data?.user ?? null }
+
+        // Only a rejected session means "no user" (→ 401 → forced sign-out). Network or
+        // Supabase Auth outages surface as infrastructure failures so users are not
+        // signed out by a transient error.
+        if (isInvalidSessionError(error)) return { ok: true, user: null }
+
+        return { ok: false, kind: 'get-user', cause: error }
     } catch (cause) {
         return { ok: false, kind: 'get-user', cause }
     }

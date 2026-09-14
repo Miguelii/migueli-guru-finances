@@ -1,19 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import { Loader2Icon, LogOutIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
-import { trpcClient } from '@/_trpc/client'
+import { FORCE_SIGN_OUT_API_PATH } from '@/lib/constants'
 
 export function SignOutApp() {
-    const router = useRouter()
-
-    const signOut = trpcClient.auth.signOut.useMutation({
-        onSuccess: () => router.refresh(),
-    })
+    const [isPending, setIsPending] = useState(false)
 
     function onClick() {
-        signOut.mutate()
+        setIsPending(true)
+        window.location.assign(FORCE_SIGN_OUT_API_PATH)
     }
 
     return (
@@ -21,10 +18,10 @@ export function SignOutApp() {
             variant="ghost"
             size="icon"
             onClick={onClick}
-            disabled={signOut.isPending}
+            disabled={isPending}
             className="h-8 w-full cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
         >
-            {signOut.isPending ? (
+            {isPending ? (
                 <Loader2Icon className="size-4 animate-spin" />
             ) : (
                 <LogOutIcon className="size-4" />

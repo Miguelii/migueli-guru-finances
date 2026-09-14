@@ -9,7 +9,7 @@ export const LOGIN_PUBLIC_CONTROLLER = publicProcedure.input(loginSchema).mutati
         Match.value(error).pipe(
             //Match.tag('IsBotError', () => 'FORBIDDEN' as const),
             Match.tag('CreateSbClientError', () => 'INTERNAL_SERVER_ERROR' as const),
-            Match.tag('SignInWithPasswordError', () => 'UNAUTHORIZED' as const),
+            Match.tag('SignInWithPasswordError', () => 'BAD_REQUEST' as const),
             Match.exhaustive
         )
     )
