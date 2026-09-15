@@ -31,7 +31,7 @@ import {
     toDbDate,
     toFormValues,
     toNumber,
-} from '@/modules/transactions/transaction-drawer.helpers'
+} from '@/modules/transactions/transaction-drawer/transaction-drawer.helpers'
 
 export type FormValues = {
     ticker_id: string

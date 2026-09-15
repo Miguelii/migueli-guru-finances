@@ -15,29 +15,24 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-    Currency,
-    TransactionType,
-    type Ticker,
-    type TickerData,
-    type Transaction,
-} from '@/types/Transaction'
-import { useState } from 'react'
+import { Currency, TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatDate, formatQuantity } from '@/lib/formaters'
 import { cn } from '@/lib/utils'
 import { ChevronDown, Pencil, Plus, Trash2 } from 'lucide-react'
-import { parseAsString, useQueryState } from 'nuqs'
-import { paramsUrlKeys } from '@/lib/searchParams'
-import { TransactionDrawer } from '@/modules/transactions/transaction-drawer'
 import { DeleteTransactionDialog } from '@/modules/transactions/delete-transaction-dialog'
 import {
-    calculateTransactionInvested,
     getSellEligibility,
     getSellEligibilityLabel,
-} from './transactions-card.helpers'
-import { TYPE_BADGE_VARIANT, TYPE_LABEL } from './transactions-card.constants'
+} from '@/modules/transactions/transactions-card/transactions-card.helpers'
+import {
+    TYPE_BADGE_VARIANT,
+    TYPE_LABEL,
+} from '@/modules/transactions/transactions-card/transactions-card.constants'
+import { useTransactionsCard } from '@/modules/transactions/transactions-card/use-transactions-card'
+import { useTransactionsCardActions } from '@/modules/transactions/transactions-card/use-transactions-card-actions'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
+import { TransactionDrawer } from '@/modules/transactions/transaction-drawer'
 
 type Props = {
     transactions: Transaction[]
@@ -46,34 +41,27 @@ type Props = {
 }
 
 export function TransactionsCard({ transactions, tickerData, hidePrices }: Props) {
-    const [selectedAsset, setSelectedAsset] = useQueryState(
-        paramsUrlKeys.filter_asset!,
-        parseAsString.withDefault('all')
-    )
+    const {
+        selectedAsset,
+        setSelectedAsset,
+        currencyMap,
+        assetTypeMap,
+        uniqueAssets,
+        displayedTransactions,
+        investedByTransaction,
+    } = useTransactionsCard({ transactions, tickerData })
 
-    const [createOpen, setCreateOpen] = useState(false)
-    const [editing, setEditing] = useState<Transaction | null>(null)
-    const [deleting, setDeleting] = useState<Transaction | null>(null)
-
-    const currencyMap = new Map<Ticker, Currency>(tickerData.map((td) => [td.ticker, td.currency]))
-
-    const assetTypeMap = new Map<Ticker, TickerData['type']>(
-        tickerData.map((td) => [td.ticker, td.type])
-    )
-
-    const uniqueAssets = Array.from(new Set(transactions.map((tx) => tx.ticker_id))).toSorted(
-        (a, b) => a.localeCompare(b)
-    )
-
-    const filteredTransactions =
-        selectedAsset === 'all'
-            ? transactions
-            : transactions.filter((tx) => tx.ticker_id === selectedAsset)
-    const displayedTransactions = filteredTransactions.toSorted((a, b) =>
-        b.buy_date.localeCompare(a.buy_date)
-    )
-
-    const investedByTransaction = calculateTransactionInvested(transactions, tickerData)
+    const {
+        isDrawerOpen,
+        isDeleteDialogOpen,
+        editing,
+        deleting,
+        openCreate,
+        openEdit,
+        openDelete,
+        onDrawerOpenChange,
+        onDeleteDialogOpenChange,
+    } = useTransactionsCardActions()
 
     return (
         <PortfolioCard
@@ -85,7 +73,7 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setCreateOpen(true)}
+                        onClick={openCreate}
                         className="cursor-pointer gap-1 rounded-none px-2 py-1.5 text-sm h-8.5"
                     >
                         <Plus className="size-4" />
@@ -211,7 +199,7 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                                             size="icon-sm"
                                             aria-label="Edit transaction"
                                             className="cursor-pointer"
-                                            onClick={() => setEditing(tx)}
+                                            onClick={() => openEdit(tx)}
                                         >
                                             <Pencil />
                                         </Button>
@@ -220,7 +208,7 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                                             size="icon-sm"
                                             aria-label="Delete transaction"
                                             className="cursor-pointer text-destructive hover:text-destructive"
-                                            onClick={() => setDeleting(tx)}
+                                            onClick={() => openDelete(tx)}
                                         >
                                             <Trash2 />
                                         </Button>
@@ -233,23 +221,16 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
             </Table>
 
             <TransactionDrawer
-                open={createOpen || editing !== null}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        setCreateOpen(false)
-                        setEditing(null)
-                    }
-                }}
+                open={isDrawerOpen}
+                onOpenChange={onDrawerOpenChange}
                 tickerData={tickerData}
                 transactions={transactions}
                 transaction={editing}
             />
 
             <DeleteTransactionDialog
-                open={deleting !== null}
-                onOpenChange={(open) => {
-                    if (!open) setDeleting(null)
-                }}
+                open={isDeleteDialogOpen}
+                onOpenChange={onDeleteDialogOpenChange}
                 transaction={deleting}
             />
         </PortfolioCard>

@@ -7,18 +7,8 @@ import {
 } from '@/types/Transaction'
 import { processTransactions } from '@/lib/fifo'
 import { getCambioRates } from '@/lib/utils'
-import type { FormValues } from '@/modules/transactions/transaction-drawer'
-
-type HoldingPreviewSide = {
-    quantity: number
-    avgCost: number
-}
-
-export type HoldingPreview = {
-    currency: Currency
-    before: HoldingPreviewSide
-    after: HoldingPreviewSide
-}
+import type { FormValues } from '.'
+import type { HoldingPreview, HoldingPreviewSide } from './transaction-drawer.types'
 
 /**
  * Converts a DB date (`YYYY-MM-DD HH:mm:ss`) into a datetime-local input value.

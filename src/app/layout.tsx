@@ -106,8 +106,6 @@ export default function RootLayout({ children }: Props) {
                 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
                 <meta name="apple-mobile-web-app-title" content="GuruFiances" />
             </head>
-            <VercelAnalytics />
-            <VercelSpeedInsights />
             <body
                 className={`${geistSans.variable} font-sans antialiased bg-background text-primary`}
             >
@@ -120,6 +118,8 @@ export default function RootLayout({ children }: Props) {
                 >
                     Skip to content
                 </a>
+                <VercelAnalytics />
+                <VercelSpeedInsights />
                 <TrpcContextProvider>
                     <ThemeProvider
                         attribute="class"

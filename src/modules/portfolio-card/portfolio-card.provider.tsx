@@ -22,15 +22,15 @@ type ProviderProps = PropsWithChildren<{
 export function PortfolioCardProvider({ initialState, children }: ProviderProps) {
     const [state, setState] = useState(initialState)
 
-    const toggle = (cardId: PortfolioCardId) => {
-        setState((currentState) => {
-            const nextState = { ...currentState, [cardId]: !currentState[cardId] }
+    const contextValue = useMemo(() => {
+        const toggle = (cardId: PortfolioCardId) => {
+            const nextState = { ...state, [cardId]: !state[cardId] }
+            setState(nextState)
             document.cookie = `${PORTFOLIO_CARD_DISCLOSURE_COOKIE}=${encodeURIComponent(serializePortfolioCardState(nextState))}; path=/; max-age=${PORTFOLIO_CARD_DISCLOSURE_COOKIE_MAX_AGE}`
-            return nextState
-        })
-    }
+        }
 
-    const contextValue = useMemo(() => ({ state, toggle }), [state])
+        return { state, toggle }
+    }, [state])
 
     return <PortfolioCardContext value={contextValue}>{children}</PortfolioCardContext>
 }

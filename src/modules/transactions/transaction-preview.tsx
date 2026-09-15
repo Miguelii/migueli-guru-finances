@@ -1,6 +1,6 @@
 import { formatCurrency, formatQuantity } from '@/lib/formaters'
 import { cn } from '@/lib/utils'
-import type { HoldingPreview } from '@/modules/transactions/transaction-drawer.helpers'
+import type { HoldingPreview } from './transaction-drawer/transaction-drawer.types'
 
 type Props = {
     preview: HoldingPreview

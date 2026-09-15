@@ -24,7 +24,7 @@ export default async function PositionsPage(props: Props) {
     const holdings = aggregateHoldings(transactions, data, getCambioRates(data))
 
     return (
-        <main className="flex flex-col gap-6 mb-24 min-w-0" id="#main">
+        <main className="flex flex-col gap-6 mb-24 min-w-0" id="main">
             <span className="text-xs text-muted-foreground">
                 Last Update: {getLatestUpdate(data)}
             </span>

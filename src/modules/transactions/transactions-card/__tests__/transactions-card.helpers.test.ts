@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { calculateTransactionInvested } from '@/modules/transactions/transactions-card.helpers'
+import { calculateTransactionInvested } from '@/modules/transactions/transactions-card/transactions-card.helpers'
 import {
     Currency,
     Ticker,

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function AuthPage() {
     return (
-        <main className="flex min-h-svh" id="#main">
+        <main className="flex min-h-svh" id="main">
             {/* Left panel — gurus image */}
             <div className="hidden lg:flex lg:basis-1/2 relative flex-col items-center justify-center bg-muted/30 border-r border-border">
                 <div className="pointer-events-none absolute inset-0 overflow-hidden">

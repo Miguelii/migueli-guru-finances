@@ -55,9 +55,10 @@ export function MonthlyPurchasesCard({ transactions, tickerData, rates, hidePric
         tickerData.filter((td) => td.logo).map((td) => [td.ticker, td.logo!])
     )
 
+    // Filtered on the client from props: shallow skips the server re-render the adapter default triggers
     const [selectedYear, setSelectedYear] = useQueryState(
         paramsUrlKeys.filter_year!,
-        parseAsInteger.withDefault(currentYear)
+        parseAsInteger.withDefault(currentYear).withOptions({ shallow: true })
     )
 
     const years = Array.from({ length: currentYear - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i)

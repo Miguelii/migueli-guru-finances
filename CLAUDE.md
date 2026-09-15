@@ -125,7 +125,7 @@ Transaction types: `BUY`, `SELL`, `REWARD`, `FEE`
 ### Security
 - Page CSP set via `set-csp.ts` in the proxy (documents only — CSP is inert on subresources)
 - Static assets are excluded from the proxy via `matcher` in `proxy.ts`; their headers (nosniff, HSTS, X-Frame-Options, Referrer-Policy, plus the `/sw.js` worker CSP + no-cache) come from `headers()` in `next.config.ts` (CDN-level, no proxy invocations)
-- `/_next/image` caching is governed solely by `images.minimumCacheTTL` (31 days)
+- `/_next/image` caching is governed solely by `images.minimumCacheTTL` (365 days)
 - **Bot Protection**: Vercel BotId via `botid` package
 
 ### Bot Protection (Vercel BotId)

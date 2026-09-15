@@ -10,7 +10,7 @@ const SKELETON_GROUPS = [
 
 export default function Loading() {
     return (
-        <main className="flex flex-col gap-6 mb-24" id="#main">
+        <main className="flex flex-col gap-6 mb-24" id="main">
             <Skeleton className="h-4 w-48" />
             <Card className="shadow-sm w-full min-w-0">
                 <CardHeader className="flex flex-row items-center gap-2">

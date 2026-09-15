@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronDown } from 'lucide-react'
-import { motion } from 'motion/react'
+import { LazyMotion, domAnimation, m } from 'motion/react'
 import { type PropsWithChildren, use } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { type PortfolioCardId } from '@/modules/portfolio-card/portfolio-card.constants'
@@ -80,22 +80,26 @@ export function PortfolioCard({
                     />
                 </div>
             </CardHeader>
-            <motion.div
-                initial={false}
-                animate={{
-                    height: isOpen ? 'auto' : 0,
-                    opacity: isOpen ? 1 : 0,
-                    y: isOpen ? 0 : -12,
-                }}
-                transition={{ duration: 0.24, ease: 'easeOut' }}
-                className={cn('min-h-0 overflow-hidden', {
-                    'flex-1': isOpen,
-                })}
-                id={contentId}
-                aria-hidden={!isOpen}
-            >
-                <CardContent className={contentClassName}>{children}</CardContent>
-            </motion.div>
+            <LazyMotion features={domAnimation} strict>
+                <m.div
+                    initial={false}
+                    animate={{
+                        height: isOpen ? 'auto' : 0,
+                        opacity: isOpen ? 1 : 0,
+                        y: isOpen ? 0 : -12,
+                    }}
+                    transition={{ duration: 0.24, ease: 'easeOut' }}
+                    className={cn('min-h-0 overflow-hidden', {
+                        'flex-1': isOpen,
+                    })}
+                    id={contentId}
+                    aria-hidden={!isOpen}
+                    // Keeps buttons and selects of a collapsed card out of the tab order
+                    inert={!isOpen}
+                >
+                    <CardContent className={contentClassName}>{children}</CardContent>
+                </m.div>
+            </LazyMotion>
         </Card>
     )
 }

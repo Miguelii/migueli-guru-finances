@@ -32,7 +32,7 @@ export default async function PortfolioPage(props: Props) {
     const holdings = aggregateHoldings(transactions, data, rates)
 
     return (
-        <main className="flex flex-col gap-6 mb-24 min-w-0" id="#main">
+        <main className="flex flex-col gap-6 mb-24 min-w-0" id="main">
             <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
                 <span className="text-xs text-muted-foreground">
                     Last Update: {getLatestUpdate(data)}
