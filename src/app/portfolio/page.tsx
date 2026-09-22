@@ -1,4 +1,4 @@
-import { createCaller } from '@/_trpc/server/caller'
+import { createCaller } from '@/_bff/trpc/caller'
 import { aggregateHoldings } from '@/lib/calculations'
 import type { Metadata } from 'next'
 import { PortfolioSummaryCards } from '@/modules/summary/portfolio-summary-cards'

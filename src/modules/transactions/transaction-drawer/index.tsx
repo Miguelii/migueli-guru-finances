@@ -20,7 +20,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet'
-import { trpcClient } from '@/_trpc/client'
+import { trpcClient } from '@/lib/trpc'
 import { TickerType, TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
 import { TransactionPreview } from '@/modules/transactions/transaction-preview'
 import { Loader2Icon } from 'lucide-react'

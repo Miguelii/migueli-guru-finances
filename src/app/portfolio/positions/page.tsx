@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createCaller } from '@/_trpc/server/caller'
+import { createCaller } from '@/_bff/trpc/caller'
 import { HoldingsCard } from '@/modules/holdings-table/holdings-card'
 import { searchParamsCache } from '@/lib/searchParams'
 import { getCambioRates, getLatestUpdate } from '@/lib/utils'

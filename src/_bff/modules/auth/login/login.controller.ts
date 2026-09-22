@@ -1,6 +1,6 @@
 import { loginSchema } from '@/_bff/modules/auth/auth.dto'
-import { publicProcedure } from '@/_trpc/server'
-import { runEffect } from '@/_trpc/utils'
+import { publicProcedure } from '@/_bff/trpc/server'
+import { runEffect } from '@/_bff/trpc/utils'
 import { Match } from 'effect'
 import { login } from './login.service'
 

@@ -1,8 +1,8 @@
 import 'server-only'
 
 import { redirect } from 'next/navigation'
-import { appRouter } from '@/_trpc/router'
-import { createContext } from '@/_trpc/context'
+import { appRouter } from '@/_bff/trpc/router'
+import { createContext } from '@/_bff/trpc/context'
 import { FORCE_SIGN_OUT_API_PATH } from '@/lib/constants'
 
 export const createCaller = async () => {

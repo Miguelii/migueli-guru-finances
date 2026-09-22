@@ -4,7 +4,7 @@ import { Loader2Icon, RefreshCwIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { trpcClient } from '@/_trpc/client'
+import { trpcClient } from '@/lib/trpc'
 
 export function RefreshApp() {
     const router = useRouter()
