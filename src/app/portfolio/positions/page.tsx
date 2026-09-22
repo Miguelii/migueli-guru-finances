@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { createCaller } from '@/_trpc/server/caller'
+import { createCaller } from '@/_bff/trpc/caller'
 import { HoldingsCard } from '@/modules/holdings-table/holdings-card'
-import { searchParamsCache } from '@/lib/searchParams'
+import { searchParamsCache } from '@/lib/core/searchParams'
 import { getCambioRates, getLatestUpdate } from '@/lib/utils'
-import { aggregateHoldings } from '@/lib/calculations'
+import { aggregateHoldings } from '@/lib/portfolio/calculations'
 
 export const metadata: Metadata = {
     title: 'Positions | Migueli Guru Finances',

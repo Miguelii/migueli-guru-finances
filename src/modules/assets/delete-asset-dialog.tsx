@@ -10,7 +10,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { trpcClient } from '@/_trpc/client'
+import { trpcClient } from '@/lib/trpc'
 import type { TickerData } from '@/types/Transaction'
 import { Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'

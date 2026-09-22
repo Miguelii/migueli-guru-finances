@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Currency, TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
 import { Button } from '@/components/ui/button'
-import { formatCurrency, formatDate, formatQuantity } from '@/lib/formaters'
+import { formatCurrency, formatDate, formatQuantity } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import { ChevronDown, Pencil, Plus, Trash2 } from 'lucide-react'
 import { DeleteTransactionDialog } from '@/modules/transactions/delete-transaction-dialog'

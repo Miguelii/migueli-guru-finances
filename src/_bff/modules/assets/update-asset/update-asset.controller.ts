@@ -1,6 +1,6 @@
 import { createAssetSchema } from '@/_bff/modules/assets/assets.dto'
-import { protectedProcedure } from '@/_trpc/server'
-import { runEffect } from '@/_trpc/utils'
+import { protectedProcedure } from '@/_bff/trpc/server'
+import { runEffect } from '@/_bff/trpc/utils'
 import { Match } from 'effect'
 import { updateAsset } from './update-asset.service'
 

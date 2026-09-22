@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { formatCurrency, formatQuantity, formatPercentage, formatDate } from '@/lib/formaters'
+import {
+    formatCurrency,
+    formatQuantity,
+    formatPercentage,
+    formatDate,
+} from '@/lib/portfolio/formaters'
 import { Currency } from '@/types/Transaction'
 
 // ─── formatCurrency ──────────────────────────────────────────────────────────
@@ -35,7 +40,7 @@ describe('formatQuantity', () => {
     it('should format large numbers with thousand separator', () => {
         const result = formatQuantity(10000)
         // jsdom may use narrow no-break space instead of dot as thousand separator
-        expect(result.replaceAll(/\s/g, '')).toBe('10000')
+        expect(result.replaceAll(/\s/gu, '')).toBe('10000')
     })
 })
 

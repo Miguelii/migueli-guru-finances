@@ -1,5 +1,5 @@
 import { TickerType, type TickerData } from '@/types/Transaction'
-import { formatCurrency } from '@/lib/formaters'
+import { formatCurrency } from '@/lib/portfolio/formaters'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { groupAssetsByType } from '@/lib/utils'

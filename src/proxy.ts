@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
-import { setCSP } from '@/lib/set-csp'
-import { sbProxy } from '@/lib/utils.server'
+import { setCSP } from '@/lib/core/set-csp'
+import { sbProxy } from '@/lib/utils/index.server'
 
 export async function proxy(request: NextRequest) {
     const response = await sbProxy(request)

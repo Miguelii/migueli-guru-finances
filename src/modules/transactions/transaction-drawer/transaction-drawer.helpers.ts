@@ -5,7 +5,7 @@ import {
     type TickerData,
     type Transaction,
 } from '@/types/Transaction'
-import { processTransactions } from '@/lib/fifo'
+import { processTransactions } from '@/lib/portfolio/fifo'
 import { getCambioRates } from '@/lib/utils'
 import type { FormValues } from '.'
 import type { HoldingPreview, HoldingPreviewSide } from './transaction-drawer.types'

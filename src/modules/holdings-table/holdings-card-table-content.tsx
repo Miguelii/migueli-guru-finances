@@ -1,5 +1,5 @@
 import { TableBody, TableCell, TableRow } from '@/components/ui/table'
-import { formatCurrency, formatQuantity, formatPercentage } from '@/lib/formaters'
+import { formatCurrency, formatQuantity, formatPercentage } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import { Currency } from '@/types/Transaction'
 import type { HoldingsCardProps } from '@/modules/holdings-table/holdings-card'

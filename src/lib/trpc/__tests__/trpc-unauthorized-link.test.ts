@@ -12,7 +12,7 @@ function makeError(code: string) {
 }
 
 async function runLink(error: TRPCClientError<never>) {
-    const { unauthorizedLink } = await import('@/_trpc/client/unauthorized-link')
+    const { unauthorizedLink } = await import('@/lib/trpc/trpc-unauthorized-link')
     const op = {
         id: 1,
         type: 'query',
@@ -37,7 +37,7 @@ describe('unauthorizedLink', () => {
 
     it('redirects to the forced sign-out once and forwards the error', async () => {
         const error = makeError('UNAUTHORIZED')
-        const { unauthorizedLink } = await import('@/_trpc/client/unauthorized-link')
+        const { unauthorizedLink } = await import('@/lib/trpc/trpc-unauthorized-link')
         const link = unauthorizedLink({} as never)
         const next = () => observable((observer) => observer.error(error as never))
         const op = {} as Operation

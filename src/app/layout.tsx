@@ -10,7 +10,7 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { ClientEnv } from '@/env/client'
 import { ThemeProvider } from '@/providers/theme-provider'
 import { Themes } from '@/types/Themes'
-import { TrpcContextProvider } from '@/_trpc/context/trpc-context.provider'
+import { TrpcContextProvider } from '@/providers/trpc-provider'
 
 const geistSans = Geist({
     variable: '--font-sans',

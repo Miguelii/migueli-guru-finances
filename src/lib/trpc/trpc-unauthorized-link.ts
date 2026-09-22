@@ -1,6 +1,6 @@
 import type { TRPCLink } from '@trpc/client'
 import { observable } from '@trpc/server/observable'
-import type { AppRouter } from '@/_trpc/router'
+import type { AppRouter } from '@/_bff/trpc/router'
 import { FORCE_SIGN_OUT_API_PATH } from '@/lib/constants'
 
 let isRedirecting = false

@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { router } from '@/_trpc/server'
+import { router } from '@/_bff/trpc/server'
 import { CREATE_TRANSACTION_PROTECTED_CONTROLLER } from './create-transaction/create-transaction.controller'
 import { DELETE_TRANSACTION_PROTECTED_CONTROLLER } from './delete-transaction/delete-transaction.controller'
 import { GET_ALL_TRANSACTIONS_PROTECTED_CONTROLLER } from './get-all-transactions/get-all-transactions.controller'

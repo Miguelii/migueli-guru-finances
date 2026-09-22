@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import { createCaller } from '@/_trpc/server/caller'
+import { createCaller } from '@/_bff/trpc/caller'
 import { MonthlyPurchasesCard } from '@/modules/monthly-purchases/monthly-purchases-card'
 import { TransactionsCard } from '@/modules/transactions/transactions-card'
-import { searchParamsCache } from '@/lib/searchParams'
+import { searchParamsCache } from '@/lib/core/searchParams'
 import { getCambioRates, getLatestUpdate } from '@/lib/utils'
 
 export const metadata: Metadata = {

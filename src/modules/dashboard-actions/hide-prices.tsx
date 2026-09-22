@@ -3,7 +3,7 @@
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { parseAsBoolean, useQueryState } from 'nuqs'
-import { paramsUrlKeys } from '@/lib/searchParams'
+import { paramsUrlKeys } from '@/lib/core/searchParams'
 
 export function HidePrices() {
     const [hide, setHide] = useQueryState(paramsUrlKeys.hide_prices!, parseAsBoolean)

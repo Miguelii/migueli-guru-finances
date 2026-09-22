@@ -16,11 +16,14 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
-import { aggregateMonthlyPurchases, aggregateMonthlyPurchasesTotals } from '@/lib/calculations'
-import { formatCurrency } from '@/lib/formaters'
+import {
+    aggregateMonthlyPurchases,
+    aggregateMonthlyPurchasesTotals,
+} from '@/lib/portfolio/calculations'
+import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import { parseAsInteger, useQueryState } from 'nuqs'
-import { paramsUrlKeys } from '@/lib/searchParams'
+import { paramsUrlKeys } from '@/lib/core/searchParams'
 import { LogoAvatar } from '@/components/ui/logo-avatar'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 

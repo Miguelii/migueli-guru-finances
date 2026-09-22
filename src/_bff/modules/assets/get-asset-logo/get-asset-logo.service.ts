@@ -2,7 +2,7 @@ import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { Logger } from '@/_bff/common/logger/logger'
 import { assetLogoPathSchema } from '@/_bff/modules/assets/assets.dto'
 import { GetAssetLogoError } from '@/_bff/modules/assets/assets.errors'
-import { buildBucketAssetUrl } from '@/lib/utils.server'
+import { buildBucketAssetUrl } from '@/lib/utils/index.server'
 import { Effect } from 'effect'
 import { NextResponse } from 'next/server'
 

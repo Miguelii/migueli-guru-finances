@@ -2,7 +2,7 @@ import type { CambioRates, Ticker, TickerData, Transaction } from '@/types/Trans
 import { Currency, TransactionType } from '@/types/Transaction'
 import type { HoldingSummary } from '@/types/Holding'
 import { toEur } from '@/lib/utils'
-import { processTransactions } from '@/lib/fifo'
+import { processTransactions } from '@/lib/portfolio/fifo'
 
 /**
  * Computes the safe percentage ratio, returning `0` when the denominator is zero.

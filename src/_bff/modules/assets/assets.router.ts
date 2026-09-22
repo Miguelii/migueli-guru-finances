@@ -5,7 +5,7 @@ import { DELETE_ASSET_PROTECTED_CONTROLLER } from '@/_bff/modules/assets/delete-
 import { GET_ASSETS_PROTECTED_CONTROLLER } from '@/_bff/modules/assets/get-assets/get-assets.controller'
 import { UPDATE_ASSET_PROTECTED_CONTROLLER } from '@/_bff/modules/assets/update-asset/update-asset.controller'
 import { UPDATE_TICKERS_PRICES_PROTECTED_CONTROLLER } from '@/_bff/modules/assets/update-tickers-prices/update-tickers-prices.controller'
-import { router } from '@/_trpc/server'
+import { router } from '@/_bff/trpc/server'
 
 export const ASSETS_ROUTER = router({
     getAll: GET_ASSETS_PROTECTED_CONTROLLER,

@@ -10,8 +10,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { trpcClient } from '@/_trpc/client'
-import { formatDate } from '@/lib/formaters'
+import { trpcClient } from '@/lib/trpc'
+import { formatDate } from '@/lib/portfolio/formaters'
 import type { Transaction } from '@/types/Transaction'
 import { Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'

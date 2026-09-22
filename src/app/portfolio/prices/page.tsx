@@ -1,6 +1,6 @@
 import { PricesSummaryCards } from '@/modules/assets/prices-summay-cards'
 import { getLatestUpdate } from '@/lib/utils'
-import { createCaller } from '@/_trpc/server/caller'
+import { createCaller } from '@/_bff/trpc/caller'
 import type { Metadata } from 'next/types'
 
 export const metadata: Metadata = {
