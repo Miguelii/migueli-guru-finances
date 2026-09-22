@@ -5,32 +5,16 @@ import { NextRequest } from 'next/server'
 // Mock server-only
 vi.mock('server-only', () => ({}))
 
-// Mock next/headers (cookies + headers)
-const mockGetAll = vi.fn(() => [{ name: 'sb-token', value: 'abc' }])
-const mockSet = vi.fn()
-vi.mock('next/headers', () => ({
-    cookies: vi.fn(async () => ({
-        getAll: mockGetAll,
-        set: mockSet,
-    })),
-    headers: vi.fn(async () => new Headers()),
-}))
-
-// Mock @supabase/ssr
-const mockSupabaseClient = {
-    auth: {
-        getClaims: vi.fn(),
-    },
-}
-vi.mock('@supabase/ssr', () => ({
-    createServerClient: vi.fn(() => mockSupabaseClient),
+// Mock the DB client factory (sbProxy's direct dependency)
+const mockGetClaims = vi.fn()
+vi.mock('@/_bff/common/db/db.utils', () => ({
+    createDBServerClient: vi.fn(async () => ({ auth: { getClaims: mockGetClaims } })),
 }))
 
 // Mock ServerEnv
 vi.mock('@/env/server', () => ({
     ServerEnv: {
         NEXT_SUPABASE_URL: 'https://test.supabase.co',
-        NEXT_SUPABASE_PUBLISHABLE_KEY: 'test-key',
     },
 }))
 
@@ -42,7 +26,7 @@ describe('sbProxy', () => {
     })
 
     it('should return a response when user is authenticated', async () => {
-        mockSupabaseClient.auth.getClaims.mockResolvedValue({
+        mockGetClaims.mockResolvedValue({
             data: { claims: { sub: 'user-123' } },
         })
 
@@ -53,7 +37,7 @@ describe('sbProxy', () => {
     })
 
     it('should redirect unauthenticated users from /portfolio to /', async () => {
-        mockSupabaseClient.auth.getClaims.mockResolvedValue({
+        mockGetClaims.mockResolvedValue({
             data: { claims: null },
         })
 
@@ -65,7 +49,7 @@ describe('sbProxy', () => {
     })
 
     it('should not redirect unauthenticated users on public routes', async () => {
-        mockSupabaseClient.auth.getClaims.mockResolvedValue({
+        mockGetClaims.mockResolvedValue({
             data: { claims: null },
         })
 

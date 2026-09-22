@@ -273,31 +273,33 @@ describe('aggregateHoldings — SELL', () => {
 // ─── FIFO lot accounting ────────────────────────────────────────────────────
 
 describe('aggregateHoldings — FIFO', () => {
+    const makeSellBetweenBuysTxs = (): Transaction[] => [
+        makeTx({
+            id: '1',
+            ticker_id: Ticker.ETH,
+            value: 2000,
+            quantity: 1,
+            buy_date: '2026-01-01 10:00:00',
+        }),
+        makeTx({
+            id: '2',
+            ticker_id: Ticker.ETH,
+            type: TransactionType.Sell,
+            value: 3000,
+            quantity: 1,
+            buy_date: '2026-02-01 10:00:00',
+        }),
+        makeTx({
+            id: '3',
+            ticker_id: Ticker.ETH,
+            value: 4000,
+            quantity: 1,
+            buy_date: '2026-03-01 10:00:00',
+        }),
+    ]
+
     it('should not let a later buy change the realized G/L of an earlier sell', () => {
-        const txs: Transaction[] = [
-            makeTx({
-                id: '1',
-                ticker_id: Ticker.ETH,
-                value: 2000,
-                quantity: 1,
-                buy_date: '2026-01-01 10:00:00',
-            }),
-            makeTx({
-                id: '2',
-                ticker_id: Ticker.ETH,
-                type: TransactionType.Sell,
-                value: 3000,
-                quantity: 1,
-                buy_date: '2026-02-01 10:00:00',
-            }),
-            makeTx({
-                id: '3',
-                ticker_id: Ticker.ETH,
-                value: 4000,
-                quantity: 1,
-                buy_date: '2026-03-01 10:00:00',
-            }),
-        ]
+        const txs = makeSellBetweenBuysTxs()
         const [h] = aggregateHoldings(txs, [ethTd], rates)
 
         // sell consumed the 2000 lot: realized = 3000 - 2000 = 1000
@@ -412,30 +414,7 @@ describe('aggregateHoldings — FIFO', () => {
     })
 
     it('should produce the same result regardless of input order (Supabase descending)', () => {
-        const txs: Transaction[] = [
-            makeTx({
-                id: '1',
-                ticker_id: Ticker.ETH,
-                value: 2000,
-                quantity: 1,
-                buy_date: '2026-01-01 10:00:00',
-            }),
-            makeTx({
-                id: '2',
-                ticker_id: Ticker.ETH,
-                type: TransactionType.Sell,
-                value: 3000,
-                quantity: 1,
-                buy_date: '2026-02-01 10:00:00',
-            }),
-            makeTx({
-                id: '3',
-                ticker_id: Ticker.ETH,
-                value: 4000,
-                quantity: 1,
-                buy_date: '2026-03-01 10:00:00',
-            }),
-        ]
+        const txs = makeSellBetweenBuysTxs()
         const ascending = aggregateHoldings(txs, [ethTd], rates)
         const descending = aggregateHoldings(txs.toReversed(), [ethTd], rates)
 
