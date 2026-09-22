@@ -11,7 +11,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { trpcClient } from '@/lib/trpc'
-import { formatDate } from '@/lib/formaters'
+import { formatDate } from '@/lib/portfolio/formaters'
 import type { Transaction } from '@/types/Transaction'
 import { Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'

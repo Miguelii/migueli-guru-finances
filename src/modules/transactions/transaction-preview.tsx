@@ -1,4 +1,4 @@
-import { formatCurrency, formatQuantity } from '@/lib/formaters'
+import { formatCurrency, formatQuantity } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import type { HoldingPreview } from './transaction-drawer/transaction-drawer.types'
 

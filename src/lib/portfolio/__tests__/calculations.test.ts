@@ -1,10 +1,11 @@
+// oxlint-disable max-lines
 import { describe, it, expect } from 'vitest'
 import {
     aggregateHoldings,
     aggregateMonthlyPurchases,
     aggregateMonthlyPurchasesTotals,
     computePortfolioTotals,
-} from '@/lib/calculations'
+} from '@/lib/portfolio/calculations'
 import type { CambioRates, Transaction, TickerData } from '@/types/Transaction'
 import { TransactionType, Ticker, Currency, TickerService, TickerType } from '@/types/Transaction'
 

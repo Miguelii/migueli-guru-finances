@@ -1,4 +1,4 @@
-import { formatCurrency, formatQuantity } from '@/lib/formaters'
+import { formatCurrency, formatQuantity } from '@/lib/portfolio/formaters'
 import type { HoldingSummary } from '@/types/Holding'
 import { Currency } from '@/types/Transaction'
 import { PORTFOLIO_EXPORT_TYPES } from '@/modules/portfolio-export/portfolio-export.constants'

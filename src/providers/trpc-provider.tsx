@@ -4,7 +4,8 @@ import { useState, type PropsWithChildren } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { httpBatchLink } from '@trpc/client'
 import { trpcClient as trpc } from '@/lib/trpc'
-import { unauthorizedLink } from '@/lib/trpc-unauthorized-link'
+import { unauthorizedLink } from '@/lib/trpc/trpc-unauthorized-link'
+import { TRPC_API_PATH } from '@/lib/constants'
 
 type Props = PropsWithChildren
 
@@ -15,7 +16,7 @@ export function TrpcContextProvider({ children }: Props) {
             links: [
                 unauthorizedLink,
                 httpBatchLink({
-                    url: '/api/trpc',
+                    url: TRPC_API_PATH,
                 }),
             ],
         })

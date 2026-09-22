@@ -1,6 +1,6 @@
-import { formatDate } from '@/lib/formaters'
+import { formatDate } from '@/lib/portfolio/formaters'
 import { getCambioRates } from '@/lib/utils'
-import { processTransactions } from '@/lib/fifo'
+import { processTransactions } from '@/lib/portfolio/fifo'
 import {
     Currency,
     type Transaction,

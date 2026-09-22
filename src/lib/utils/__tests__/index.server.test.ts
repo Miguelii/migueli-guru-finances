@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { sbProxy } from '@/lib/utils.server'
+import { sbProxy } from '@/lib/utils/index.server'
 import { NextRequest } from 'next/server'
 
 // Mock server-only

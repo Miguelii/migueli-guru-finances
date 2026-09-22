@@ -1,5 +1,5 @@
 import { parseAsString, useQueryState } from 'nuqs'
-import { paramsUrlKeys } from '@/lib/searchParams'
+import { paramsUrlKeys } from '@/lib/core/searchParams'
 import type { Currency, Ticker, TickerData, Transaction } from '@/types/Transaction'
 import { calculateTransactionInvested } from '@/modules/transactions/transactions-card/transactions-card.helpers'
 

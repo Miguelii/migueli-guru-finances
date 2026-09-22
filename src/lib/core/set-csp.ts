@@ -1,5 +1,5 @@
 import type { NextResponse } from 'next/server'
-import { getIsDev } from '@/lib/utils.server'
+import { getIsDev } from '@/lib/utils/index.server'
 
 /**
  * Sets the page Content-Security-Policy and Cache-Control on a proxy response.

@@ -1,10 +1,10 @@
 import type { HoldingSummary } from '@/types/Holding'
-import { formatCurrency, formatPercentage } from '@/lib/formaters'
+import { formatCurrency, formatPercentage } from '@/lib/portfolio/formaters'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { MetricCard } from '@/components/ui/metric-card'
 import { Currency } from '@/types/Transaction'
-import { computePortfolioTotals } from '@/lib/calculations'
+import { computePortfolioTotals } from '@/lib/portfolio/calculations'
 import type { PropsWithChildren } from 'react'
 
 type Props = {

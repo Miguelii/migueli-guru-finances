@@ -10,7 +10,7 @@ import {
     ChartTooltipContent,
     type ChartConfig,
 } from '@/components/ui/chart'
-import { formatCurrency, formatPercentage } from '@/lib/formaters'
+import { formatCurrency, formatPercentage } from '@/lib/portfolio/formaters'
 import { Currency } from '@/types/Transaction'
 import { cn } from '@/lib/utils'
 

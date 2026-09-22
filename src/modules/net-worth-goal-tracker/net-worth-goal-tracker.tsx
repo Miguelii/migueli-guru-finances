@@ -1,6 +1,6 @@
 import { Target } from 'lucide-react'
-import { computePortfolioTotals } from '@/lib/calculations'
-import { formatCurrency } from '@/lib/formaters'
+import { computePortfolioTotals } from '@/lib/portfolio/calculations'
+import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import { Currency, TickerType } from '@/types/Transaction'
 import type { HoldingSummary } from '@/types/Holding'
