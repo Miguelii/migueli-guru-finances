@@ -1,6 +1,5 @@
 import { PricesSummaryCards } from '@/modules/assets/prices-summay-cards'
-import { getLatestUpdate } from '@/lib/utils'
-import { createCaller } from '@/_bff/trpc/caller'
+import { getPortfolioData } from '@/lib/portfolio/portfolio-data.server'
 import type { Metadata } from 'next/types'
 
 export const metadata: Metadata = {
@@ -8,14 +7,10 @@ export const metadata: Metadata = {
 }
 
 export default async function PortfolioPage() {
-    const trpc = await createCaller()
-    const data = await trpc.assets.getAll()
+    const { data } = await getPortfolioData()
 
     return (
         <main className="flex flex-col gap-6 mb-24" id="main">
-            <span className="text-xs text-muted-foreground">
-                Last Update: {getLatestUpdate(data)}
-            </span>
             <PricesSummaryCards data={data} />
         </main>
     )

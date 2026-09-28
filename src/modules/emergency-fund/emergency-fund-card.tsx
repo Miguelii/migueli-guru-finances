@@ -1,14 +1,15 @@
 import type { PropsWithChildren } from 'react'
-import { ShieldCheck } from 'lucide-react'
+import { Target } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { MetricCard } from '@/components/ui/metric-card'
+import { GoalProgress } from '@/components/goal-progress/goal-progress'
 import { formatCurrency } from '@/lib/portfolio/formaters'
-import { cn } from '@/lib/utils'
 import type { BankBalanceSummary } from '@/types/BankConnection'
+import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 import { BankConnectionToast } from '@/modules/emergency-fund/bank-connection-toast'
 import { ConnectBankButton } from '@/modules/emergency-fund/connect-bank-button'
 import {
     CONNECT_BUTTON_LABEL,
+    DEFAULT_EMERGENCY_FUND_GOAL,
     EMPTY_BALANCE_MESSAGE,
     STATUS_BADGE,
 } from '@/modules/emergency-fund/emergency-fund-card.constants'
@@ -23,6 +24,7 @@ import {
 type Props = {
     summary: BankBalanceSummary
     hidePrices: boolean
+    goal?: number
 }
 
 type DetailRowProps = PropsWithChildren<{
@@ -36,29 +38,46 @@ const DetailRow = ({ title, children }: DetailRowProps) => (
     </div>
 )
 
-export function EmergencyFundCard({ summary, hidePrices }: Props) {
+export function EmergencyFundCard({
+    summary,
+    hidePrices,
+    goal = DEFAULT_EMERGENCY_FUND_GOAL,
+}: Props) {
     const status = getEmergencyFundStatus(summary)
     const badge = STATUS_BADGE[status]
     const buttonLabel = CONNECT_BUTTON_LABEL[status]
     const daysLeft = getDaysUntil(summary.consentValidUntil)
+    const currency = toDisplayCurrency(summary.currency)
 
     return (
-        <MetricCard title="Emergency Fund" icon={ShieldCheck}>
+        <PortfolioCard
+            cardId="emergency-fund"
+            title="Emergency Fund"
+            openHeightClassName="h-auto"
+            actions={
+                <>
+                    {/* In the header so a connection needing attention is visible while collapsed */}
+                    <Badge variant={badge.variant}>{badge.label}</Badge>
+                    <div className="flex items-center gap-1 text-xs font-medium tabular-nums text-muted-foreground">
+                        <Target className="h-4 w-4 text-muted-foreground" />
+                        <span>Target {formatCurrency(goal, currency)}</span>
+                    </div>
+                </>
+            }
+            contentClassName="space-y-4 py-4"
+        >
             <BankConnectionToast />
-            <div className="flex flex-row w-full justify-between items-center gap-2">
-                {summary.balance === null ? (
-                    <p className="text-sm text-muted-foreground">{EMPTY_BALANCE_MESSAGE[status]}</p>
-                ) : (
-                    <p
-                        className={cn('text-2xl font-bold tabular-nums tracking-tight', {
-                            'blur-md select-none': hidePrices,
-                        })}
-                    >
-                        {formatCurrency(summary.balance, toDisplayCurrency(summary.currency))}
-                    </p>
-                )}
-                <Badge variant={badge.variant}>{badge.label}</Badge>
-            </div>
+            {summary.balance === null ? (
+                <p className="text-sm text-muted-foreground">{EMPTY_BALANCE_MESSAGE[status]}</p>
+            ) : (
+                <GoalProgress
+                    label="Bank balance"
+                    currentValue={summary.balance}
+                    goal={goal}
+                    currency={currency}
+                    hidePrices={hidePrices}
+                />
+            )}
             <div className="flex flex-col gap-2">
                 {summary.balanceUpdatedAt && (
                     <DetailRow title="Updated">
@@ -70,6 +89,6 @@ export function EmergencyFundCard({ summary, hidePrices }: Props) {
                 )}
                 {buttonLabel && <ConnectBankButton label={buttonLabel} />}
             </div>
-        </MetricCard>
+        </PortfolioCard>
     )
 }

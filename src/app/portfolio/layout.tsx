@@ -8,6 +8,10 @@ import { Effect } from 'effect'
 import { PORTFOLIO_CARD_DISCLOSURE_COOKIE } from '@/modules/portfolio-card/portfolio-card.constants'
 import { parsePortfolioCardState } from '@/modules/portfolio-card/portfolio-card.helpers'
 import { PortfolioCardProvider } from '@/modules/portfolio-card/portfolio-card.provider'
+import { RefreshApp } from '@/modules/dashboard-actions/refresh-app'
+import { PortfolioExport } from '@/modules/portfolio-export/portfolio-export'
+import { getLatestUpdate } from '@/lib/utils'
+import { getPortfolioData } from '@/lib/portfolio/portfolio-data.server'
 
 type Props = LayoutProps<'/portfolio'>
 
@@ -31,6 +35,8 @@ export default async function PortfolioDashboard({ children }: Props) {
             }
         })
     )
+
+    const { data, holdings } = await getPortfolioData()
 
     return (
         <SidebarProvider
@@ -56,6 +62,15 @@ export default async function PortfolioDashboard({ children }: Props) {
                             <div className="flex flex-row gap-3">
                                 <HidePrices />
                                 <ToggleTheme />
+                            </div>
+                        </div>
+                        <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+                            <span className="text-xs text-muted-foreground">
+                                Last Update: {getLatestUpdate(data)}
+                            </span>
+                            <div className="flex flex-col md:flex-row gap-5 md:gap-2 w-full md:w-fit">
+                                <RefreshApp />
+                                <PortfolioExport holdings={holdings} />
                             </div>
                         </div>
                         {children}

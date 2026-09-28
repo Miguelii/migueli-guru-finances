@@ -1,6 +1,8 @@
 import type { Badge } from '@/components/ui/badge'
 import type { ComponentProps } from 'react'
 
+export const DEFAULT_EMERGENCY_FUND_GOAL = 4_000
+
 // Show the renew button this many days before the PSD2 consent expires
 export const CONSENT_EXPIRING_THRESHOLD_DAYS = 14
 
