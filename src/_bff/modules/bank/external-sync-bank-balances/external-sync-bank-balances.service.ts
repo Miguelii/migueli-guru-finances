@@ -20,6 +20,9 @@ function isAuthorized(request: NextRequest): boolean {
     const apiKey = request.headers.get('x-api-key')
     const expected = ServerEnv.NEXT_SYNC_BANK_SECRET_KEY
 
+    console.log('-- apiKey --', { apiKey })
+    console.log('-- expected --', { expected })
+
     if (!apiKey || !expected) return false
 
     return verifyApiKey(apiKey, expected)
