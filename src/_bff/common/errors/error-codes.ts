@@ -29,4 +29,16 @@ export enum ErrorCode {
     ASSETS_UPDATE_QUERY = 'p7dj2x5r',
     ASSETS_DELETE_QUERY = 'v4tm8c6q',
     ASSETS_LOGO_FETCH = 'q8xw2n5j',
+
+    // Bank (Enable Banking)
+    BANK_DB_CLIENT = 'h6tz3m9w',
+    BANK_GET_QUERY = 'a8kv5r2n',
+    BANK_UPDATE_QUERY = 's3jd7p4x',
+    BANK_NOT_CONFIGURED = 'l9cf2w6t',
+    BANK_INVALID_STATE = 'e5nq8b3k',
+    BANK_NO_ACCOUNT = 'o2xr6h9d',
+    BANK_AUTH_REQUEST = 'i7mw4s8f',
+    BANK_SESSION_REQUEST = 'y4gb9t2p',
+    BANK_BALANCES_REQUEST = 'u9hk3c7m',
+    BANK_SYNC_UNAUTHORIZED = 'n3vp8j5z',
 }

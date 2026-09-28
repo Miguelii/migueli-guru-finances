@@ -2,6 +2,10 @@ export const HOME_PAGE_PATH = '/' as const
 
 export const UPDATE_TICKERS_API_PATH = '/api/updateTickers' as const
 
+export const SYNC_BANK_BALANCES_API_PATH = '/api/syncBankBalances' as const
+
+export const BANK_CALLBACK_API_PATH = '/api/bank/callback' as const
+
 export const TRPC_API_PATH = '/api/trpc' as const
 
 export const FORCE_SIGN_OUT_API_PATH = '/api/auth/sign-out' as const

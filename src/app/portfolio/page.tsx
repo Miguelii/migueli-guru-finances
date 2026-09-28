@@ -19,9 +19,10 @@ type Props = PageProps<'/portfolio'>
 export default async function PortfolioPage(props: Props) {
     const trpc = await createCaller()
 
-    const [transactions, data, searchParams] = await Promise.all([
+    const [transactions, data, bankBalance, searchParams] = await Promise.all([
         trpc.transactions.getAll(),
         trpc.assets.getAll(),
+        trpc.bank.get(),
         searchParamsCache.parse(props.searchParams),
     ])
 
@@ -43,7 +44,11 @@ export default async function PortfolioPage(props: Props) {
                 </div>
             </div>
 
-            <PortfolioSummaryCards holdings={holdings} hidePrices={hidePrices} />
+            <PortfolioSummaryCards
+                holdings={holdings}
+                bankBalance={bankBalance}
+                hidePrices={hidePrices}
+            />
 
             <NetWorthGoalTracker holdings={holdings} hidePrices={hidePrices} />
 

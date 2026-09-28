@@ -1,6 +1,7 @@
 import {
     HOME_PAGE_PATH,
     PRIVATE_ROUTE_PATH,
+    SYNC_BANK_BALANCES_API_PATH,
     TRPC_API_PATH,
     UPDATE_TICKERS_API_PATH,
 } from '@/lib/constants'
@@ -10,6 +11,10 @@ initBotId({
     protect: [
         {
             path: UPDATE_TICKERS_API_PATH,
+            method: 'POST',
+        },
+        {
+            path: SYNC_BANK_BALANCES_API_PATH,
             method: 'POST',
         },
         {
