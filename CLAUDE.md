@@ -121,7 +121,7 @@ const transactions = await caller.transactions.getAll()
 
 ## Backend module layout
 
-All backend code lives under `src/_bff/modules/<module>/` (`assets`, `auth`, `transactions`):
+All backend code lives under `src/_bff/modules/<module>/` (`assets`, `auth`, `bank`, `transactions`):
 
 - `<module>.router.ts`: module composition root, exports `<MODULE>_ROUTER`
 - `<use-case>/<use-case>.controller.ts` + `<use-case>/<use-case>.service.ts`: one folder per route (e.g. `create-transaction/`). A use case with no tRPC route (plain HTTP handler, e.g. `external-update-tickers/`) has only the service
@@ -137,7 +137,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 
 ## Supabase
 
-- **Tables**: `data` (ticker metadata and current prices, `TickerData`, shared by all users) and `transactions` (buy/sell/reward/fee rows, `Transaction`, per user)
+- **Tables**: `data` (ticker metadata and current prices, `TickerData`, shared by all users), `transactions` (buy/sell/reward/fee rows, `Transaction`, per user) and `bank_connections` (Enable Banking session + last synced cash balance, `BankConnection`, one row per user, RLS select-only, written with the service-role client)
 - **Storage**: bucket `public_assets` holds asset logos. Uploads are converted to WebP (`upload-asset-image.helper.ts`) and served through `GET /api/asset-logo` because the page CSP only allows same-origin images; build URLs with `buildLogoUrl`
 - **Server client**: `createDBServerClient(useSecretKey?, hooks?)` in `src/_bff/common/db/db.utils.ts`. Always create a new client per request (required for Fluid compute)
   - Default: `@supabase/ssr` with cookie-based session (RLS applies)
@@ -149,6 +149,14 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - The FE "Update prices" button uses the `assets.updateTickersPrices` mutation (`update-tickers-prices.service.ts`) instead. Both fetch Coinbase (crypto) and Yahoo Finance (stocks/ETFs), update the `data` table and revalidate the caches
 - **Cron**: the `invoke_update_tickers()` SQL function (`src/_bff/common/db/sql/invoke_update_tickers.sql`) calls the endpoint every hour via `pg_net`
 - **Secrets**: API key and endpoint URL are stored in Supabase Vault (`update_tickers_api_key`, `update_tickers_url`)
+
+### Bank balance (emergency fund)
+- Read through **Enable Banking** (PSD2 aggregator, free personal tier), module `src/_bff/modules/bank/`. Every API call is authenticated by an RS256 JWT signed with the app private key (`enable-banking-jwt.helper.ts`)
+- Env vars `ENABLE_BANKING_APP_ID`, `ENABLE_BANKING_PRIVATE_KEY` (PEM in any format, see `toPrivateKeyPem`), `ENABLE_BANKING_ASPSP_NAME`, `ENABLE_BANKING_ASPSP_COUNTRY` are optional: while any is missing (or `NEXT_PUBLIC_VERCEL_URL`, used for the callback URL) `bank.get` returns `isConfigured: false` and the card shows a "Not configured" empty state. The cron endpoint also needs `NEXT_SYNC_BANK_SECRET_KEY`
+- **The bank is never named in the code**: its name only lives in `ENABLE_BANKING_ASPSP_NAME`, and UI copy stays generic ("bank account")
+- Connect flow: `bank.startConnection` stores an OAuth `state` and returns the bank URL, the bank redirects to `GET /api/bank/callback`, which validates the `state`, creates the session and reads the balance once
+- **PSD2 limits**: max 4 unattended reads per day (the cron `invoke_sync_bank_balances.sql` runs 3x/day calling `POST /api/syncBankBalances`) and some banks cap consents at 90 days (requested for 89). The card asks to renew 14 days before expiry
+- The balance is shown in the Emergency Fund summary card (`src/modules/emergency-fund/`) and is NOT part of holdings or net worth
 
 ## Portfolio data
 
