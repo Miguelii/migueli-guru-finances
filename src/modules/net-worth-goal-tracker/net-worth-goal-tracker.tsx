@@ -35,7 +35,7 @@ export function NetWorthGoalTracker({
                     <span>Target {formatCurrency(goal, currency)}</span>
                 </div>
             }
-            contentClassName="space-y-4 py-4"
+            contentClassName="grid gap-6 py-4 sm:grid-cols-2"
         >
             <GoalProgress
                 label="Net Worth"

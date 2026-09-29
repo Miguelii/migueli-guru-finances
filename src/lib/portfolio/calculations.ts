@@ -1,5 +1,5 @@
 import type { CambioRates, Ticker, TickerData, Transaction } from '@/types/Transaction'
-import { Currency, TransactionType } from '@/types/Transaction'
+import { Currency, TickerType, TransactionType } from '@/types/Transaction'
 import type { HoldingSummary } from '@/types/Holding'
 import { toEur } from '@/lib/utils'
 import { processTransactions } from '@/lib/portfolio/fifo'
@@ -266,4 +266,45 @@ export function computePortfolioTotals(holdings: HoldingSummary[]): PortfolioTot
         unrealizedGlPct: pct(unrealizedGl, totalInvested),
         totalRealized,
     }
+}
+
+export type TypeBreakdownItem = {
+    type: TickerType
+    currentValue: number
+    /** Share of the portfolio current value, in percent */
+    share: number
+    totals: PortfolioTotals
+}
+
+/**
+ * Groups holdings by asset type and computes each group's EUR totals and its share
+ * of the portfolio current value. Types with no current value are left out and the
+ * result is sorted by current value, largest first.
+ *
+ * @param holdings - Array of holding summaries to group.
+ */
+export function computeTypeBreakdown(holdings: HoldingSummary[]): TypeBreakdownItem[] {
+    const grouped = new Map<TickerType, HoldingSummary[]>()
+
+    for (const holding of holdings) {
+        if (holding.tickerType == null) continue
+
+        const existing = grouped.get(holding.tickerType)
+        if (existing) {
+            existing.push(holding)
+        } else {
+            grouped.set(holding.tickerType, [holding])
+        }
+    }
+
+    const items = Array.from(grouped, ([type, group]) => {
+        const totals = computePortfolioTotals(group)
+        return { type, currentValue: totals.currentValue, totals }
+    }).filter((item) => item.currentValue > 0)
+
+    const portfolioValue = items.reduce((sum, item) => sum + item.currentValue, 0)
+
+    return items
+        .map((item) => ({ ...item, share: pct(item.currentValue, portfolioValue) }))
+        .toSorted((a, b) => b.currentValue - a.currentValue)
 }

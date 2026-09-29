@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo } from 'react'
+import { useReducedMotion } from 'motion/react'
 import { Pie, PieChart, Cell, Label } from 'recharts'
-import type { PieLabelRenderProps } from 'recharts'
 import type { Props as LabelProps } from 'recharts/types/component/Label'
 import {
     ChartContainer,
@@ -30,9 +30,8 @@ type Props = {
 
 const currency = Currency.EUR
 
-const LABEL_THRESHOLD = 5
-
 export function DonutChart({ data, totalValue, hidePrices, chartLabel }: Props) {
+    const shouldReduceMotion = useReducedMotion()
     const chartConfig = useMemo(
         () =>
             Object.fromEntries(
@@ -40,10 +39,19 @@ export function DonutChart({ data, totalValue, hidePrices, chartLabel }: Props) 
             ) satisfies ChartConfig,
         [data]
     )
+    const maxPercentage = Math.max(...data.map((d) => d.percentage), 0)
+
+    if (data.length === 0) {
+        return (
+            <div className="grid h-60 place-items-center border border-dashed text-xs text-muted-foreground">
+                No open positions yet
+            </div>
+        )
+    }
 
     return (
-        <div className="flex flex-col gap-2 h-full w-full">
-            <ChartContainer config={chartConfig} className="aspect-square h-full max-h-75 w-full">
+        <div className="grid w-full grid-cols-1 items-center gap-6 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+            <ChartContainer config={chartConfig} className="mx-auto aspect-square w-full max-w-65">
                 <PieChart>
                     <ChartTooltip
                         content={<ChartTooltipContent formatter={tooltipFormatter} hideLabel />}
@@ -52,12 +60,11 @@ export function DonutChart({ data, totalValue, hidePrices, chartLabel }: Props) 
                         data={data}
                         dataKey="value"
                         nameKey="name"
-                        innerRadius="55%"
-                        outerRadius="75%"
-                        strokeWidth={2}
-                        stroke="var(--color-background)"
-                        label={renderCustomLabel}
-                        labelLine={false}
+                        innerRadius="68%"
+                        outerRadius="100%"
+                        paddingAngle={data.length > 1 ? 1.5 : 0}
+                        strokeWidth={0}
+                        isAnimationActive={!shouldReduceMotion}
                     >
                         {data.map((entry) => (
                             <Cell key={entry.name} fill={entry.fill} />
@@ -66,47 +73,44 @@ export function DonutChart({ data, totalValue, hidePrices, chartLabel }: Props) 
                     </Pie>
                 </PieChart>
             </ChartContainer>
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 justify-center items-center">
-                {data
-                    .filter((d) => d.percentage < LABEL_THRESHOLD)
-                    .map((d) => (
-                        <span
-                            key={d.name}
-                            className="flex items-center gap-1.5 text-xs text-muted-foreground"
-                        >
-                            <span
-                                className="inline-block h-2 w-2 rounded-none"
-                                style={{ background: d.fill }}
+            <ol className="flex flex-col gap-3" aria-label={`${chartLabel} allocation`}>
+                {data.map((d) => (
+                    <li key={d.name} className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between gap-3 text-xs">
+                            <span className="flex min-w-0 items-center gap-2">
+                                <span
+                                    aria-hidden="true"
+                                    className="size-2.5 shrink-0"
+                                    style={{ background: d.fill }}
+                                />
+                                <span className="truncate font-medium">{d.name}</span>
+                            </span>
+                            <span className="flex items-baseline gap-2 tabular-nums">
+                                <span
+                                    className={cn('text-muted-foreground', {
+                                        'blur-sm select-none': hidePrices,
+                                    })}
+                                >
+                                    {formatCurrency(d.value, currency, 0)}
+                                </span>
+                                <span className="w-12 text-right font-semibold">
+                                    {d.percentage.toFixed(1)}%
+                                </span>
+                            </span>
+                        </div>
+                        <div className="h-1 w-full bg-muted" aria-hidden="true">
+                            <div
+                                className="h-full"
+                                style={{
+                                    width: `${maxPercentage > 0 ? (d.percentage / maxPercentage) * 100 : 0}%`,
+                                    background: d.fill,
+                                }}
                             />
-                            {d.name} {d.percentage.toFixed(1)}%
-                        </span>
-                    ))}
-            </div>
+                        </div>
+                    </li>
+                ))}
+            </ol>
         </div>
-    )
-}
-
-function renderCustomLabel({ cx, cy, midAngle, outerRadius, name, payload }: PieLabelRenderProps) {
-    const percentage: number = payload?.percentage ?? 0
-
-    if (percentage < LABEL_THRESHOLD) return null
-
-    const RADIAN = Math.PI / 180
-    const radius = Number(outerRadius) + 24
-    const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN)
-    const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN)
-
-    return (
-        <text
-            x={x}
-            y={y}
-            textAnchor={x > cx ? 'start' : 'end'}
-            dominantBaseline="central"
-            className="fill-foreground text-xs"
-        >
-            <tspan className="font-semibold">{name}</tspan>
-            <tspan className="fill-muted-foreground"> {percentage.toFixed(1)}%</tspan>
-        </text>
     )
 }
 
@@ -125,7 +129,7 @@ function renderCenterLabel(totalValue: number, hidePrices: boolean, label: strin
                     <tspan
                         x={viewBox.cx}
                         y={(viewBox.cy ?? 0) + 10}
-                        className={cn('fill-foreground text-sm font-semibold', {
+                        className={cn('fill-foreground text-base font-semibold', {
                             'blur-md select-none': hidePrices,
                         })}
                     >

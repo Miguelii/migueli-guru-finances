@@ -219,7 +219,7 @@ className={cn('text-xs font-medium', {
 
 ### Styling: ALWAYS use theme tokens
 - Tailwind token classes (`bg-background`, `text-primary`), never raw `var()` in `className`
-- Theme colors live in `src/styles/globals.css` (`@theme inline`, OKLch), including `success`, `warning` and the chart colors `chart-1` to `chart-5`
+- Theme colors live in `src/styles/globals.css` (`@theme inline`, OKLch), including `success`, `warning`, the chart colors `chart-1` to `chart-5` and the asset type colors `asset-crypto` / `asset-etf` / `asset-stock` / `asset-cambio` (mapped per type in `src/lib/constants/asset-types.ts`)
 - Typography tokens live in `src/styles/theme-typographic.css`
 
 ## Next.js Page & Layout Props

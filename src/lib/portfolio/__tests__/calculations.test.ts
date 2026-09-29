@@ -5,6 +5,7 @@ import {
     aggregateMonthlyPurchases,
     aggregateMonthlyPurchasesTotals,
     computePortfolioTotals,
+    computeTypeBreakdown,
 } from '@/lib/portfolio/calculations'
 import type { CambioRates, Transaction, TickerData } from '@/types/Transaction'
 import { TransactionType, Ticker, Currency, TickerService, TickerType } from '@/types/Transaction'
@@ -909,5 +910,45 @@ describe('aggregateMonthlyPurchases', () => {
         const result = aggregateMonthlyPurchases(txs, [ethTd, solTd], 2026)
 
         expect(result.map((r) => r.ticker_id)).toEqual([Ticker.ETH, Ticker.SOL])
+    })
+})
+
+// ─── computeTypeBreakdown ────────────────────────────────────────────────────
+
+const makeTypeHolding = (tickerType: TickerType, current: number, invested: number) =>
+    ({
+        tickerType,
+        current_value_eur: current,
+        total_invested_eur: invested,
+        realized_gl_eur: 0,
+    }) as any
+
+describe('computeTypeBreakdown', () => {
+    it('should return an empty array for no holdings', () => {
+        expect(computeTypeBreakdown([])).toEqual([])
+    })
+
+    it('should group by type, compute shares and sort by value', () => {
+        const result = computeTypeBreakdown([
+            makeTypeHolding(TickerType.Crypto, 250, 200),
+            makeTypeHolding(TickerType.Etf, 1500, 400),
+            makeTypeHolding(TickerType.Crypto, 250, 300),
+        ])
+
+        expect(result.map((r) => r.type)).toEqual([TickerType.Etf, TickerType.Crypto])
+        expect(result[0]!.share).toBeCloseTo(75)
+        expect(result[1]!.share).toBeCloseTo(25)
+        expect(result[1]!.totals.totalInvested).toBeCloseTo(500)
+        expect(result[1]!.totals.unrealizedGl).toBeCloseTo(0)
+    })
+
+    it('should leave out types with no current value', () => {
+        const result = computeTypeBreakdown([
+            makeTypeHolding(TickerType.Stock, 0, 0),
+            makeTypeHolding(TickerType.Etf, 100, 90),
+        ])
+
+        expect(result).toHaveLength(1)
+        expect(result[0]!.share).toBe(100)
     })
 })
