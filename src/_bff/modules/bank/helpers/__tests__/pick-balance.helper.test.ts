@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { pickBalance } from '@/_bff/modules/bank/pick-balance.helper'
+import { pickBalance } from '@/_bff/modules/bank/helpers/pick-balance.helper'
 
 const balance = (balance_type: string, amount: string, currency = 'EUR') => ({
     balance_type,

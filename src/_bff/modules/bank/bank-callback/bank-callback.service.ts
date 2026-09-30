@@ -6,10 +6,10 @@ import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { Logger } from '@/_bff/common/logger/logger'
-import { getSession } from '@/_bff/modules/auth/get-session.helper'
-import { getEnableBankingConfig } from '@/_bff/modules/bank/enable-banking-config.helper'
+import { getSession } from '@/_bff/modules/auth/helpers/get-session.helper'
+import { getEnableBankingConfig } from '@/_bff/modules/bank/helpers/enable-banking-config.helper'
 import { getBankConnectionCacheTag } from '@/_bff/modules/bank/bank.constants'
-import { syncBankBalance } from '@/_bff/modules/bank/sync-bank-balance.helper'
+import { syncBankBalance } from '@/_bff/modules/bank/helpers/sync-bank-balance.helper'
 import { createSession } from '@/_bff/modules/bank/providers/enable-banking.provider'
 import { findConnectionByPendingState, saveBankSession } from '@/_bff/modules/bank/bank.repository'
 import {
@@ -124,7 +124,12 @@ export const bankCallback = Effect.fn('bankCallback')(
     (effect, request) =>
         effect.pipe(
             Effect.catchAll((error) => {
-                Logger.error(`[bankCallback Effect] [${error._tag}] failed`, error)
+                Logger({
+                    level: 'error',
+                    prefix: 'bankCallback',
+                    message: `${error._tag} failed`,
+                    error,
+                })
                 return Effect.succeed(redirectToPortfolio(request, 'error'))
             })
         )

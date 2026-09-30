@@ -7,10 +7,10 @@ import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient, verifyApiKey } from '@/_bff/common/db/db.utils'
 import { Logger } from '@/_bff/common/logger/logger'
-import { getEnableBankingConfig } from '@/_bff/modules/bank/enable-banking-config.helper'
+import { getEnableBankingConfig } from '@/_bff/modules/bank/helpers/enable-banking-config.helper'
 import { GET_BANK_CONNECTION_CACHE_KEY } from '@/_bff/modules/bank/bank.constants'
 import { selectActiveConnections } from '@/_bff/modules/bank/bank.repository'
-import { syncBankBalance } from '@/_bff/modules/bank/sync-bank-balance.helper'
+import { syncBankBalance } from '@/_bff/modules/bank/helpers/sync-bank-balance.helper'
 import {
     BankNotConfiguredError,
     UnauthorizedSyncBankBalancesError,
@@ -75,7 +75,12 @@ export const externalSyncBankBalances = Effect.fn('externalSyncBankBalances')(
         return NextResponse.json({ status: 200, synced: connections?.length ?? 0 })
     },
     Effect.catchAll((error) => {
-        Logger.error(`[externalSyncBankBalances Effect] [${error._tag}] failed`, error)
+        Logger({
+            level: 'error',
+            prefix: 'externalSyncBankBalances',
+            message: `${error._tag} failed`,
+            error,
+        })
 
         return Effect.succeed(
             Match.value(error).pipe(

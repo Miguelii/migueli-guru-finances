@@ -2,7 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { isJwtRejection } from '@/_bff/trpc/utils'
 
 vi.mock('server-only', () => ({}))
-vi.mock('@/_bff/modules/auth/get-cached-user-id.helper', () => ({
+vi.mock('@/_bff/common/logger/logger', () => ({ Logger: vi.fn() }))
+vi.mock('@/_bff/modules/auth/helpers/get-cached-user-id.helper', () => ({
     getCachedUserId: vi.fn(),
 }))
 

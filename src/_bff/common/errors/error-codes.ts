@@ -41,4 +41,8 @@ export enum ErrorCode {
     BANK_SESSION_REQUEST = 'y4gb9t2p',
     BANK_BALANCES_REQUEST = 'u9hk3c7m',
     BANK_SYNC_UNAUTHORIZED = 'n3vp8j5z',
+
+    // Logs
+    LOGS_DB_CLIENT = 'w5fk8r2c',
+    LOGS_GET_QUERY = 'j2tb6x9q',
 }

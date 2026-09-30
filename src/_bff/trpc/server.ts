@@ -1,7 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server'
 import { Effect, Exit } from 'effect'
 import type { Context } from '@/_bff/trpc/context'
-import { getSession } from '@/_bff/modules/auth/get-session.helper'
+import { getSession } from '@/_bff/modules/auth/helpers/get-session.helper'
 
 const t = initTRPC.context<Context>().create()
 

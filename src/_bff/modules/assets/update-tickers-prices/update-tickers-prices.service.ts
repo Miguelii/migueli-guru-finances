@@ -69,7 +69,12 @@ export function updateTickersPrices(): Promise<UpdateReturn> {
         } satisfies UpdateReturn
     }).pipe(
         Effect.catchAll((error) => {
-            Logger.error(`[updateTickersPrices Effect] [${error?._tag}] failed`, error)
+            Logger({
+                level: 'error',
+                prefix: 'updateTickersPrices',
+                message: `${error?._tag} failed`,
+                error,
+            })
             return Effect.succeed({
                 success: false,
                 status: 207,
@@ -95,7 +100,13 @@ export function fetchPrice(tick: TickerData): Effect.Effect<number | null> {
     return fetcher(tick).pipe(
         Effect.retry(retryPolicy),
         Effect.catchAll((error) => {
-            Logger.error(`[fetchPrice Effect] fetch failed after retries`, error)
+            Logger({
+                level: 'error',
+                prefix: 'fetchPrice',
+                message: 'fetch failed after retries',
+                error,
+                metadata: { ticker: tick.ticker, service: tick.service },
+            })
             return Effect.succeed(null)
         })
     )
@@ -124,7 +135,13 @@ function updateTicker(supabaseClient: SbClient, tick: TickerData): Effect.Effect
     }).pipe(
         Effect.catchAll((error) => {
             const errorTag = '_tag' in error ? error._tag : 'Error'
-            Logger.error(`[updateTicker Effect] [${errorTag}] failed for [${tick.ticker}]`, error)
+            Logger({
+                level: 'error',
+                prefix: 'updateTicker',
+                message: `${errorTag} failed`,
+                error,
+                metadata: { ticker: tick.ticker },
+            })
             return Effect.void
         })
     )

@@ -30,7 +30,13 @@ export const getAssetLogo = Effect.fn('getAssetLogo')(function* (rawPath: string
         catch: (cause) => new GetAssetLogoError({ cause, error_hash: ErrorCode.ASSETS_LOGO_FETCH }),
     }).pipe(
         Effect.catchAll((error) => {
-            Logger.error(`[getAssetLogo] failed to fetch logo PATH=|${path}|`, error)
+            Logger({
+                level: 'error',
+                prefix: 'getAssetLogo',
+                message: 'failed to fetch logo',
+                error,
+                metadata: { path },
+            })
             return Effect.succeed(new NextResponse('not found', { status: 404 }))
         })
     )

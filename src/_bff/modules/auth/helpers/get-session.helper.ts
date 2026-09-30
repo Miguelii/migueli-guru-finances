@@ -9,7 +9,7 @@ import {
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError } from '@/_bff/common/errors/shared.errors'
-import { GetUserError } from './auth.errors'
+import { GetUserError } from '../auth.errors'
 
 type SessionResult =
     | { ok: true; user: User | null }

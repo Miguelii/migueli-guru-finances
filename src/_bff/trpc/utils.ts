@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server'
 import { Cause, Effect, Exit, Option } from 'effect'
 import { Logger } from '@/_bff/common/logger/logger'
-import { getCachedUserId } from '@/_bff/modules/auth/get-cached-user-id.helper'
+import { getCachedUserId } from '@/_bff/modules/auth/helpers/get-cached-user-id.helper'
 
 // PostgREST codes for a rejected JWT (invalid/expired or missing claims)
 const POSTGREST_JWT_ERROR_CODES = new Set(['PGRST301', 'PGRST302', 'PGRST303'])
@@ -35,14 +35,14 @@ export async function runEffect<A, E extends { _tag: string; error_hash?: string
     const maybeError = Cause.failureOption(exit.cause)
 
     if (Option.isNone(maybeError)) {
-        const defects = Cause.defects(exit.cause)
-        Logger.error(`[trpc Effect] [${context}] failed USER_ID=|${userId}|`, defects)
+        const defects = Array.from(Cause.defects(exit.cause))
+        Logger({ level: 'error', prefix: 'trpc', message: context, error: defects, userId })
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'unexpected_defect' })
     }
 
     const error = maybeError.value
 
-    Logger.error(`[trpc Effect] [${context}] failed USER_ID=|${userId}|`, error)
+    Logger({ level: 'error', prefix: 'trpc', message: context, error, userId })
 
     const code = isJwtRejection((error as { cause?: unknown }).cause)
         ? 'UNAUTHORIZED'

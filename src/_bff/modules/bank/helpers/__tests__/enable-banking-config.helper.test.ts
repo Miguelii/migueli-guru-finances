@@ -1,6 +1,6 @@
 import { createPrivateKey, generateKeyPairSync } from 'node:crypto'
 import { describe, it, expect, vi } from 'vitest'
-import { toPrivateKeyPem } from '@/_bff/modules/bank/enable-banking-config.helper'
+import { toPrivateKeyPem } from '@/_bff/modules/bank/helpers/enable-banking-config.helper'
 
 vi.mock('server-only', () => ({}))
 vi.mock('@/env/server', () => ({ ServerEnv: {} }))

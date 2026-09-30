@@ -4,7 +4,7 @@ import {
     AuthRetryableFetchError,
     AuthSessionMissingError,
 } from '@supabase/supabase-js'
-import { isInvalidSessionError } from '@/_bff/modules/auth/get-session.helper'
+import { isInvalidSessionError } from '@/_bff/modules/auth/helpers/get-session.helper'
 
 vi.mock('server-only', () => ({}))
 vi.mock('@/_bff/common/db/db.utils', () => ({ createDBServerClient: vi.fn() }))

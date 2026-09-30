@@ -6,10 +6,10 @@ import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { Logger } from '@/_bff/common/logger/logger'
 import { BankSyncStatus } from '@/types/BankConnection'
-import type { EnableBankingConfig } from '@/_bff/modules/bank/enable-banking-config.helper'
+import type { EnableBankingConfig } from '@/_bff/modules/bank/helpers/enable-banking-config.helper'
 import { EnableBankingRequestError } from '@/_bff/modules/bank/bank.errors'
 import { getAccountBalances } from '@/_bff/modules/bank/providers/enable-banking.provider'
-import { pickBalance } from '@/_bff/modules/bank/pick-balance.helper'
+import { pickBalance } from '@/_bff/modules/bank/helpers/pick-balance.helper'
 import {
     type ActiveBankConnection,
     updateConnectionBalance,
@@ -20,7 +20,15 @@ function markStatus(supabaseClient: SbClient, id: string, status: BankSyncStatus
     return Effect.tryPromise(() => updateConnectionStatus(supabaseClient, id, status)).pipe(
         Effect.flatMap(({ error }) => (error ? Effect.fail(error) : Effect.void)),
         Effect.catchAll((error) =>
-            Effect.sync(() => Logger.error(`[syncBankBalance] status update failed [${id}]`, error))
+            Effect.sync(() =>
+                Logger({
+                    level: 'error',
+                    prefix: 'syncBankBalance',
+                    message: 'status update failed',
+                    error,
+                    metadata: { connectionId: id, status },
+                })
+            )
         )
     )
 }
@@ -78,7 +86,13 @@ export function syncBankBalance(
         }
     }).pipe(
         Effect.catchAll((error) => {
-            Logger.error(`[syncBankBalance Effect] [${error._tag}] failed for [${id}]`, error)
+            Logger({
+                level: 'error',
+                prefix: 'syncBankBalance',
+                message: `${error._tag} failed`,
+                error,
+                metadata: { connectionId: id },
+            })
 
             return markStatus(
                 supabaseClient,

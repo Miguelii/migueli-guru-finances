@@ -5,9 +5,11 @@ import {
     CircleDollarSignIcon,
     LayoutDashboardIcon,
     ReceiptTextIcon,
+    ScrollTextIcon,
     type LucideProps,
 } from 'lucide-react'
 import {
+    LOGS_ROUTE_PATH,
     POSITIONS_ROUTE_PATH,
     PRICES_ROUTE_PATH,
     PRIVATE_ROUTE_PATH,
@@ -51,6 +53,16 @@ export const NAV_GROUPS: NavGroup[] = [
                 title: 'Watchlist',
                 url: PRICES_ROUTE_PATH,
                 Icon: CircleDollarSignIcon,
+            },
+        ],
+    },
+    {
+        label: 'System',
+        items: [
+            {
+                title: 'Logs',
+                url: LOGS_ROUTE_PATH,
+                Icon: ScrollTextIcon,
             },
         ],
     },

@@ -89,7 +89,7 @@ export const appRouter = router({
 - **Controllers** are thin: `.input(<schema>)` + `runEffect(...)` + the error→TRPC-code `Match` map. No `Effect.fn`, no business logic, no Supabase access. One per file, exporting exactly **one** constant: `<NAME>_PROTECTED_CONTROLLER` or `<NAME>_PUBLIC_CONTROLLER`
 - **Input schemas** (zod) and their inferred types live in `<module>.dto.ts`, never in the controller
 - **Services** are exported `Effect.fn(...)` functions holding the business logic. They create the Supabase client (`createDBServerClient`, choosing publishable vs service-role key), pass it into the repository and do the dual error check
-- **Repositories** are plain functions receiving `supabaseClient: SbClient` (`src/_bff/common/db/types.ts`) as their first parameter and returning the query; reads are wrapped in `unstable_cache`. One file per module, never imported by another module
+- **Repositories** are plain functions receiving `supabaseClient: SbClient` (`src/_bff/common/db/types.ts`) as their first parameter and returning the query; reads are wrapped in `unstable_cache` (exception: `logs.repository.ts`, logs must always be fresh). One file per module, never imported by another module
 - `runEffect` comes from `@/_bff/trpc/utils`; the `Match.value(error).pipe(… Match.exhaustive)` mapping lives in the controller file
 - Use `protectedProcedure` (from `@/_bff/trpc/server`) for authenticated routes and pass `ctx.user.id` into the service. It runs `getSession()` once per request (cached), throws `401` when there is no user and `500` on infrastructure failure. Auth is enforced by the middleware, so **never** map `UnauthenticatedError` / `GetUserError` in the `Match`
 - Use `publicProcedure` for unauthenticated routes (auth flows)
@@ -121,7 +121,7 @@ const transactions = await caller.transactions.getAll()
 
 ## Backend module layout
 
-All backend code lives under `src/_bff/modules/<module>/` (`assets`, `auth`, `bank`, `transactions`):
+All backend code lives under `src/_bff/modules/<module>/` (`assets`, `auth`, `bank`, `logs`, `transactions`):
 
 - `<module>.router.ts`: module composition root, exports `<MODULE>_ROUTER`
 - `<use-case>/<use-case>.controller.ts` + `<use-case>/<use-case>.service.ts`: one folder per route (e.g. `create-transaction/`). A use case with no tRPC route (plain HTTP handler, e.g. `external-update-tickers/`) has only the service
@@ -137,7 +137,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 
 ## Supabase
 
-- **Tables**: `data` (ticker metadata and current prices, `TickerData`, shared by all users), `transactions` (buy/sell/reward/fee rows, `Transaction`, per user) and `bank_connections` (Enable Banking session + last synced cash balance, `BankConnection`, one row per user, RLS select-only, written with the service-role client)
+- **Tables**: `data` (ticker metadata and current prices, `TickerData`, shared by all users), `transactions` (buy/sell/reward/fee rows, `Transaction`, per user) `bank_connections` (Enable Banking session + last synced cash balance, `BankConnection`, one row per user, RLS select-only, written with the service-role client) and `logs` (BFF logs, `LogEntry`, RLS enabled with no policies so only the service-role client reads and writes it, schema in `sql/logs.sql`)
 - **Storage**: bucket `public_assets` holds asset logos. Uploads are converted to WebP (`upload-asset-image.helper.ts`) and served through `GET /api/asset-logo` because the page CSP only allows same-origin images; build URLs with `buildLogoUrl`
 - **Server client**: `createDBServerClient(useSecretKey?, hooks?)` in `src/_bff/common/db/db.utils.ts`. Always create a new client per request (required for Fluid compute)
   - Default: `@supabase/ssr` with cookie-based session (RLS applies)
@@ -157,6 +157,13 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - Connect flow: `bank.startConnection` stores an OAuth `state` and returns the bank URL, the bank redirects to `GET /api/bank/callback`, which validates the `state`, creates the session and reads the balance once
 - **PSD2 limits**: max 4 unattended reads per day (the cron `invoke_sync_bank_balances.sql` runs 3x/day calling `POST /api/syncBankBalances`) and some banks cap consents at 90 days (requested for 89). The card asks to renew 14 days before expiry
 - The balance is shown in the Emergency Fund summary card (`src/modules/emergency-fund/`) and is NOT part of holdings or net worth
+
+### Logs
+- `Logger({ level, prefix, message?, error?, metadata?, userId? })` (`src/_bff/common/logger/logger.ts`) is the only way to log in the BFF: `prefix` is the source (e.g. `trpc`, `syncBankBalance`), ids and context go in `metadata` / `userId`, never interpolated into the message
+- It always writes to the console and, only when `NODE_ENV === 'production'`, inserts into `logs` via `after()` (plain fire-and-forget outside a request scope). `serializeError` keeps tagged error fields (`_tag`, `error_hash`, `cause`) and trims plain stacks to 4 lines
+- **Retention**: the `purge_old_logs()` SQL function (`src/_bff/common/db/sql/purge_old_logs.sql`) deletes logs older than 30 days, scheduled daily at 03:00 UTC via `pg_cron`
+- `runEffect` logs every failed tRPC call (`prefix: 'trpc'`, `message: <context>`), so services only log what they recover from themselves
+- `/portfolio/logs` (`src/modules/logs/`) is a Vercel-style explorer: range and search refetch on the server (`logs.getAll`, max 1000 rows), level/source/selected row are client-only (`shallow: true`) filters over the fetched rows. Any signed-in user can see every log for now
 
 ## Portfolio data
 

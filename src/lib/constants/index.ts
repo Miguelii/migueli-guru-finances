@@ -18,4 +18,6 @@ export const POSITIONS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/positions` as const
 
 export const PRICES_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/prices` as const
 
+export const LOGS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/logs` as const
+
 export const CRYPTO_CURRENCIES = new Set(['USDC', 'USDT'])
