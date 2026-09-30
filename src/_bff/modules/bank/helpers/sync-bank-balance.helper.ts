@@ -86,17 +86,17 @@ export function syncBankBalance(
         }
     }).pipe(
         Effect.catchAll((error) => {
-            // Quota exhausted: the stored balance is still valid, so keep the last status
+            // Quota exhausted: the stored balance is still valid, not a sync error
             if (error._tag === 'EnableBankingRateLimitError') {
-                return Effect.sync(() =>
-                    Logger({
-                        level: 'warn',
-                        prefix: 'syncBankBalance',
-                        message: 'daily PSD2 read quota exceeded, keeping the last balance',
-                        error,
-                        metadata: { connectionId: id },
-                    })
-                )
+                Logger({
+                    level: 'warn',
+                    prefix: 'syncBankBalance',
+                    message: 'daily PSD2 read quota exceeded, keeping the last balance',
+                    error,
+                    metadata: { connectionId: id },
+                })
+
+                return markStatus(supabaseClient, id, BankSyncStatus.RateLimited)
             }
 
             Logger({

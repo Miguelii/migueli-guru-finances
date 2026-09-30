@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.bank_connections (
   balance numeric,
   currency text,
   balance_updated_at timestamptz,
-  last_sync_status text CHECK (last_sync_status IN ('OK', 'EXPIRED', 'ERROR')),
+  last_sync_status text CHECK (last_sync_status IN ('OK', 'EXPIRED', 'ERROR', 'RATE_LIMITED')),
   created_at timestamptz NOT NULL DEFAULT now()
 );
 

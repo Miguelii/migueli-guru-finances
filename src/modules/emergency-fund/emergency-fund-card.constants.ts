@@ -13,6 +13,7 @@ export const EmergencyFundStatus = {
     Expiring: 'EXPIRING',
     Expired: 'EXPIRED',
     Error: 'ERROR',
+    RateLimited: 'RATE_LIMITED',
     Unavailable: 'UNAVAILABLE',
 } as const
 
@@ -27,6 +28,7 @@ export const STATUS_BADGE: Record<EmergencyFundStatus, { label: string; variant:
     [EmergencyFundStatus.Expiring]: { label: 'Expires soon', variant: 'alert' },
     [EmergencyFundStatus.Expired]: { label: 'Expired', variant: 'destructive' },
     [EmergencyFundStatus.Error]: { label: 'Sync error', variant: 'destructive' },
+    [EmergencyFundStatus.RateLimited]: { label: 'Daily limit reached', variant: 'outline' },
     [EmergencyFundStatus.Unavailable]: { label: 'Unavailable', variant: 'destructive' },
 }
 
@@ -39,6 +41,8 @@ export const CONNECT_BUTTON_LABEL: Record<EmergencyFundStatus, string | null> = 
     [EmergencyFundStatus.Expiring]: 'Renew connection',
     [EmergencyFundStatus.Expired]: 'Renew connection',
     [EmergencyFundStatus.Error]: 'Reconnect',
+    // The bank's daily read quota resets on its own, reconnecting would not help
+    [EmergencyFundStatus.RateLimited]: null,
     // Reconnecting does not help when the connection itself could not be read
     [EmergencyFundStatus.Unavailable]: null,
 }
@@ -50,6 +54,7 @@ export const EMPTY_BALANCE_MESSAGE: Record<EmergencyFundStatus, string> = {
     [EmergencyFundStatus.Expiring]: 'No balance synced yet.',
     [EmergencyFundStatus.Expired]: 'No balance synced yet.',
     [EmergencyFundStatus.Error]: 'No balance synced yet.',
+    [EmergencyFundStatus.RateLimited]: 'No balance synced yet.',
     [EmergencyFundStatus.Unavailable]: 'Could not load the balance. Please try again later.',
 }
 

@@ -2,6 +2,8 @@ export enum BankSyncStatus {
     Ok = 'OK',
     Expired = 'EXPIRED',
     Error = 'ERROR',
+    // 429: daily PSD2 read quota used up, the stored balance is still valid
+    RateLimited = 'RATE_LIMITED',
 }
 
 export type BankConnection = {

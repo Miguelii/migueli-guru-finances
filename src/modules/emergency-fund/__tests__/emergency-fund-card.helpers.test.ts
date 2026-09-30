@@ -84,6 +84,24 @@ describe('getEmergencyFundStatus', () => {
             EmergencyFundStatus.Error
         )
     })
+
+    it('should be RATE_LIMITED, not ERROR, when the bank quota was used up', () => {
+        expect(
+            getEmergencyFundStatus(summary({ lastSyncStatus: BankSyncStatus.RateLimited }), NOW)
+        ).toBe(EmergencyFundStatus.RateLimited)
+    })
+
+    it('should still ask to renew a rate-limited connection close to expiring', () => {
+        expect(
+            getEmergencyFundStatus(
+                summary({
+                    lastSyncStatus: BankSyncStatus.RateLimited,
+                    consentValidUntil: inDays(5),
+                }),
+                NOW
+            )
+        ).toBe(EmergencyFundStatus.Expiring)
+    })
 })
 
 describe('toDisplayCurrency', () => {

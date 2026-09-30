@@ -28,7 +28,8 @@ export function getDaysUntil(dateIso: string | null, now = Date.now()): number |
 
 /**
  * Derives the card status: consent expiry takes precedence over a sync error, and a
- * consent close to expiring is flagged so it can be renewed in time.
+ * consent close to expiring is flagged so it can be renewed in time. A rate-limited sync
+ * (bank's daily quota used up) only shows when nothing needs the user's action.
  *
  * @param summary - Bank connection summary from `bank.get`
  * @param now - Reference time in ms (defaults to now)
@@ -53,6 +54,10 @@ export function getEmergencyFundStatus(
 
     if (daysLeft !== null && daysLeft <= CONSENT_EXPIRING_THRESHOLD_DAYS) {
         return EmergencyFundStatus.Expiring
+    }
+
+    if (summary.lastSyncStatus === BankSyncStatus.RateLimited) {
+        return EmergencyFundStatus.RateLimited
     }
 
     return EmergencyFundStatus.Ok

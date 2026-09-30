@@ -155,7 +155,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - Env vars `ENABLE_BANKING_APP_ID`, `ENABLE_BANKING_PRIVATE_KEY` (PEM in any format, see `toPrivateKeyPem`), `ENABLE_BANKING_ASPSP_NAME`, `ENABLE_BANKING_ASPSP_COUNTRY` are optional: while any is missing (or `NEXT_PUBLIC_VERCEL_URL`, used for the callback URL) `bank.get` returns `isConfigured: false` and the card shows a "Not configured" empty state. The cron endpoint also needs `NEXT_SYNC_BANK_SECRET_KEY`
 - **The bank is never named in the code**: its name only lives in `ENABLE_BANKING_ASPSP_NAME`, and UI copy stays generic ("bank account")
 - Connect flow: `bank.startConnection` stores an OAuth `state` and returns the bank URL, the bank redirects to `GET /api/bank/callback`, which validates the `state`, creates the session and reads the balance once
-- **PSD2 limits**: max 4 unattended reads per day (the cron `invoke_sync_bank_balances.sql` runs 3x/day calling `POST /api/syncBankBalances`) and some banks cap consents at 90 days (requested for 89). The card asks to renew 14 days before expiry
+- **PSD2 limits**: max 4 unattended reads per day (the cron `invoke_sync_bank_balances.sql` runs 3x/day calling `POST /api/syncBankBalances`) and some banks cap consents at 90 days (requested for 89). The card asks to renew 14 days before expiry. A 429 (quota used up) is `EnableBankingRateLimitError`: never retried, stored as `RATE_LIMITED` (not `ERROR`), so the card keeps the last balance with a "Daily limit reached" badge and no Reconnect button
 - The balance is shown in the Emergency Fund summary card (`src/modules/emergency-fund/`) and is NOT part of holdings or net worth
 
 ### Logs
