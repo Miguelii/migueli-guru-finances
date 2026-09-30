@@ -34,8 +34,8 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_BUILD_TIMESTAMP:
             process.env.NODE_ENV === 'production' ? buildTimestamp : undefined,
     },
-    async headers() {
-        return [
+    headers() {
+        return Promise.resolve([
             {
                 source: '/:path*',
                 headers: [
@@ -60,7 +60,7 @@ const nextConfig: NextConfig = {
                     { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
                 ],
             },
-        ]
+        ])
     },
 }
 

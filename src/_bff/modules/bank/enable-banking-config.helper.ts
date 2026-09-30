@@ -34,9 +34,12 @@ export function toPrivateKeyPem(rawKey: string): string {
     if (!match) return pem
 
     const [, label, body = ''] = match
-    const lines = body.replaceAll(/\s+/gu, '').match(new RegExp(`.{1,${PEM_LINE_LENGTH}}`, 'gu'))
+    const lines = Array.from(
+        body.replaceAll(/\s+/gu, '').matchAll(new RegExp(`.{1,${PEM_LINE_LENGTH}}`, 'gu')),
+        ([chunk]) => chunk
+    )
 
-    return `-----BEGIN ${label}-----\n${(lines ?? []).join('\n')}\n-----END ${label}-----\n`
+    return `-----BEGIN ${label}-----\n${lines.join('\n')}\n-----END ${label}-----\n`
 }
 
 /**

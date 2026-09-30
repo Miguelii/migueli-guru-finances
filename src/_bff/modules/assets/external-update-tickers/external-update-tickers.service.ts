@@ -18,7 +18,7 @@ import { type NextRequest, NextResponse } from 'next/server'
  *
  * @param request - The incoming request
  */
-async function isAuthorizedHandler(request: NextRequest): Promise<boolean> {
+function isAuthorizedHandler(request: NextRequest): boolean {
     const apiKey = request.headers.get('x-api-key')
 
     if (!apiKey) return false
@@ -31,9 +31,9 @@ async function isAuthorizedHandler(request: NextRequest): Promise<boolean> {
  * and revalidates the affected caches on success.
  * @param request - The incoming request
  */
-export async function externalUpdateTickers(request: NextRequest): Promise<NextResponse> {
+export function externalUpdateTickers(request: NextRequest): Promise<NextResponse> {
     const program = Effect.gen(function* () {
-        const isAuthorized = yield* Effect.promise(() => isAuthorizedHandler(request))
+        const isAuthorized = isAuthorizedHandler(request)
 
         if (!isAuthorized) {
             return yield* new UnauthorizedUpdateTickersError({

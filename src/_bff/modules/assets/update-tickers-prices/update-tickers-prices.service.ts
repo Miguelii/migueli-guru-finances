@@ -43,7 +43,7 @@ const retryPolicy = Schedule.exponential('2 second').pipe(
  *
  * @returns A promise resolving to `{ success, status }` — always resolves, never rejects
  */
-export async function updateTickersPrices(): Promise<UpdateReturn> {
+export function updateTickersPrices(): Promise<UpdateReturn> {
     const program = Effect.gen(function* () {
         const bd = yield* Effect.tryPromise({
             try: () => createDBServerClient(true),

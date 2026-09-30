@@ -4,6 +4,6 @@ import { externalSyncBankBalances } from '@/_bff/modules/bank/external-sync-bank
 
 export const dynamic = 'force-dynamic'
 
-export async function POST(request: NextRequest) {
+export function POST(request: NextRequest) {
     return Effect.runPromise(externalSyncBankBalances(request))
 }
