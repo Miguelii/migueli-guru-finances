@@ -20,4 +20,7 @@ export const PRICES_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/prices` as const
 
 export const LOGS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/logs` as const
 
+// Dev tools (only reachable in development)
+export const CACHE_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/cache` as const
+
 export const CRYPTO_CURRENCIES = new Set(['USDC', 'USDT'])

@@ -7,10 +7,11 @@ Private app for tracking my investments.
 Some cool highlighted tools this project uses:
 
 - **Effect**: a powerful TypeScript library designed to help developers easily create complex, synchronous, and asynchronous programs.
-- **tRPC**: end-to-end typesafe API layer — procedures live in the BFF services
+- **tRPC**: end-to-end typesafe API layer, procedures live in the BFF services
 - **nuqs**: for type-safe URL search params
 - **yahoo-finance2**: a community API for Yahoo-Finance, for Stock/ETF market data
 - **Coinbase API**: Coinbase official exchange API for real-time crypto market data
+- **Enable Banking**: PSD2 open banking aggregator to read the bank account balance
 - **Vercel BotId** invisible CAPTCHA for bot protection
 - **Next.js PWA**: installable as a native app on mobile and desktop
 - **NextThemes**: For Light and Dark mode

@@ -12,12 +12,20 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar'
-import { NAV_GROUPS, type NavGroup } from '@/components/app-sidebar/app-sidebar.constants'
+import {
+    DEV_NAV_GROUP,
+    NAV_GROUPS,
+    type NavGroup,
+} from '@/components/app-sidebar/app-sidebar.constants'
 import { buildNavHref } from '@/components/app-sidebar/app-sidebar.helpers'
 import { useIsMobile } from '@/hooks/use-mobile'
 
-export function NavMain() {
-    const groups: NavGroup[] = NAV_GROUPS
+type Props = {
+    isDev: boolean
+}
+
+export function NavMain({ isDev }: Props) {
+    const groups: NavGroup[] = isDev ? [...NAV_GROUPS, DEV_NAV_GROUP] : NAV_GROUPS
     const sidebar = useSidebar()
     const isMobile = useIsMobile()
     const pathname = usePathname()

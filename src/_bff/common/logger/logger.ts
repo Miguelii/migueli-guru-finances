@@ -27,7 +27,7 @@ const STACK_LINES = 4
 export function serializeError(error: unknown): unknown {
     if (error == null) return error
 
-    if (Array.isArray(error)) return error.map(serializeError)
+    if (Array.isArray(error)) return error.map((item) => serializeError(item))
 
     if (typeof error === 'object' && '_tag' in error) {
         const { stack: _stack, ...fields } = error as Record<string, unknown>

@@ -42,6 +42,9 @@ export enum ErrorCode {
     BANK_BALANCES_REQUEST = 'u9hk3c7m',
     BANK_SYNC_UNAUTHORIZED = 'n3vp8j5z',
 
+    // Cache (dev tools)
+    CACHE_REVALIDATE_DEV_ONLY = 'f4rw9k2t',
+
     // Logs
     LOGS_DB_CLIENT = 'w5fk8r2c',
     LOGS_GET_QUERY = 'j2tb6x9q',

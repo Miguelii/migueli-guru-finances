@@ -10,6 +10,7 @@ import {
 import Image from 'next/image'
 import { SignOutApp } from '@/modules/auth/sign-out-app'
 import { NavMain } from '@/components/app-sidebar/app-sidebar-nav'
+import { getIsDev } from '@/lib/utils/index.server'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
@@ -31,7 +32,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain />
+                <NavMain isDev={getIsDev()} />
             </SidebarContent>
             <SidebarFooter className="py-3 flex flex-col gap-5">
                 <Image

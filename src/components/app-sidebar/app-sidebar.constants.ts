@@ -3,12 +3,14 @@ import type * as React from 'react'
 import {
     BriefcaseBusinessIcon,
     CircleDollarSignIcon,
+    DatabaseZapIcon,
     LayoutDashboardIcon,
     ReceiptTextIcon,
     ScrollTextIcon,
     type LucideProps,
 } from 'lucide-react'
 import {
+    CACHE_ROUTE_PATH,
     LOGS_ROUTE_PATH,
     POSITIONS_ROUTE_PATH,
     PRICES_ROUTE_PATH,
@@ -67,3 +69,15 @@ export const NAV_GROUPS: NavGroup[] = [
         ],
     },
 ]
+
+// Only added to the sidebar in development (the page 404s elsewhere)
+export const DEV_NAV_GROUP: NavGroup = {
+    label: 'Dev tools',
+    items: [
+        {
+            title: 'Cache',
+            url: CACHE_ROUTE_PATH,
+            Icon: DatabaseZapIcon,
+        },
+    ],
+}

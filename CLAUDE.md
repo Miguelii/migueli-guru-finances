@@ -117,11 +117,12 @@ const transactions = await caller.transactions.getAll()
 ### Mutations and caching
 - Create/update/delete services end with `revalidateTag(<tag>, 'max')` + `revalidatePath(PRIVATE_ROUTE_PATH, 'layout')`, and the client calls `router.refresh()` on success. Without the tag revalidation the `unstable_cache` data would stay stale
 - Transactions cache entries carry two tags: the global `getAllTransactions` (invalidated by the ticker-prices flows, which affect every user) and a per-user `getAllTransactions:<userId>` (built via `getAllTransactionsCacheTag`, invalidated by that user's mutations). Assets keep a single global `getAssets` tag because the `data` table is shared across users
+- **Dev tools** (`/portfolio/cache`, module `src/_bff/modules/cache/`): development-only page (`notFound()` elsewhere, sidebar group only in dev) to revalidate any `unstable_cache` key on demand via `cache.revalidate` (`revalidateTag(key, { expire: 0 })`). The service fails with `DevOnlyActionError` (`FORBIDDEN`) outside development. New cache keys must be added to `CACHE_KEYS` in `cache.constants.ts`
 - Transactions inserts/updates/deletes are scoped by `user_id = userId` (explicit column filter on top of RLS)
 
 ## Backend module layout
 
-All backend code lives under `src/_bff/modules/<module>/` (`assets`, `auth`, `bank`, `logs`, `transactions`):
+All backend code lives under `src/_bff/modules/<module>/` (`assets`, `auth`, `bank`, `cache`, `logs`, `transactions`):
 
 - `<module>.router.ts`: module composition root, exports `<MODULE>_ROUTER`
 - `<use-case>/<use-case>.controller.ts` + `<use-case>/<use-case>.service.ts`: one folder per route (e.g. `create-transaction/`). A use case with no tRPC route (plain HTTP handler, e.g. `external-update-tickers/`) has only the service
