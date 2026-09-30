@@ -5,7 +5,7 @@ import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
 import { type CreateAssetProps } from '@/_bff/modules/assets/assets.dto'
 import { updateAssetByTicker } from '@/_bff/modules/assets/assets.repository'
-import { uploadAssetImage } from '@/_bff/modules/assets/upload-asset-image.helper'
+import { uploadAssetImage } from '@/_bff/modules/assets/helpers/upload-asset-image.helper'
 import { Effect } from 'effect'
 import { revalidatePath, revalidateTag } from 'next/cache'
 

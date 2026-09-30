@@ -4,7 +4,7 @@ import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.e
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { Logger } from '@/_bff/common/logger/logger'
 import type { BankBalanceSummary } from '@/types/BankConnection'
-import { getEnableBankingConfig } from '@/_bff/modules/bank/enable-banking-config.helper'
+import { getEnableBankingConfig } from '@/_bff/modules/bank/helpers/enable-banking-config.helper'
 import { getBankConnectionByUserIdFn } from '@/_bff/modules/bank/bank.repository'
 
 const NOT_CONNECTED_SUMMARY = {
@@ -53,10 +53,13 @@ export const getBankConnection = Effect.fn('getBankConnection')(function* (userI
 
     return yield* readBankConnection(userId).pipe(
         Effect.catchAll((error) => {
-            Logger.error(
-                `[getBankConnection Effect] [${error._tag}] failed USER_ID=|${userId}|`,
-                error
-            )
+            Logger({
+                level: 'error',
+                prefix: 'getBankConnection',
+                message: `${error._tag} failed`,
+                error,
+                userId,
+            })
 
             return Effect.succeed({
                 isConfigured: true,

@@ -4,8 +4,8 @@ import { Effect, Schedule } from 'effect'
 import { z } from 'zod'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { ENABLE_BANKING_API_URL } from '@/_bff/modules/bank/bank.constants'
-import type { EnableBankingConfig } from '@/_bff/modules/bank/enable-banking-config.helper'
-import { signEnableBankingJwt } from '@/_bff/modules/bank/enable-banking-jwt.helper'
+import type { EnableBankingConfig } from '@/_bff/modules/bank/helpers/enable-banking-config.helper'
+import { signEnableBankingJwt } from '@/_bff/modules/bank/helpers/enable-banking-jwt.helper'
 import {
     EnableBankingConsentError,
     EnableBankingRequestError,

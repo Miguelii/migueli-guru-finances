@@ -6,6 +6,7 @@ export enum DBTables {
     DATA = 'data',
     TRANSACTIONS = 'transactions',
     BANK_CONNECTIONS = 'bank_connections',
+    LOGS = 'logs',
 }
 
 export enum DBBuckets {

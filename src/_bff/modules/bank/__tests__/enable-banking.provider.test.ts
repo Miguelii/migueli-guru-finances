@@ -4,10 +4,10 @@ import {
     createSession,
     getAccountBalances,
 } from '@/_bff/modules/bank/providers/enable-banking.provider'
-import type { EnableBankingConfig } from '@/_bff/modules/bank/enable-banking-config.helper'
+import type { EnableBankingConfig } from '@/_bff/modules/bank/helpers/enable-banking-config.helper'
 
 vi.mock('server-only', () => ({}))
-vi.mock('@/_bff/modules/bank/enable-banking-jwt.helper', () => ({
+vi.mock('@/_bff/modules/bank/helpers/enable-banking-jwt.helper', () => ({
     signEnableBankingJwt: () => 'test.jwt.token',
 }))
 

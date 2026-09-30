@@ -33,7 +33,14 @@ export const forceSignOut = Effect.fn('forceSignOut')(function* () {
         }
     }).pipe(
         Effect.catchAll((error) =>
-            Effect.sync(() => Logger.warn('[forceSignOut] Supabase sign-out failed', error))
+            Effect.sync(() =>
+                Logger({
+                    level: 'warn',
+                    prefix: 'forceSignOut',
+                    message: 'Supabase sign-out failed',
+                    error,
+                })
+            )
         )
     )
 

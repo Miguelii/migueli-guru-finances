@@ -1,6 +1,6 @@
 import { generateKeyPairSync, createVerify } from 'node:crypto'
 import { describe, it, expect, vi } from 'vitest'
-import { signEnableBankingJwt } from '@/_bff/modules/bank/enable-banking-jwt.helper'
+import { signEnableBankingJwt } from '@/_bff/modules/bank/helpers/enable-banking-jwt.helper'
 
 vi.mock('server-only', () => ({}))
 
