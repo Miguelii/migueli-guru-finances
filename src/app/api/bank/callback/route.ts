@@ -5,6 +5,6 @@ import { bankCallback } from '@/_bff/modules/bank/bank-callback/bank-callback.se
 export const dynamic = 'force-dynamic'
 
 // GET: Enable Banking redirects the browser here after the user authorizes the bank
-export async function GET(request: NextRequest) {
+export function GET(request: NextRequest) {
     return Effect.runPromise(bankCallback(request))
 }

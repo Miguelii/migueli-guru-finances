@@ -29,24 +29,27 @@ async function convertToWebp() {
 
     console.log(`🔄 Converting ${imagesToConvert.length} image(s) to optimized WebP...\n`)
 
-    for (const file of imagesToConvert) {
-        const inputPath = join(ASSETS_DIR, file)
-        const outputName = `${basename(file, extname(file))}.webp`
-        const outputPath = join(ASSETS_DIR, outputName)
+    await Promise.all(
+        imagesToConvert.map(async (file) => {
+            const inputPath = join(ASSETS_DIR, file)
+            const outputName = `${basename(file, extname(file))}.webp`
+            const outputPath = join(ASSETS_DIR, outputName)
 
-        try {
-            await sharp(inputPath).webp({ quality: 90, effort: 6 }).toFile(outputPath)
+            try {
+                await sharp(inputPath).webp({ quality: 90, effort: 6 }).toFile(outputPath)
 
-            await unlink(inputPath)
-            console.log(`  ✅ ${file} → ${outputName}`)
-        } catch (error) {
-            console.error(`  ❌ Failed to convert ${file}:`, (error as Error).message)
-        }
-    }
+                await unlink(inputPath)
+                console.log(`  ✅ ${file} → ${outputName}`)
+            } catch (error) {
+                console.error(`  ❌ Failed to convert ${file}:`, (error as Error).message)
+            }
+        })
+    )
 
     console.log('\n🎉 Done!')
 }
 
-;(async () => {
-    await convertToWebp()
-})()
+convertToWebp().catch((error) => {
+    console.error('❌ Conversion failed:', (error as Error).message)
+    process.exitCode = 1
+})
