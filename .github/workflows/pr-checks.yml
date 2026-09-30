@@ -16,6 +16,7 @@ concurrency:
 env:
     FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     NEXT_SUPABASE_URL: http://localhost:54321
+    NEXT_PUBLIC_VERCEL_URL: http://localhost:3000
     NEXT_SUPABASE_PUBLISHABLE_KEY: test-publishable-key
     NEXT_SUPABASE_SERVICE_ROLE_KEY: test-service-key
     NEXT_UPDATE_TICKERS_SECRET_KEY: test-secret-key
