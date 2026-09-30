@@ -10,3 +10,5 @@ export class UnauthorizedSyncBankBalancesError extends tagged(
 export class EnableBankingConsentError extends tagged('EnableBankingConsentError') {}
 export class EnableBankingRequestError extends tagged('EnableBankingRequestError') {}
 export class EnableBankingUnavailableError extends tagged('EnableBankingUnavailableError') {}
+// 429: the bank's daily PSD2 quota of unattended reads is used up (resets the next day)
+export class EnableBankingRateLimitError extends tagged('EnableBankingRateLimitError') {}

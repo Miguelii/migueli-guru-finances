@@ -44,7 +44,7 @@ export function LogDetails({ log, onClose }: Props) {
     }
 
     return (
-        <div className="flex h-full min-h-0 flex-col">
+        <div className="flex h-full min-h-0 flex-col w-full">
             <div className="flex items-center gap-2 border-b px-4 py-3">
                 <span
                     className={cn('size-2 shrink-0 rounded-full', LOG_LEVEL_DOT_CLASS[log.level])}

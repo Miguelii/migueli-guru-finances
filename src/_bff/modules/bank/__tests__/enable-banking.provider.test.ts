@@ -74,8 +74,17 @@ describe('getAccountBalances', () => {
         expect(Either.isLeft(result) && result.left._tag).toBe('EnableBankingConsentError')
     })
 
+    it('should fail with a rate limit error on 429 without retrying', async () => {
+        const fetchSpy = mockFetch(429, { code: 429, error: 'ASPSP_RATE_LIMIT_EXCEEDED' })
+
+        const result = await run(getAccountBalances(config, 'acc'))
+
+        expect(Either.isLeft(result) && result.left._tag).toBe('EnableBankingRateLimitError')
+        expect(fetchSpy).toHaveBeenCalledTimes(1)
+    })
+
     it('should fail with a request error on other 4xx without retrying', async () => {
-        const fetchSpy = mockFetch(429, { code: 'TOO_MANY_REQUESTS' })
+        const fetchSpy = mockFetch(400, { code: 'WRONG_REQUEST_PARAMETERS' })
 
         const result = await run(getAccountBalances(config, 'acc'))
 

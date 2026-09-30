@@ -8,6 +8,7 @@ import type { EnableBankingConfig } from '@/_bff/modules/bank/helpers/enable-ban
 import { signEnableBankingJwt } from '@/_bff/modules/bank/helpers/enable-banking-jwt.helper'
 import {
     EnableBankingConsentError,
+    EnableBankingRateLimitError,
     EnableBankingRequestError,
     EnableBankingUnavailableError,
 } from '@/_bff/modules/bank/bank.errors'
@@ -37,6 +38,7 @@ const errorBodySchema = z.object({
 
 type EnableBankingError =
     | EnableBankingConsentError
+    | EnableBankingRateLimitError
     | EnableBankingRequestError
     | EnableBankingUnavailableError
 
@@ -48,6 +50,7 @@ type RequestOptions<S extends z.ZodType> = {
 }
 
 const CONSENT_ERROR_STATUSES = new Set([401, 403])
+const RATE_LIMIT_STATUS = 429
 const CONSENT_ERROR_CODE_PATTERN = /SESSION|CONSENT/iu
 
 /**
@@ -115,6 +118,10 @@ function requestEnableBanking<S extends z.ZodType>(
         if (!response.ok) {
             const responseBody = yield* Effect.promise(() => response.text().catch(() => ''))
             const cause = { status: response.status, path, body: responseBody }
+
+            if (response.status === RATE_LIMIT_STATUS) {
+                return yield* new EnableBankingRateLimitError({ cause, error_hash: errorHash })
+            }
 
             if (isConsentFailure(response.status, responseBody)) {
                 return yield* new EnableBankingConsentError({ cause, error_hash: errorHash })
