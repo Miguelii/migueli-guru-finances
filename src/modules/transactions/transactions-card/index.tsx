@@ -1,55 +1,49 @@
 'use client'
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Currency, TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { formatCurrency, formatDate, formatQuantity } from '@/lib/portfolio/formaters'
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
+import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
-import { ChevronDown, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Currency, type CambioRates, type TickerData, type Transaction } from '@/types/Transaction'
 import { DeleteTransactionDialog } from '@/modules/transactions/delete-transaction-dialog'
+import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
+import { TransactionDetails } from '@/modules/transactions/transaction-details'
+import { TransactionDrawer } from '@/modules/transactions/transaction-drawer'
+import { TransactionRow } from '@/modules/transactions/transaction-row'
+import { TRANSACTION_ROW_GRID_CLASS } from '@/modules/transactions/transaction-row.constants'
+import { TransactionsToolbar } from '@/modules/transactions/transactions-toolbar'
 import {
-    getSellEligibility,
-    getSellEligibilityLabel,
-} from '@/modules/transactions/transactions-card/transactions-card.helpers'
-import {
-    TYPE_BADGE_VARIANT,
-    TYPE_LABEL,
+    TRANSACTION_COLUMNS,
+    TRANSACTIONS_CARD_HEIGHT_CLASS,
 } from '@/modules/transactions/transactions-card/transactions-card.constants'
 import { useTransactionsCard } from '@/modules/transactions/transactions-card/use-transactions-card'
 import { useTransactionsCardActions } from '@/modules/transactions/transactions-card/use-transactions-card-actions'
-import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
-import { TransactionDrawer } from '@/modules/transactions/transaction-drawer'
 
 type Props = {
     transactions: Transaction[]
     tickerData: TickerData[]
+    rates: CambioRates
     hidePrices: boolean
 }
 
-export function TransactionsCard({ transactions, tickerData, hidePrices }: Props) {
+export function TransactionsCard({ transactions, tickerData, rates, hidePrices }: Props) {
     const {
         selectedAsset,
-        setSelectedAsset,
-        currencyMap,
-        assetTypeMap,
+        selectedType,
         uniqueAssets,
-        displayedTransactions,
+        availableTypes,
+        tickerMap,
+        groups,
         investedByTransaction,
-    } = useTransactionsCard({ transactions, tickerData })
+        selected,
+        drawerTransaction,
+        hasTransactions,
+        changeAsset,
+        changeType,
+        selectTransaction,
+        closeDetails,
+    } = useTransactionsCard({ transactions, tickerData, rates })
 
     const {
         isDrawerOpen,
@@ -64,161 +58,156 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
     } = useTransactionsCardActions()
 
     return (
-        <PortfolioCard
-            cardId="transactions"
-            title="Transactions"
-            className="flex flex-col"
-            actions={
-                <>
+        <>
+            <PortfolioCard
+                cardId="transactions"
+                title="Transactions"
+                className="flex flex-col min-w-0"
+                openHeightClassName={TRANSACTIONS_CARD_HEIGHT_CLASS}
+                actions={
                     <Button
-                        variant="outline"
                         size="sm"
                         onClick={openCreate}
-                        className="cursor-pointer gap-1 rounded-none px-2 py-1.5 text-sm h-8.5"
+                        className="h-8 cursor-pointer gap-1 rounded-none px-2.5"
                     >
                         <Plus className="size-4" />
                         Add
                     </Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 rounded-none border border-input bg-background px-2 py-1.5 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
-                            {selectedAsset === 'all' ? 'All Assets' : selectedAsset}
-                            <ChevronDown className="h-4 w-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                                onClick={() => setSelectedAsset('all')}
-                                className={selectedAsset === 'all' ? 'bg-accent' : ''}
-                            >
-                                All Assets
-                            </DropdownMenuItem>
-                            {uniqueAssets.map((asset) => (
-                                <DropdownMenuItem
-                                    key={asset}
-                                    onClick={() => setSelectedAsset(asset)}
-                                    className={selectedAsset === asset ? 'bg-accent' : ''}
+                }
+                contentClassName="flex h-full min-h-0 w-full min-w-0 flex-col gap-4"
+            >
+                <TransactionsToolbar
+                    asset={selectedAsset}
+                    type={selectedType}
+                    assets={uniqueAssets}
+                    availableTypes={availableTypes}
+                    tickerMap={tickerMap}
+                    onAssetChange={changeAsset}
+                    onTypeChange={changeType}
+                />
+
+                {groups.length === 0 ? (
+                    <div className="flex flex-col items-center gap-2 py-10 text-center">
+                        <p className="text-sm font-medium">
+                            {hasTransactions
+                                ? 'No transactions match these filters'
+                                : 'No transactions yet'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            {hasTransactions
+                                ? 'Change the asset or type filter.'
+                                : 'Add your first buy to start tracking your portfolio.'}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="flex min-h-0 flex-1 flex-col">
+                        {/* Outside the scroll area so it stays put; same gutter keeps the columns aligned */}
+                        <div
+                            aria-hidden="true"
+                            className={cn(
+                                'hidden overflow-y-hidden border-b px-3 pb-2 text-xs text-muted-foreground [scrollbar-gutter:stable]',
+                                TRANSACTION_ROW_GRID_CLASS
+                            )}
+                        >
+                            {TRANSACTION_COLUMNS.map((column) => (
+                                <span
+                                    key={column.label}
+                                    className={cn({ 'text-right': column.align === 'right' })}
                                 >
-                                    {asset}
-                                </DropdownMenuItem>
+                                    {column.label}
+                                </span>
                             ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </>
-            }
-            contentClassName="h-full min-h-0 overflow-y-auto"
-        >
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Asset</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>IRS Free (&gt;1year crypto)</TableHead>
-                        <TableHead className="text-right">Quantity</TableHead>
-                        <TableHead className="text-right">Price</TableHead>
-                        <TableHead className="text-right">Value</TableHead>
-                        <TableHead className="text-right">Fee</TableHead>
-                        <TableHead className="text-right">Net Worth</TableHead>
-                        <TableHead className="w-20 text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {displayedTransactions.map((tx) => {
-                        const currency = currencyMap.get(tx.ticker_id) ?? Currency.EUR
-                        const sellEligibility = getSellEligibility(
-                            tx,
-                            assetTypeMap.get(tx.ticker_id)
-                        )
-                        return (
-                            <TableRow
-                                key={tx.id}
-                                className="cursor-pointer hover:bg-muted/50 transition-colors"
-                            >
-                                <TableCell className="text-muted-foreground">
-                                    {formatDate(tx.buy_date)}
-                                </TableCell>
-                                <TableCell className="font-medium">{tx.ticker_id}</TableCell>
-                                <TableCell>
-                                    <Badge variant={TYPE_BADGE_VARIANT[tx.type]}>
-                                        {TYPE_LABEL[tx.type]}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell
-                                    className={cn('text-xs font-medium', {
-                                        'text-success': sellEligibility?.canSell,
-                                        'text-muted-foreground': sellEligibility === null,
-                                    })}
+                        </div>
+
+                        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
+                            {groups.map((group) => (
+                                <section
+                                    key={group.key}
+                                    aria-labelledby={`transactions-${group.key}`}
+                                    className="flex flex-col"
                                 >
-                                    {getSellEligibilityLabel(sellEligibility)}
-                                </TableCell>
-                                <TableCell
-                                    className={cn('text-right tabular-nums', {
-                                        'blur-md select-none': hidePrices,
-                                    })}
-                                >
-                                    {tx.quantity != null && tx.type !== TransactionType.Fee
-                                        ? formatQuantity(tx.quantity)
-                                        : '—'}
-                                </TableCell>
-                                <TableCell
-                                    className={cn('text-right tabular-nums', {
-                                        'blur-md select-none': hidePrices,
-                                    })}
-                                >
-                                    {tx.transaction_price != null
-                                        ? formatCurrency(tx.transaction_price, currency)
-                                        : '—'}
-                                </TableCell>
-                                <TableCell
-                                    className={cn('text-right tabular-nums', {
-                                        'blur-md select-none': hidePrices,
-                                    })}
-                                >
-                                    {tx.value != null ? formatCurrency(tx.value, currency) : '—'}
-                                </TableCell>
-                                <TableCell
-                                    className={cn('text-right tabular-nums text-muted-foreground', {
-                                        'blur-md select-none': hidePrices,
-                                    })}
-                                >
-                                    {formatCurrency(tx.fee, currency)}
-                                </TableCell>
-                                <TableCell
-                                    className={cn('text-right tabular-nums', {
-                                        'blur-md select-none': hidePrices,
-                                    })}
-                                >
-                                    {formatCurrency(
-                                        investedByTransaction.get(tx.id) ?? 0,
-                                        Currency.EUR
-                                    )}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon-sm"
-                                            aria-label="Edit transaction"
-                                            className="cursor-pointer"
-                                            onClick={() => openEdit(tx)}
+                                    <header className="sticky top-0 z-10 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b bg-muted px-3 py-2">
+                                        <h3
+                                            id={`transactions-${group.key}`}
+                                            className="text-xs font-semibold tracking-wide uppercase"
                                         >
-                                            <Pencil />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon-sm"
-                                            aria-label="Delete transaction"
-                                            className="cursor-pointer text-destructive hover:text-destructive"
-                                            onClick={() => openDelete(tx)}
-                                        >
-                                            <Trash2 />
-                                        </Button>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        )
-                    })}
-                </TableBody>
-            </Table>
+                                            {group.label}
+                                        </h3>
+                                        <p className="text-xs text-muted-foreground tabular-nums">
+                                            {group.summary.count}{' '}
+                                            {group.summary.count === 1
+                                                ? 'transaction'
+                                                : 'transactions'}
+                                            {group.summary.boughtEur > 0 && (
+                                                <>
+                                                    {' · '}
+                                                    <span
+                                                        className={cn({
+                                                            'blur-sm select-none': hidePrices,
+                                                        })}
+                                                    >
+                                                        {formatCurrency(
+                                                            group.summary.boughtEur,
+                                                            Currency.EUR
+                                                        )}
+                                                    </span>{' '}
+                                                    bought
+                                                </>
+                                            )}
+                                        </p>
+                                    </header>
+                                    <ul className="flex flex-col divide-y">
+                                        {group.transactions.map((tx) => (
+                                            <TransactionRow
+                                                key={tx.id}
+                                                transaction={tx}
+                                                ticker={tickerMap.get(tx.ticker_id)}
+                                                rates={rates}
+                                                isSelected={selected?.id === tx.id}
+                                                hidePrices={hidePrices}
+                                                onSelect={selectTransaction}
+                                            />
+                                        ))}
+                                    </ul>
+                                </section>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </PortfolioCard>
+
+            <Sheet
+                open={selected !== null}
+                onOpenChange={(open) => {
+                    if (!open) closeDetails()
+                }}
+            >
+                <SheetContent
+                    side="right"
+                    showCloseButton={false}
+                    className="w-full gap-0 p-0 sm:max-w-md"
+                >
+                    <SheetTitle className="sr-only">Transaction details</SheetTitle>
+                    {drawerTransaction && (
+                        <TransactionDetails
+                            transaction={drawerTransaction}
+                            ticker={tickerMap.get(drawerTransaction.ticker_id)}
+                            rates={rates}
+                            investedAfter={investedByTransaction.get(drawerTransaction.id)}
+                            hidePrices={hidePrices}
+                            onEdit={(tx) => {
+                                closeDetails()
+                                openEdit(tx)
+                            }}
+                            onDelete={(tx) => {
+                                closeDetails()
+                                openDelete(tx)
+                            }}
+                            onClose={closeDetails}
+                        />
+                    )}
+                </SheetContent>
+            </Sheet>
 
             <TransactionDrawer
                 open={isDrawerOpen}
@@ -233,6 +222,6 @@ export function TransactionsCard({ transactions, tickerData, hidePrices }: Props
                 onOpenChange={onDeleteDialogOpenChange}
                 transaction={deleting}
             />
-        </PortfolioCard>
+        </>
     )
 }

@@ -37,5 +37,8 @@ export const ASSET_TYPE_META: Record<TickerType, AssetTypeMeta> = {
     },
 }
 
+/** Chart color for assets without a `hex_color` */
+export const FALLBACK_ASSET_COLOR = 'var(--color-muted-foreground)'
+
 /** Asset classes shown as portfolio summary cards, in display order */
 export const ASSET_CLASS_ORDER = [TickerType.Crypto, TickerType.Etf, TickerType.Stock] as const

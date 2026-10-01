@@ -1,7 +1,7 @@
-import Image from 'next/image'
+import { AssetLogo } from '@/components/ui/asset-logo'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatPercentage, formatQuantity } from '@/lib/portfolio/formaters'
-import { buildLogoUrl, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { HoldingSummary } from '@/types/Holding'
 import { Currency } from '@/types/Transaction'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
@@ -28,20 +28,7 @@ const StakingRow = ({ item, hidePrices }: StakingRowProps) => {
 
     return (
         <li className="flex items-center gap-3 py-3">
-            {holding.tickerLogo ? (
-                <Image
-                    src={buildLogoUrl(holding.tickerLogo)}
-                    alt={`${holding.ticker_id} logo`}
-                    width={28}
-                    height={28}
-                    className="size-7 shrink-0 rounded-none"
-                    unoptimized
-                />
-            ) : (
-                <span className="flex size-7 shrink-0 items-center justify-center bg-muted text-xs font-semibold text-muted-foreground">
-                    {holding.ticker_id.slice(0, 2)}
-                </span>
-            )}
+            <AssetLogo logo={holding.tickerLogo} ticker={holding.ticker_id} />
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <p className="text-sm">
                     <span className="font-semibold">{holding.ticker_id}</span> earning{' '}

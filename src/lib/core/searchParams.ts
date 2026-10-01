@@ -13,13 +13,16 @@ import {
     DEFAULT_POSITION_SORT,
     POSITION_SORT_KEYS,
 } from '@/lib/constants/positions'
-import { TickerType } from '@/types/Transaction'
+import { ALL_TRANSACTION_ASSETS, ALL_TRANSACTION_TYPES } from '@/lib/constants/transactions'
+import { TickerType, TransactionType } from '@/types/Transaction'
 import { LogLevel } from '@/types/Log'
 
 export const paramsUrlKeys: UrlKeys<typeof paramsParsers> = {
     hide_prices: 'hide_prices',
     filter_asset: 'filter_asset',
     filter_year: 'filter_year',
+    filter_type: 'filter_type',
+    transaction_id: 'transaction_id',
     bank: 'bank',
     logs_range: 'logs_range',
     logs_search: 'logs_search',
@@ -33,6 +36,14 @@ export const paramsUrlKeys: UrlKeys<typeof paramsParsers> = {
 }
 
 // Result of the bank connection flow (Enable Banking), set by /api/bank/callback
+// Transactions page: client-only filters and the transaction open in the detail drawer
+export const transactionTypeParser = parseAsStringLiteral([
+    ALL_TRANSACTION_TYPES,
+    ...Object.values(TransactionType),
+]).withDefault(ALL_TRANSACTION_TYPES)
+
+export const transactionIdParser = parseAsString
+
 export const bankConnectionResultParser = parseAsStringLiteral(['connected', 'error'] as const)
 
 // Logs page: range and search are fetched on the server, level/source/id filter on the client
@@ -57,8 +68,10 @@ export const positionsIdParser = parseAsString
 
 const paramsParsers = {
     hide_prices: parseAsBoolean.withDefault(false),
-    filter_asset: parseAsString.withDefault('all'),
+    filter_asset: parseAsString.withDefault(ALL_TRANSACTION_ASSETS),
     filter_year: parseAsInteger.withDefault(new Date().getFullYear()),
+    filter_type: transactionTypeParser,
+    transaction_id: transactionIdParser,
     bank: bankConnectionResultParser,
     logs_range: parseAsStringLiteral(LOG_RANGES).withDefault(DEFAULT_LOG_RANGE),
     logs_search: parseAsString.withDefault(''),

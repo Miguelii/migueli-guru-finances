@@ -23,6 +23,7 @@ export default async function TransactionsPage(props: Props) {
             <TransactionsCard
                 transactions={transactions}
                 tickerData={data}
+                rates={rates}
                 hidePrices={hidePrices}
             />
             <MonthlyPurchasesCard

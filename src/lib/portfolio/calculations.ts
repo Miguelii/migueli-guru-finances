@@ -1,5 +1,5 @@
 import type { CambioRates, Ticker, TickerData, Transaction } from '@/types/Transaction'
-import { Currency, TickerType, TransactionType } from '@/types/Transaction'
+import { Currency, TickerType } from '@/types/Transaction'
 import type { HoldingSummary } from '@/types/Holding'
 import { toEur } from '@/lib/utils'
 import { processTransactions } from '@/lib/portfolio/fifo'
@@ -150,90 +150,6 @@ export function aggregateHoldings(
     }
 
     return holdings.toSorted((a, b) => a.ticker_id.localeCompare(b.ticker_id))
-}
-
-export type MonthlyPurchasesRow = {
-    ticker_id: Ticker
-    currency: Currency
-    /** Amount spent on BUYs per month in the asset's currency (index 0 = January). */
-    monthly: number[]
-    total: number
-    avg: number
-}
-
-export type MonthlyPurchasesTotal = {
-    currency: Currency
-    monthly: number[]
-}
-
-export function aggregateMonthlyPurchasesTotals(
-    rows: MonthlyPurchasesRow[],
-    rates: CambioRates
-): MonthlyPurchasesTotal[] {
-    const totalsByCurrency = new Map<Currency, number[]>()
-
-    for (const row of rows) {
-        const currency = row.currency !== Currency.EUR ? Currency.EUR : row.currency
-
-        let monthly = totalsByCurrency.get(currency)
-        if (!monthly) {
-            monthly = Array.from({ length: 12 }, () => 0)
-            totalsByCurrency.set(currency, monthly)
-        }
-
-        for (const [month, value] of row.monthly.entries()) {
-            monthly[month]! += toEur(value, row.currency, rates)
-        }
-    }
-
-    return Array.from(totalsByCurrency, ([currency, monthly]) => ({ currency, monthly }))
-}
-
-/**
- * Aggregates the amount spent on BUY transactions per asset per month for a given
- * year, in each asset's own currency (no EUR conversion). Only assets with at least
- * one BUY in the year are returned, sorted by ticker.
- *
- * @param transactions - All portfolio transactions.
- * @param tickerData - Ticker metadata (used to resolve each asset's currency).
- * @param year - Calendar year to aggregate.
- */
-export function aggregateMonthlyPurchases(
-    transactions: Transaction[],
-    tickerData: TickerData[],
-    year: number
-): MonthlyPurchasesRow[] {
-    const currencyMap = new Map<Ticker, Currency>(tickerData.map((td) => [td.ticker, td.currency]))
-    const monthlyByTicker = new Map<Ticker, number[]>()
-
-    for (const tx of transactions) {
-        if (tx.type !== TransactionType.Buy || tx.value == null) continue
-
-        const date = new Date(tx.buy_date.replace(' ', 'T'))
-        if (date.getFullYear() !== year) continue
-
-        let monthly = monthlyByTicker.get(tx.ticker_id)
-        if (!monthly) {
-            monthly = Array.from({ length: 12 }, () => 0)
-            monthlyByTicker.set(tx.ticker_id, monthly)
-        }
-        monthly[date.getMonth()]! += tx.value
-    }
-
-    const rows: MonthlyPurchasesRow[] = []
-
-    for (const [tickerId, monthly] of monthlyByTicker) {
-        const total = monthly.reduce((sum, v) => sum + v, 0)
-        rows.push({
-            ticker_id: tickerId,
-            currency: currencyMap.get(tickerId) ?? Currency.EUR,
-            monthly,
-            total,
-            avg: total / 12,
-        })
-    }
-
-    return rows.toSorted((a, b) => a.ticker_id.localeCompare(b.ticker_id))
 }
 
 export type PortfolioTotals = {

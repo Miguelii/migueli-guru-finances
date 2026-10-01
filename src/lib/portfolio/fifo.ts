@@ -37,7 +37,7 @@ function byChronologicalOrder(a: Transaction, b: Transaction): number {
  * @param currency - The asset's currency.
  * @param rates - Current exchange rates (fallback).
  */
-function txToEurRate(tx: Transaction, currency: Currency, rates: CambioRates): number {
+export function txToEurRate(tx: Transaction, currency: Currency, rates: CambioRates): number {
     if (currency === Currency.EUR) return 1
     return tx.exchange_rate ?? toEur(1, currency, rates)
 }

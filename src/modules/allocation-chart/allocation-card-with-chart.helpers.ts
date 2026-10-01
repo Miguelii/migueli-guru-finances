@@ -1,8 +1,7 @@
 import type { DonutChartItem } from '@/components/ui/donut-chart'
-import { ASSET_TYPE_META } from '@/lib/constants/asset-types'
+import { ASSET_TYPE_META, FALLBACK_ASSET_COLOR } from '@/lib/constants/asset-types'
 import { computeTypeBreakdown } from '@/lib/portfolio/calculations'
 import type { HoldingSummary } from '@/types/Holding'
-import { FALLBACK_ASSET_COLOR } from '@/modules/allocation-chart/allocation-card-with-chart.constants'
 
 /**
  * Builds the donut data of the portfolio current value per asset, largest first.

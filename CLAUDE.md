@@ -174,7 +174,8 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - **FIFO** realized G/L (chronological lots, oldest sold first, matches Portuguese tax rules) in `fifo.ts`. `avg_cost_per_share` of the remaining position is the weighted average of the remaining lots; REWARD transactions enter as zero-cost lots
 - **Ordering**: transactions are fetched `buy_date` descending from Supabase for display. Holdings calculations sort ascending internally (on equal dates acquisitions go before sells), so they are input-order independent
 - **Multi-currency** (EUR/USD/USDC per asset) with historical FX: costs and realized G/L convert to EUR at each transaction's `exchange_rate` (EUR per 1 USD/USDC at transaction date, e.g. `0.87`; fallback: current rate when absent), market value converts at the current rate
-- EUR conversion happens ONLY in `src/lib/portfolio/` (`fifo.ts`, `calculations.ts`): `HoldingSummary` carries precomputed `_eur` fields and UI components consume them as-is (never convert in components)
+- EUR conversion happens ONLY in `src/lib/portfolio/` (`fifo.ts`, `calculations.ts`, `transactions-summary.ts` for transaction values, month totals and the monthly purchases chart): `HoldingSummary` carries precomputed `_eur` fields and UI components consume them as-is (never convert in components)
+- **Capital gains tax** (`src/lib/portfolio/capital-gains-tax.ts`): rates per BUY (each lot's own holding period). Crypto 28% until 1 year, then exempt; ETFs and stocks 28% → 25.2% after 2 years → 22.4% after 5 → 19.6% after 8. The transactions list shows the current rate and the next step, the detail drawer the full bracket timeline
 - **Staking**: the Staking card estimates yearly rewards from a fixed APY per asset (`STAKING_APY` in `src/modules/staking/staking-card.constants.ts`) on the whole position (`current_value_eur * apy`, no compounding). Change a rate or add an asset there
 - Formatters use `Intl` / `toLocale*String` with the `pt-PT` locale, not date-fns
 
@@ -256,6 +257,7 @@ Rules:
 - `NuqsAdapter` wraps the app in `layout.tsx` with `shallow: false` (param changes trigger server re-renders). Client-only filters opt into `shallow: true` in their `useQueryState` call
 - Parsers live in `src/lib/core/searchParams.ts` (`createSearchParamsCache` + `parseAs*`), with the URL key mapping exported as `paramsUrlKeys` for server and client
 - Server Components read params via `searchParamsCache.parse(props.searchParams)`; Client Components read/write them via `useQueryState`
+- Transactions page (`src/modules/transactions/`): `filter_asset`, `filter_type` and `transaction_id` (detail drawer with Edit/Delete, deep-linkable) are client-only; `filter_year` drives the Monthly Purchases chart
 - Positions page (`src/modules/positions/`): `positions_type`, `positions_sort`, `positions_fees` and `positions_id` (detail drawer, deep-linkable) are client-only filters over the holdings rendered by the server
 
 ## Security and bot protection
