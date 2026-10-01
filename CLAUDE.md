@@ -175,6 +175,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - **Ordering**: transactions are fetched `buy_date` descending from Supabase for display. Holdings calculations sort ascending internally (on equal dates acquisitions go before sells), so they are input-order independent
 - **Multi-currency** (EUR/USD/USDC per asset) with historical FX: costs and realized G/L convert to EUR at each transaction's `exchange_rate` (EUR per 1 USD/USDC at transaction date, e.g. `0.87`; fallback: current rate when absent), market value converts at the current rate
 - EUR conversion happens ONLY in `src/lib/portfolio/` (`fifo.ts`, `calculations.ts`): `HoldingSummary` carries precomputed `_eur` fields and UI components consume them as-is (never convert in components)
+- **Staking**: the Staking card estimates yearly rewards from a fixed APY per asset (`STAKING_APY` in `src/modules/staking/staking-card.constants.ts`) on the whole position (`current_value_eur * apy`, no compounding). Change a rate or add an asset there
 - Formatters use `Intl` / `toLocale*String` with the `pt-PT` locale, not date-fns
 
 ## Code placement: helpers and constants

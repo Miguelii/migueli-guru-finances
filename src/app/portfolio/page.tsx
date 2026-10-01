@@ -8,6 +8,7 @@ import { AllocationCardWithChart } from '@/modules/allocation-chart/allocation-c
 import { TopPerformersCard } from '@/modules/top-performers/top-performers-card'
 import { NetWorthGoalTracker } from '@/modules/net-worth-goal-tracker/net-worth-goal-tracker'
 import { EmergencyFundCard } from '@/modules/emergency-fund/emergency-fund-card'
+import { StakingCard } from '@/modules/staking/staking-card'
 
 export const metadata: Metadata = {
     title: 'Portfolio | Migueli Guru Finances',
@@ -42,10 +43,13 @@ export default async function PortfolioPage(props: Props) {
 
             <section className="flex flex-col items-start gap-6 lg:flex-row">
                 <TopPerformersCard holdings={holdings} hidePrices={hidePrices} />
-                <EmergencyFundCard summary={bankBalance} hidePrices={hidePrices} />
+                <StakingCard holdings={holdings} hidePrices={hidePrices} />
             </section>
 
-            <NetWorthGoalTracker holdings={holdings} hidePrices={hidePrices} />
+            <section className="flex flex-col items-start gap-6 xl:flex-row">
+                <NetWorthGoalTracker holdings={holdings} hidePrices={hidePrices} />
+                <EmergencyFundCard summary={bankBalance} hidePrices={hidePrices} />
+            </section>
         </main>
     )
 }

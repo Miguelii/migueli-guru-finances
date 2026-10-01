@@ -32,7 +32,7 @@ type DetailRowProps = PropsWithChildren<{
 }>
 
 const DetailRow = ({ title, children }: DetailRowProps) => (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">{title}</p>
         <p className="text-xs font-medium tabular-nums">{children}</p>
     </div>
@@ -64,7 +64,7 @@ export function EmergencyFundCard({
                     </div>
                 </>
             }
-            contentClassName="space-y-4 py-4"
+            contentClassName="py-4 flex flex-row justify-between w-full"
         >
             <BankConnectionToast />
             {summary.balance === null ? (
