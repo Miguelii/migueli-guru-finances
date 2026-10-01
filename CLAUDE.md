@@ -256,6 +256,7 @@ Rules:
 - `NuqsAdapter` wraps the app in `layout.tsx` with `shallow: false` (param changes trigger server re-renders). Client-only filters opt into `shallow: true` in their `useQueryState` call
 - Parsers live in `src/lib/core/searchParams.ts` (`createSearchParamsCache` + `parseAs*`), with the URL key mapping exported as `paramsUrlKeys` for server and client
 - Server Components read params via `searchParamsCache.parse(props.searchParams)`; Client Components read/write them via `useQueryState`
+- Positions page (`src/modules/positions/`): `positions_type`, `positions_sort`, `positions_fees` and `positions_id` (detail drawer, deep-linkable) are client-only filters over the holdings rendered by the server
 
 ## Security and bot protection
 

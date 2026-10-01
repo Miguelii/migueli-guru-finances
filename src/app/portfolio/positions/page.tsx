@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { HoldingsCard } from '@/modules/holdings-table/holdings-card'
 import { searchParamsCache } from '@/lib/core/searchParams'
 import { getPortfolioData } from '@/lib/portfolio/portfolio-data.server'
+import { PositionsExplorer } from '@/modules/positions/positions-explorer'
 
 export const metadata: Metadata = {
     title: 'Positions | Migueli Guru Finances',
@@ -19,7 +19,7 @@ export default async function PositionsPage(props: Props) {
 
     return (
         <main className="flex flex-col gap-6 mb-24 min-w-0" id="main">
-            <HoldingsCard holdings={holdings} hidePrices={hidePrices} />
+            <PositionsExplorer holdings={holdings} hidePrices={hidePrices} />
         </main>
     )
 }

@@ -236,7 +236,7 @@ export function aggregateMonthlyPurchases(
     return rows.toSorted((a, b) => a.ticker_id.localeCompare(b.ticker_id))
 }
 
-type PortfolioTotals = {
+export type PortfolioTotals = {
     totalInvested: number
     currentValue: number
     unrealizedGl: number

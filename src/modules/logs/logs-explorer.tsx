@@ -114,11 +114,7 @@ export function LogsExplorer({ logs, isTruncated, range, fetchedAt }: Props) {
                     if (!open) closeDetails()
                 }}
             >
-                <SheetContent
-                    side="right"
-                    showCloseButton={false}
-                    className="w-full gap-0 p-0 max-w-full! sm:max-w-2xl!"
-                >
+                <SheetContent side="right" showCloseButton={false} className="w-full gap-0 p-0">
                     <SheetTitle className="sr-only">Log details</SheetTitle>
                     {drawerLog && <LogDetails log={drawerLog} onClose={closeDetails} />}
                 </SheetContent>

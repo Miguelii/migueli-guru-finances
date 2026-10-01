@@ -10,6 +10,7 @@ export const PORTFOLIO_CARD_IDS = [
     'transactions',
     'monthly-purchases',
     'holdings',
+    'closed-positions',
 ] as const
 
 export type PortfolioCardId = (typeof PORTFOLIO_CARD_IDS)[number]
@@ -23,4 +24,5 @@ export const DEFAULT_PORTFOLIO_CARD_STATE: Record<PortfolioCardId, boolean> = {
     transactions: true,
     'monthly-purchases': true,
     holdings: true,
+    'closed-positions': false,
 }
