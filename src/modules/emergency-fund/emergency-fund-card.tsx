@@ -53,7 +53,7 @@ export function EmergencyFundCard({
         <PortfolioCard
             cardId="emergency-fund"
             title="Emergency Fund"
-            openHeightClassName="h-full"
+            openHeightClassName="h-auto xl:h-full"
             actions={
                 <>
                     {/* In the header so a connection needing attention is visible while collapsed */}
