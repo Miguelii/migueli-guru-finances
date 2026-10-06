@@ -52,7 +52,7 @@ export const getBankConnection = Effect.fn('getBankConnection')(function* (userI
     }
 
     return yield* readBankConnection(userId).pipe(
-        Effect.catchAll((error) => {
+        Effect.catch((error) => {
             Logger({
                 level: 'error',
                 prefix: 'getBankConnection',

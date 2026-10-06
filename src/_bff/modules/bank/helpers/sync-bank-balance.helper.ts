@@ -19,7 +19,7 @@ import {
 function markStatus(supabaseClient: SbClient, id: string, status: BankSyncStatus) {
     return Effect.tryPromise(() => updateConnectionStatus(supabaseClient, id, status)).pipe(
         Effect.flatMap(({ error }) => (error ? Effect.fail(error) : Effect.void)),
-        Effect.catchAll((error) =>
+        Effect.catch((error) =>
             Effect.sync(() =>
                 Logger({
                     level: 'error',
@@ -85,7 +85,7 @@ export function syncBankBalance(
             })
         }
     }).pipe(
-        Effect.catchAll((error) => {
+        Effect.catch((error) => {
             // Quota exhausted: the stored balance is still valid, not a sync error
             if (error._tag === 'EnableBankingRateLimitError') {
                 Logger({

@@ -57,10 +57,10 @@ const CONSENT_ERROR_CODE_PATTERN = /SESSION|CONSENT/iu
  * Same retry policy as the ticker price providers (~2s → ~4s, max 2 retries), applied
  * only to transient failures (network errors, 5xx).
  */
-const retryPolicy = Schedule.exponential('2 second').pipe(
-    Schedule.jittered,
-    Schedule.intersect(Schedule.recurs(2))
-)
+const retryPolicy = Schedule.max([
+    Schedule.exponential('2 second').pipe(Schedule.jittered),
+    Schedule.recurs(2),
+])
 
 /**
  * Whether a failed response means the PSD2 consent is no longer usable (expired,

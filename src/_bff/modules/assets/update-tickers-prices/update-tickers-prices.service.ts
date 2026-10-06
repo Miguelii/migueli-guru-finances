@@ -32,10 +32,10 @@ const priceFetchers: Record<
  * limited to 2 retries. Approximate delays: ~2s → ~4s (total max wait: ~6s before giving up).
  * Jitter prevents thundering herd when multiple tickers retry concurrently.
  */
-const retryPolicy = Schedule.exponential('2 second').pipe(
-    Schedule.jittered,
-    Schedule.intersect(Schedule.recurs(2))
-)
+const retryPolicy = Schedule.max([
+    Schedule.exponential('2 second').pipe(Schedule.jittered),
+    Schedule.recurs(2),
+])
 
 /**
  * Fetches all assets and updates each one concurrently using Effect's `forEach` with unbounded concurrency.
@@ -68,7 +68,7 @@ export function updateTickersPrices(): Promise<UpdateReturn> {
             status: 200,
         } satisfies UpdateReturn
     }).pipe(
-        Effect.catchAll((error) => {
+        Effect.catch((error) => {
             Logger({
                 level: 'error',
                 prefix: 'updateTickersPrices',
@@ -99,7 +99,7 @@ export function fetchPrice(tick: TickerData): Effect.Effect<number | null> {
 
     return fetcher(tick).pipe(
         Effect.retry(retryPolicy),
-        Effect.catchAll((error) => {
+        Effect.catch((error) => {
             Logger({
                 level: 'error',
                 prefix: 'fetchPrice',
@@ -133,7 +133,7 @@ function updateTicker(supabaseClient: SbClient, tick: TickerData): Effect.Effect
         if (error)
             return yield* Effect.fail(new SbQueryError({ cause: error, message: error?.message }))
     }).pipe(
-        Effect.catchAll((error) => {
+        Effect.catch((error) => {
             const errorTag = '_tag' in error ? error._tag : 'Error'
             Logger({
                 level: 'error',

@@ -41,15 +41,17 @@ Import directly from the specific file. No barrel exports (`index.ts` files that
 
 All services use `Effect.gen` generators instead of `try/catch` or custom `tryCatch` wrappers. For Effect questions use the `effect-ts` skill, or fetch `https://effect.website/llms-full.txt` via `WebFetch`.
 
+The project is on **Effect v4**. Translate v3 snippets from older docs or the skill before using them: `Effect.catchAll` → `Effect.catch`, `Effect.orElse` → `Effect.catch`, `Either` / `Effect.either` → `Result` / `Effect.result`, `Schedule.intersect` → `Schedule.max([...])`, and `Cause` is a flat `cause.reasons` array (`Cause.findErrorOption`, `Cause.isDieReason`). Full guide: `https://github.com/Effect-TS/effect/blob/main/MIGRATION.md`
+
 ### Rules
 - `Effect.fn('name')(function* () { ... })` for named services (better traces). tRPC services take `userId` / input args and never resolve the session
 - `Effect.tryPromise` wraps any promise that can fail (Supabase queries, external APIs); `Effect.promise` wraps promises that are not expected to fail (e.g. `supabase.auth.getClaims()`)
 - Supabase queries: always check both the `Effect.tryPromise` catch AND the returned `error` field
-- Fail with `return yield* new SomeTaggedError(...)` (errors are yieldable) or `Effect.fail`. **Never `throw` inside `Effect.gen`**: it creates defects that bypass `catchAll` / `runEffect`
+- Fail with `return yield* new SomeTaggedError(...)` (errors are yieldable) or `Effect.fail`. **Never `throw` inside `Effect.gen`**: it creates defects that bypass `Effect.catch` / `runEffect`
 - Typed errors are `tagged()` classes (`src/_bff/common/errors/shared.errors.ts` for shared ones, `<module>.errors.ts` per module) carrying `cause`, an optional `message` and an `error_hash`. The explicit constructor return type on `tagged()` is required: without it `_tag` stays the unsubstituted generic and `Match.tag` / `Effect.catchTag` cannot discriminate the union
 - `error_hash` is an `ErrorCode` member (random 8-char hash in `src/_bff/common/errors/error-codes.ts`) so client-visible messages correlate with server logs without leaking details
-- tRPC services let typed errors reach `runEffect`. Fire-and-forget flows end with `Effect.catchAll` (log + safe fallback) and run with `Effect.runPromise`
-- **Retries** on external APIs (Coinbase, Yahoo Finance): `Schedule.exponential('2 second').pipe(Schedule.jittered, Schedule.intersect(Schedule.recurs(2)))`, i.e. ~2s → ~4s, max 2 retries (see `update-tickers-prices.service.ts`). Use `Schedule.intersect` (not `Schedule.compose`) to cap retries and always add `Schedule.jittered`
+- tRPC services let typed errors reach `runEffect`. Fire-and-forget flows end with `Effect.catch` (log + safe fallback) and run with `Effect.runPromise`
+- **Retries** on external APIs (Coinbase, Yahoo Finance): `Schedule.max([Schedule.exponential('2 second').pipe(Schedule.jittered), Schedule.recurs(2)])`, i.e. ~2s → ~4s, max 2 retries (see `update-tickers-prices.service.ts`). Use `Schedule.max` (recurs while every schedule recurs, longest delay wins) to cap retries and always add `Schedule.jittered`
 - Parallel work: `Effect.forEach(..., { concurrency: 'unbounded' })`
 
 ## tRPC: controllers, services, repositories

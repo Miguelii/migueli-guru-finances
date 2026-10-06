@@ -5,7 +5,7 @@ import {
 } from '@/modules/portfolio-card/portfolio-card.constants'
 import { Effect, Schema } from 'effect'
 
-const portfolioCardStateSchema = Schema.Record({ key: Schema.String, value: Schema.Unknown })
+const portfolioCardStateSchema = Schema.Record(Schema.String, Schema.Unknown)
 
 export function parsePortfolioCardState(value?: string): Record<PortfolioCardId, boolean> {
     const fallback = Effect.succeed({ ...DEFAULT_PORTFOLIO_CARD_STATE })
@@ -21,7 +21,7 @@ export function parsePortfolioCardState(value?: string): Record<PortfolioCardId,
             try: () => JSON.parse(decodedValue),
             catch: () => new Error('Invalid portfolio card cookie JSON'),
         })
-        const state = yield* Schema.decodeUnknown(portfolioCardStateSchema)(jsonValue)
+        const state = yield* Schema.decodeUnknownEffect(portfolioCardStateSchema)(jsonValue)
 
         return PORTFOLIO_CARD_IDS.reduce(
             (nextState, cardId) => {
@@ -36,7 +36,7 @@ export function parsePortfolioCardState(value?: string): Record<PortfolioCardId,
         )
     })
 
-    return Effect.runSync(parsedState.pipe(Effect.orElse(() => fallback)))
+    return Effect.runSync(parsedState.pipe(Effect.catch(() => fallback)))
 }
 
 export function serializePortfolioCardState(state: Record<PortfolioCardId, boolean>) {

@@ -74,7 +74,7 @@ export const externalSyncBankBalances = Effect.fn('externalSyncBankBalances')(
 
         return NextResponse.json({ status: 200, synced: connections?.length ?? 0 })
     },
-    Effect.catchAll((error) => {
+    Effect.catch((error) => {
         Logger({
             level: 'error',
             prefix: 'externalSyncBankBalances',

@@ -29,7 +29,7 @@ export const getAssetLogo = Effect.fn('getAssetLogo')(function* (rawPath: string
         },
         catch: (cause) => new GetAssetLogoError({ cause, error_hash: ErrorCode.ASSETS_LOGO_FETCH }),
     }).pipe(
-        Effect.catchAll((error) => {
+        Effect.catch((error) => {
             Logger({
                 level: 'error',
                 prefix: 'getAssetLogo',

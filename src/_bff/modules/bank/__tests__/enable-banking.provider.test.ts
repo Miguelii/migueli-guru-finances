@@ -1,4 +1,4 @@
-import { Effect, Either } from 'effect'
+import { Effect, Result } from 'effect'
 import { afterEach, describe, it, expect, vi } from 'vitest'
 import {
     createSession,
@@ -26,7 +26,7 @@ const mockFetch = (status: number, body: unknown) =>
             new Response(typeof body === 'string' ? body : JSON.stringify(body), { status })
         )
 
-const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect.either(effect))
+const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect.result(effect))
 
 afterEach(() => {
     vi.restoreAllMocks()
@@ -46,7 +46,7 @@ describe('getAccountBalances', () => {
 
         const result = await run(getAccountBalances(config, 'acc/1'))
 
-        expect(Either.getOrThrow(result)).toEqual([
+        expect(Result.getOrThrow(result)).toEqual([
             { balance_type: 'CLBD', balance_amount: { amount: '1500.25', currency: 'EUR' } },
         ])
         expect(fetchSpy).toHaveBeenCalledWith(
@@ -63,7 +63,7 @@ describe('getAccountBalances', () => {
 
         const result = await run(getAccountBalances(config, 'acc'))
 
-        expect(Either.isLeft(result) && result.left._tag).toBe('EnableBankingConsentError')
+        expect(Result.isFailure(result) && result.failure._tag).toBe('EnableBankingConsentError')
     })
 
     it('should fail with a consent error when the error code mentions the session', async () => {
@@ -71,7 +71,7 @@ describe('getAccountBalances', () => {
 
         const result = await run(getAccountBalances(config, 'acc'))
 
-        expect(Either.isLeft(result) && result.left._tag).toBe('EnableBankingConsentError')
+        expect(Result.isFailure(result) && result.failure._tag).toBe('EnableBankingConsentError')
     })
 
     it('should fail with a rate limit error on 429 without retrying', async () => {
@@ -79,7 +79,7 @@ describe('getAccountBalances', () => {
 
         const result = await run(getAccountBalances(config, 'acc'))
 
-        expect(Either.isLeft(result) && result.left._tag).toBe('EnableBankingRateLimitError')
+        expect(Result.isFailure(result) && result.failure._tag).toBe('EnableBankingRateLimitError')
         expect(fetchSpy).toHaveBeenCalledTimes(1)
     })
 
@@ -88,7 +88,7 @@ describe('getAccountBalances', () => {
 
         const result = await run(getAccountBalances(config, 'acc'))
 
-        expect(Either.isLeft(result) && result.left._tag).toBe('EnableBankingRequestError')
+        expect(Result.isFailure(result) && result.failure._tag).toBe('EnableBankingRequestError')
         expect(fetchSpy).toHaveBeenCalledTimes(1)
     })
 
@@ -97,7 +97,7 @@ describe('getAccountBalances', () => {
 
         const result = await run(getAccountBalances(config, 'acc'))
 
-        expect(Either.isLeft(result) && result.left._tag).toBe('EnableBankingRequestError')
+        expect(Result.isFailure(result) && result.failure._tag).toBe('EnableBankingRequestError')
     })
 })
 
@@ -111,7 +111,7 @@ describe('createSession', () => {
 
         const result = await run(createSession(config, 'auth-code'))
 
-        expect(Either.getOrThrow(result)).toEqual({
+        expect(Result.getOrThrow(result)).toEqual({
             session_id: 'session-1',
             accounts: [{ uid: 'account-1' }],
             access: { valid_until: '2026-12-25T00:00:00Z' },

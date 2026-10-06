@@ -32,10 +32,10 @@ export async function runEffect<A, E extends { _tag: string; error_hash?: string
 
     const userId = await getCachedUserId()
 
-    const maybeError = Cause.failureOption(exit.cause)
+    const maybeError = Cause.findErrorOption(exit.cause)
 
     if (Option.isNone(maybeError)) {
-        const defects = Array.from(Cause.defects(exit.cause))
+        const defects = exit.cause.reasons.filter(Cause.isDieReason).map((reason) => reason.defect)
         Logger({ level: 'error', prefix: 'trpc', message: context, error: defects, userId })
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'unexpected_defect' })
     }

@@ -32,7 +32,7 @@ export const forceSignOut = Effect.fn('forceSignOut')(function* () {
             })
         }
     }).pipe(
-        Effect.catchAll((error) =>
+        Effect.catch((error) =>
             Effect.sync(() =>
                 Logger({
                     level: 'warn',

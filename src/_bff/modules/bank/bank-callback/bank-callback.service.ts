@@ -123,7 +123,7 @@ export const bankCallback = Effect.fn('bankCallback')(
     },
     (effect, request) =>
         effect.pipe(
-            Effect.catchAll((error) => {
+            Effect.catch((error) => {
                 Logger({
                     level: 'error',
                     prefix: 'bankCallback',

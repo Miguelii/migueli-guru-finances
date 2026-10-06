@@ -59,7 +59,7 @@ export function externalUpdateTickers(request: NextRequest): Promise<NextRespons
 
         return NextResponse.json({ status: 200 })
     }).pipe(
-        Effect.catchAll((error) => {
+        Effect.catch((error) => {
             return Effect.succeed(
                 Match.value(error).pipe(
                     Match.tag('UnauthorizedUpdateTickersError', () =>
