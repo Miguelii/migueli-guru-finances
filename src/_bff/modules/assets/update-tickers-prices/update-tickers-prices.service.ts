@@ -9,8 +9,8 @@ import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.e
 import { UpdateTickersError } from '@/_bff/modules/assets/assets.errors'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
 import { GET_ALL_TRANSACTIONS_CACHE_KEY } from '@/_bff/modules/transactions/transactions.constants'
-import { getCoinbasePrice } from '@/_bff/modules/assets/providers/coinbase.provider'
-import { getFinancePrice } from '@/_bff/modules/assets/providers/yahoo.provider'
+import { getCoinbasePrices } from '@/_bff/modules/assets/providers/coinbase.provider'
+import { getFinancePrices } from '@/_bff/modules/assets/providers/yahoo.provider'
 import { selectAllTickers, updateAssetPrice } from '@/_bff/modules/assets/assets.repository'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
@@ -21,16 +21,16 @@ type UpdateReturn = {
 
 const priceFetchers: Record<
     TickerData['service'],
-    (tick: TickerData) => Effect.Effect<number | null, Error>
+    (ticks: TickerData[]) => Effect.Effect<Map<TickerData['ticker'], number>, Error>
 > = {
-    coinbase: getCoinbasePrice,
-    yahoo: getFinancePrice,
+    coinbase: getCoinbasePrices,
+    yahoo: getFinancePrices,
 }
 
 /**
  * Retry policy with exponential backoff starting at 2 seconds, jittered (80%-120%),
  * limited to 2 retries. Approximate delays: ~2s → ~4s (total max wait: ~6s before giving up).
- * Jitter prevents thundering herd when multiple tickers retry concurrently.
+ * Applied per provider batch, so one flaky provider never delays or drops the other one.
  */
 const retryPolicy = Schedule.max([
     Schedule.exponential('2 second').pipe(Schedule.jittered),
@@ -38,10 +38,10 @@ const retryPolicy = Schedule.max([
 ])
 
 /**
- * Fetches all assets and updates each one concurrently using Effect's `forEach` with unbounded concurrency.
- * Uses Effect for retry logic on external API calls with exponential backoff.
+ * Fetches all assets, prices them with one batched request per provider and updates
+ * each one concurrently using Effect's `forEach` with unbounded concurrency.
  *
- * @returns A promise resolving to `{ success, status }` — always resolves, never rejects
+ * @returns A promise resolving to `{ success, status }`, always resolves, never rejects
  */
 export function updateTickersPrices(): Promise<UpdateReturn> {
     const program = Effect.gen(function* () {
@@ -59,7 +59,9 @@ export function updateTickersPrices(): Promise<UpdateReturn> {
             (t) => t.service in priceFetchers
         )
 
-        yield* Effect.forEach(tickers, (t) => updateTicker(bd, t), {
+        const prices = yield* fetchPrices(tickers)
+
+        yield* Effect.forEach(tickers, (t) => updateTicker(bd, t, prices.get(t.ticker)), {
             concurrency: 'unbounded',
         })
 
@@ -86,43 +88,78 @@ export function updateTickersPrices(): Promise<UpdateReturn> {
 }
 
 /**
- * Fetches the price for a asset with retry logic and exponential backoff.
- * Selects the appropriate fetcher based on `tick.service`, applies the {@link retryPolicy},
- * and returns `null` on failure after all retries are exhausted.
+ * Fetches the prices of several assets with one batched call per provider (run in
+ * parallel), each with the {@link retryPolicy}. A provider failing after all retries
+ * is logged and contributes no prices; assets missing from a response are logged too.
+ *
+ * @param ticks - The assets to fetch the prices for
+ * @returns An Effect that always succeeds with a map of ticker to price
+ */
+function fetchPrices(ticks: TickerData[]): Effect.Effect<Map<TickerData['ticker'], number>> {
+    const ticksByService = Map.groupBy(
+        ticks.filter((tick) => tick.service in priceFetchers),
+        (tick) => tick.service
+    )
+
+    return Effect.forEach(
+        ticksByService,
+        ([service, serviceTicks]) =>
+            priceFetchers[service](serviceTicks).pipe(
+                Effect.retry(retryPolicy),
+                Effect.tap((prices) =>
+                    Effect.sync(() => {
+                        for (const tick of serviceTicks) {
+                            if (prices.has(tick.ticker)) continue
+
+                            Logger({
+                                level: 'error',
+                                prefix: 'fetchPrices',
+                                message: 'price missing from provider response',
+                                metadata: { ticker: tick.ticker, service },
+                            })
+                        }
+                    })
+                ),
+                Effect.catch((error) => {
+                    Logger({
+                        level: 'error',
+                        prefix: 'fetchPrices',
+                        message: 'fetch failed after retries',
+                        error,
+                        metadata: { service, tickers: serviceTicks.map((tick) => tick.ticker) },
+                    })
+                    return Effect.succeed(new Map<TickerData['ticker'], number>())
+                })
+            ),
+        { concurrency: 'unbounded' }
+    ).pipe(Effect.map((pricesByService) => new Map(pricesByService.flatMap((p) => [...p]))))
+}
+
+/**
+ * Fetches the price of a single asset through {@link fetchPrices}.
  *
  * @param tick - The asset data to fetch the price for
  * @returns An Effect that always succeeds with a price number or `null`
  */
 export function fetchPrice(tick: TickerData): Effect.Effect<number | null> {
-    const fetcher = priceFetchers[tick.service]
-    if (!fetcher) return Effect.succeed(null)
-
-    return fetcher(tick).pipe(
-        Effect.retry(retryPolicy),
-        Effect.catch((error) => {
-            Logger({
-                level: 'error',
-                prefix: 'fetchPrice',
-                message: 'fetch failed after retries',
-                error,
-                metadata: { ticker: tick.ticker, service: tick.service },
-            })
-            return Effect.succeed(null)
-        })
-    )
+    return fetchPrices([tick]).pipe(Effect.map((prices) => prices.get(tick.ticker) ?? null))
 }
 
 /**
- * Updates a asset current price in the Supabase
- * Silently logs and recovers from any errors — never fails the overall pipeline.
+ * Updates an asset current price in Supabase, skipping assets without a fetched price.
+ * Silently logs and recovers from any errors, never fails the overall pipeline.
  *
  * @param supabaseClient
  * @param tick - The asset data to update
+ * @param price - The fetched price, `undefined` when the provider had none
  * @returns An Effect that always succeeds with `void`
  */
-function updateTicker(supabaseClient: SbClient, tick: TickerData): Effect.Effect<void> {
+function updateTicker(
+    supabaseClient: SbClient,
+    tick: TickerData,
+    price: number | undefined
+): Effect.Effect<void> {
     return Effect.gen(function* () {
-        const price = yield* fetchPrice(tick)
         if (!price) return
 
         const { error } = yield* Effect.tryPromise({
@@ -134,11 +171,10 @@ function updateTicker(supabaseClient: SbClient, tick: TickerData): Effect.Effect
             return yield* Effect.fail(new SbQueryError({ cause: error, message: error?.message }))
     }).pipe(
         Effect.catch((error) => {
-            const errorTag = '_tag' in error ? error._tag : 'Error'
             Logger({
                 level: 'error',
                 prefix: 'updateTicker',
-                message: `${errorTag} failed`,
+                message: `${error._tag} failed`,
                 error,
                 metadata: { ticker: tick.ticker },
             })
