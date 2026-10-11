@@ -27,6 +27,7 @@ import {
     FIRST_YEAR,
     MONTH_LABELS,
 } from '@/modules/monthly-purchases/monthly-purchases-card.constants'
+import { MonthlyPurchasesAxisTick } from '@/modules/monthly-purchases/monthly-purchases-axis-tick'
 import {
     buildChartConfig,
     buildChartData,
@@ -133,7 +134,8 @@ export function MonthlyPurchasesCard({ transactions, tickerData, rates, hidePric
 
                     <figure>
                         <figcaption className="sr-only">
-                            Purchases per month in {selectedYear}, stacked by asset, in euros
+                            Purchases per month in {selectedYear}, stacked by asset, with each
+                            monthly total in euros shown below the month
                         </figcaption>
                         <ChartContainer
                             config={buildChartConfig(series)}
@@ -149,7 +151,14 @@ export function MonthlyPurchasesCard({ transactions, tickerData, rates, hidePric
                                     tickLine={false}
                                     axisLine={false}
                                     tickMargin={8}
-                                    fontSize={11}
+                                    height={34}
+                                    interval={0}
+                                    tick={
+                                        <MonthlyPurchasesAxisTick
+                                            monthlyTotals={chartData.map((point) => point.totalEur)}
+                                            hidePrices={hidePrices}
+                                        />
+                                    }
                                 />
                                 <YAxis hide />
                                 {!hidePrices && (

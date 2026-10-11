@@ -10,7 +10,10 @@ export type MonthlyChartSeries = {
     color: string
 }
 
-export type MonthlyChartPoint = { label: string } & Record<string, number | string>
+export type MonthlyChartPoint = { label: string; totalEur: number } & Record<
+    string,
+    number | string
+>
 
 /**
  * Chart-safe series key for a ticker: tickers like `EUR=X` are not valid in the
@@ -49,7 +52,10 @@ export function buildChartData(
     series: MonthlyChartSeries[]
 ): MonthlyChartPoint[] {
     return purchases.months.map((bucket) => {
-        const point: MonthlyChartPoint = { label: MONTH_LABELS[bucket.month]! }
+        const point: MonthlyChartPoint = {
+            label: MONTH_LABELS[bucket.month]!,
+            totalEur: bucket.totalEur,
+        }
 
         for (const { key, ticker } of series) {
             point[key] = Math.round(bucket[ticker] ?? 0)

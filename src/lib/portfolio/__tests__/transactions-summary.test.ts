@@ -123,8 +123,11 @@ describe('aggregateMonthlyPurchasesEur', () => {
 
         expect(result.months).toHaveLength(12)
         expect(result.months[0]![Ticker.ETH]).toBeCloseTo(150)
+        expect(result.months[0]!.totalEur).toBeCloseTo(150)
         expect(result.months[2]![Ticker.ATCH]).toBeCloseTo(80)
+        expect(result.months[2]!.totalEur).toBeCloseTo(80)
         expect(result.months[1]![Ticker.ETH]).toBeUndefined()
+        expect(result.months[1]!.totalEur).toBe(0)
         expect(result.totalEur).toBeCloseTo(230)
         expect(result.avgEur).toBeCloseTo(230 / 12)
     })

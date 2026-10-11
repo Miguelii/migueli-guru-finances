@@ -19,7 +19,7 @@ export type TransactionsSummary = {
 }
 
 /** One bar of the monthly purchases chart: month index (0 = January) + EUR per ticker */
-type MonthlyPurchasesBucket = { month: number } & Partial<Record<Ticker, number>>
+type MonthlyPurchasesBucket = { month: number; totalEur: number } & Partial<Record<Ticker, number>>
 
 type MonthlyPurchasesAsset = {
     ticker: Ticker
@@ -120,6 +120,7 @@ export function aggregateMonthlyPurchasesEur(
     const currencyMap = new Map<Ticker, Currency>(tickerData.map((td) => [td.ticker, td.currency]))
     const months: MonthlyPurchasesBucket[] = Array.from({ length: MONTHS }, (_, month) => ({
         month,
+        totalEur: 0,
     }))
     const monthTotals = Array.from({ length: MONTHS }, () => 0)
     const assetTotals = new Map<Ticker, number>()
@@ -138,6 +139,7 @@ export function aggregateMonthlyPurchasesEur(
         )
 
         months[month]![tx.ticker_id] = (months[month]![tx.ticker_id] ?? 0) + valueEur
+        months[month]!.totalEur += valueEur
         monthTotals[month]! += valueEur
         assetTotals.set(tx.ticker_id, (assetTotals.get(tx.ticker_id) ?? 0) + valueEur)
     }
