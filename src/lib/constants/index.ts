@@ -20,6 +20,8 @@ export const STAKING_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/staking` as const
 
 export const EMERGENCY_FUND_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/emergency-fund` as const
 
+export const NEWS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/news` as const
+
 export const PRICES_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/prices` as const
 
 export const LOGS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/logs` as const

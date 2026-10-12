@@ -63,4 +63,6 @@ export type TickerData = {
     logo?: `/${string}` | null
     hex_color?: `#${number}`
     type: TickerType
+    /** Extra search terms for the news feed (e.g. 'AtlasClear lawsuit') */
+    news_keywords?: string | null
 }

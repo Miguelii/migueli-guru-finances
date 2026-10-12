@@ -7,6 +7,7 @@ import {
     DatabaseZapIcon,
     LayoutDashboardIcon,
     LifeBuoyIcon,
+    NewspaperIcon,
     ReceiptTextIcon,
     ScrollTextIcon,
     type LucideProps,
@@ -14,6 +15,7 @@ import {
 import {
     CACHE_ROUTE_PATH,
     EMERGENCY_FUND_ROUTE_PATH,
+    NEWS_ROUTE_PATH,
     LOGS_ROUTE_PATH,
     POSITIONS_ROUTE_PATH,
     PRICES_ROUTE_PATH,
@@ -64,6 +66,11 @@ export const NAV_GROUPS: NavGroup[] = [
                 title: 'Emergency Fund',
                 url: EMERGENCY_FUND_ROUTE_PATH,
                 Icon: LifeBuoyIcon,
+            },
+            {
+                title: 'News',
+                url: NEWS_ROUTE_PATH,
+                Icon: NewspaperIcon,
             },
             {
                 title: 'Watchlist',

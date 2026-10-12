@@ -224,3 +224,15 @@ export function computeTypeBreakdown(holdings: HoldingSummary[]): TypeBreakdownI
         .map((item) => ({ ...item, share: pct(item.currentValue, portfolioValue) }))
         .toSorted((a, b) => b.currentValue - a.currentValue)
 }
+
+/**
+ * Tickers with an open position (quantity above zero), leaving out the cambio rows,
+ * which only hold FX rates.
+ *
+ * @param holdings - Array of holding summaries.
+ */
+export function getOpenPositionTickers(holdings: HoldingSummary[]): Ticker[] {
+    return holdings
+        .filter((h) => h.total_quantity > 0 && h.tickerType !== TickerType.Cambio)
+        .map((h) => h.ticker_id)
+}

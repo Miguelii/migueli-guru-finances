@@ -49,6 +49,10 @@ export enum ErrorCode {
     SNAPSHOTS_UPSERT_QUERY = '45gwksfe',
     SNAPSHOTS_DELETE_QUERY = 'gjad0v9s',
 
+    // News
+    NEWS_DB_CLIENT = 'k3xunahz',
+    NEWS_GET_QUERY = 'res8myy1',
+
     // Cache (dev tools)
     CACHE_REVALIDATE_DEV_ONLY = 'f4rw9k2t',
 
