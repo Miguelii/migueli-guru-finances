@@ -77,7 +77,10 @@ const getCachedAssetNames = (assets: NewsAsset[]) =>
             Object.fromEntries(
                 await Effect.runPromise(getYahooNames(assets).pipe(Effect.retry(NEWS_RETRY_POLICY)))
             ),
-        ['getAssetNames', ...assets.map((asset) => asset.ticker).toSorted()],
+        [
+            'getAssetNames',
+            ...assets.map((asset) => asset.ticker).toSorted((a, b) => a.localeCompare(b)),
+        ],
         { revalidate: GET_ASSET_NAMES_REVALIDATE_TIME, tags: [GET_ASSET_NEWS_CACHE_KEY] }
     )
 

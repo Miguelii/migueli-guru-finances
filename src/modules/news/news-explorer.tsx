@@ -10,13 +10,13 @@ import { RECENT_NEWS_DAYS } from '@/modules/news/news-explorer.constants'
 import { countRecentNews } from '@/modules/news/news-explorer.helpers'
 import { useNewsExplorer } from '@/modules/news/use-news-explorer'
 
-type Props = {
+type Props = Readonly<{
     news: NewsItem[]
     events: PortfolioEvent[]
     assets: TickerData[]
     /** Today's day key, computed on the server so both renders agree */
     today: string
-}
+}>
 
 export function NewsExplorer({ news, events, assets, today }: Props) {
     const {

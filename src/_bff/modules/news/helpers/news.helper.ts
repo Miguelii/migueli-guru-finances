@@ -18,8 +18,23 @@ export type NewsAsset = Pick<
 >
 
 // Legal-form suffixes left out of the name search ("AtlasClear Holdings, Inc." → "AtlasClear")
-const CORPORATE_SUFFIX =
-    /[,\s]+(?:inc|corp|corporation|company|co|ltd|plc|holdings|sa|nv|ag|se)\.?$/iu
+const CORPORATE_SUFFIXES = new Set([
+    'inc',
+    'corp',
+    'corporation',
+    'company',
+    'co',
+    'ltd',
+    'plc',
+    'holdings',
+    'sa',
+    'nv',
+    'ag',
+    'se',
+])
+
+// Quote currency Yahoo appends to crypto names ("Bitcoin USD")
+const QUOTE_CURRENCIES = new Set(['USD', 'EUR'])
 
 const DAY_MS = 86_400_000
 
@@ -44,17 +59,26 @@ export function toYahooNewsSymbol(asset: Pick<NewsAsset, 'ticker' | 'type'>): st
  * @param name - Yahoo `longName` / `shortName` (e.g. 'Vanguard S&P 500 UCITS ETF USD Accumulation')
  */
 export function cleanAssetName(name: string): string {
-    let clean = name
-        .replace(/\s+UCITS\b.*$/iu, '')
-        .replace(/\s+(?:USD|EUR)$/u, '')
-        .trim()
+    // String operations and a single-class split keep this linear on untrusted names
+    const ucitsIndex = name.toUpperCase().indexOf(' UCITS')
+    const base = ucitsIndex === -1 ? name : name.slice(0, ucitsIndex)
+    const words = base.split(/[\s,]+/u).filter(Boolean)
 
-    for (let previous = ''; previous !== clean; ) {
-        previous = clean
-        clean = clean.replace(CORPORATE_SUFFIX, '').trim()
-    }
+    if (words.length > 1 && QUOTE_CURRENCIES.has(words.at(-1)!)) words.pop()
 
-    return clean
+    while (words.length > 1 && CORPORATE_SUFFIXES.has(toSuffixKey(words.at(-1)!))) words.pop()
+
+    return words.join(' ')
+}
+
+/**
+ * Lowercased word without a trailing period, to match it against the legal suffixes.
+ *
+ * @param word - Last word of a name (e.g. 'Inc.')
+ */
+function toSuffixKey(word: string): string {
+    const lower = word.toLowerCase()
+    return lower.endsWith('.') ? lower.slice(0, -1) : lower
 }
 
 /**

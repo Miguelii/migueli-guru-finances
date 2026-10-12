@@ -5,19 +5,19 @@ import { ALL_NEWS_ASSETS } from '@/lib/constants/news'
 import { cn } from '@/lib/utils'
 import type { AssetFilterOption } from '@/modules/news/news-explorer.helpers'
 
-type Props = {
+type Props = Readonly<{
     options: AssetFilterOption[]
     selected: string
     totalCount: number
     onChange: (ticker: string) => void
-}
+}>
 
-type ChipProps = {
+type ChipProps = Readonly<{
     isActive: boolean
     count: number
     onClick: () => void
     children: React.ReactNode
-}
+}>
 
 const Chip = ({ isActive, count, onClick, children }: ChipProps) => (
     <button
@@ -48,7 +48,8 @@ export function NewsAssetFilter({ options, selected, totalCount, onChange }: Pro
     if (options.length < 2) return null
 
     return (
-        <div role="group" aria-label="Filter by asset" className="flex flex-wrap gap-2">
+        <fieldset className="m-0 flex min-w-0 flex-wrap gap-2 border-0 p-0">
+            <legend className="sr-only">Filter by asset</legend>
             <Chip
                 isActive={selected === ALL_NEWS_ASSETS}
                 count={totalCount}
@@ -67,6 +68,6 @@ export function NewsAssetFilter({ options, selected, totalCount, onChange }: Pro
                     {option.ticker}
                 </Chip>
             ))}
-        </div>
+        </fieldset>
     )
 }

@@ -10,11 +10,11 @@ import { NewsRow } from '@/modules/news/news-row'
 import { NEWS_PAGE_SIZE } from '@/modules/news/news-feed.constants'
 import { groupNewsByDay } from '@/modules/news/news-feed.helpers'
 
-type Props = {
+type Props = Readonly<{
     news: NewsItem[]
     logos: Map<string, TickerData['logo']>
     hasPositions: boolean
-}
+}>
 
 export function NewsFeed({ news, logos, hasPositions }: Props) {
     const [visibleCount, setVisibleCount] = useState(NEWS_PAGE_SIZE)
@@ -84,7 +84,7 @@ export function NewsFeed({ news, logos, hasPositions }: Props) {
                             onClick={() => setVisibleCount((count) => count + NEWS_PAGE_SIZE)}
                             className="h-10 w-full cursor-pointer gap-1.5 rounded-none"
                         >
-                            Show more
+                            <span>Show more</span>
                             <span className="text-muted-foreground tabular-nums">
                                 ({remaining})
                             </span>

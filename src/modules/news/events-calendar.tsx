@@ -30,7 +30,7 @@ import {
     shiftMonth,
 } from '@/modules/news/events-calendar.helpers'
 
-type Props = {
+type Props = Readonly<{
     events: PortfolioEvent[]
     logos: Map<string, TickerData['logo']>
     today: string
@@ -40,13 +40,13 @@ type Props = {
     onSelectDay: (date: string) => void
     onGoToDay: (date: string) => void
     onShowNews: (ticker: string) => void
-}
+}>
 
-type EventRowProps = {
+type EventRowProps = Readonly<{
     event: PortfolioEvent
     logo: TickerData['logo']
     onShowNews: (ticker: string) => void
-}
+}>
 
 const EventRow = ({ event, logo, onShowNews }: EventRowProps) => (
     <li className="flex items-center gap-3 py-2.5">

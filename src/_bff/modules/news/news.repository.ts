@@ -28,7 +28,7 @@ export const getNewsAssetsFn = (supabaseClient: SbClient, tickers: string[]) =>
 
             return data ?? []
         },
-        ['getNewsAssets', ...tickers.toSorted()],
+        ['getNewsAssets', ...tickers.toSorted((a, b) => a.localeCompare(b))],
         {
             revalidate: GET_DATA_REVALIDATE_TIME,
             tags: [GET_ASSETS_CACHE_KEY],

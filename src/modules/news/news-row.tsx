@@ -5,10 +5,10 @@ import type { NewsItem } from '@/types/News'
 import type { TickerData } from '@/types/Transaction'
 import { formatNewsTime } from '@/modules/news/news-feed.helpers'
 
-type Props = {
+type Props = Readonly<{
     item: NewsItem
     logo: TickerData['logo']
-}
+}>
 
 export function NewsRow({ item, logo }: Props) {
     return (

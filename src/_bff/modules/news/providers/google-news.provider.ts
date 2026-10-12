@@ -28,6 +28,16 @@ function readText(node: unknown): string {
 }
 
 /**
+ * Normalizes an XML node that may appear once (object) or several times (array).
+ *
+ * @param node - Parsed XML node, possibly missing
+ */
+function toArray<T>(node: T | T[] | undefined): T[] {
+    if (node === undefined) return []
+    return Array.isArray(node) ? node : [node]
+}
+
+/**
  * Parses a Google News RSS document into news items of an asset. Google appends
  * " - <source>" to every title, which is stripped. Items without a title, a valid
  * date or an https link are dropped.
@@ -43,7 +53,7 @@ export function parseGoogleNewsRss(
 ): NewsItem[] {
     const document = parser.parse(xml) as { rss?: { channel?: { item?: RssItem | RssItem[] } } }
     const rawItems = document.rss?.channel?.item
-    const items = Array.isArray(rawItems) ? rawItems : rawItems ? [rawItems] : []
+    const items = toArray(rawItems)
 
     return items.flatMap((item): NewsItem[] => {
         const source = readText(item.source)

@@ -7,7 +7,7 @@ import { EVENT_TYPE_LABEL } from '@/modules/news/events-calendar.constants'
 import { SUMMARY_TILE_CLASS } from '@/modules/news/news-summary.constants'
 import { formatCountdown, formatEventDay } from '@/modules/news/events-calendar.helpers'
 
-type Props = {
+type Props = Readonly<{
     nextEvent: PortfolioEvent | undefined
     recentCount: number
     followedCount: number
@@ -15,13 +15,13 @@ type Props = {
     logos: Map<string, TickerData['logo']>
     today: string
     onSelectEvent: (date: string) => void
-}
+}>
 
-type TileProps = {
+type TileProps = Readonly<{
     label: string
     icon: React.ReactNode
     children: React.ReactNode
-}
+}>
 
 const Tile = ({ label, icon, children }: TileProps) => (
     <>
