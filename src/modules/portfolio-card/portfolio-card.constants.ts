@@ -11,6 +11,8 @@ export const PORTFOLIO_CARD_IDS = [
     'monthly-purchases',
     'holdings',
     'closed-positions',
+    'news',
+    'events-calendar',
 ] as const
 
 export type PortfolioCardId = (typeof PORTFOLIO_CARD_IDS)[number]
@@ -25,4 +27,6 @@ export const DEFAULT_PORTFOLIO_CARD_STATE: Record<PortfolioCardId, boolean> = {
     'monthly-purchases': true,
     holdings: true,
     'closed-positions': false,
+    news: true,
+    'events-calendar': true,
 }

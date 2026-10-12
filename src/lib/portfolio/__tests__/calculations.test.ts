@@ -4,6 +4,7 @@ import {
     aggregateHoldings,
     computePortfolioTotals,
     computeTypeBreakdown,
+    getOpenPositionTickers,
 } from '@/lib/portfolio/calculations'
 import type { CambioRates, Transaction, TickerData } from '@/types/Transaction'
 import { TransactionType, Ticker, Currency, TickerService, TickerType } from '@/types/Transaction'
@@ -795,5 +796,30 @@ describe('computeTypeBreakdown', () => {
 
         expect(result).toHaveLength(1)
         expect(result[0]!.share).toBe(100)
+    })
+})
+
+// ─── getOpenPositionTickers ──────────────────────────────────────────────────
+
+describe('getOpenPositionTickers', () => {
+    it('should keep open positions and leave out sold ones and cambio rows', () => {
+        const usdTd = makeTd({ ticker: Ticker.USD_EUR, type: TickerType.Cambio, curr_price: 0.9 })
+        const txs = [
+            makeTx({ id: '1', ticker_id: Ticker.ETH, quantity: 1, value: 1000 }),
+            makeTx({ id: '2', ticker_id: Ticker.SOL, quantity: 2, value: 100 }),
+            makeTx({
+                id: '3',
+                ticker_id: Ticker.SOL,
+                type: TransactionType.Sell,
+                quantity: 2,
+                value: 150,
+                buy_date: '2026-02-01 10:00:00',
+            }),
+            makeTx({ id: '4', ticker_id: Ticker.USD_EUR, quantity: 100, value: 90 }),
+        ]
+
+        const holdings = aggregateHoldings(txs, [ethTd, solTd, usdTd], rates)
+
+        expect(getOpenPositionTickers(holdings)).toEqual([Ticker.ETH])
     })
 })

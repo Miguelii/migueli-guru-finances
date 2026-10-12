@@ -161,6 +161,13 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - **PSD2 limits**: max 4 unattended reads per day (the cron `invoke_sync_bank_balances.sql` runs 3x/day calling `POST /api/syncBankBalances`) and some banks cap consents at 90 days (requested for 89). The card asks to renew 14 days before expiry. A 429 (quota used up) is `EnableBankingRateLimitError`: never retried, stored as `RATE_LIMITED` (not `ERROR`), so the card keeps the last balance with a "Daily limit reached" badge and no Reconnect button
 - The balance is shown in the Emergency Fund card (`src/modules/emergency-fund/`) on its own page `/portfolio/emergency-fund` (where the callback redirects back to) and is NOT part of holdings or net worth
 
+### News and events (`/portfolio/news`)
+- Module `src/_bff/modules/news/` (`news.get`, `news.getEvents`, input: the open-position tickers from `getOpenPositionTickers`). Both services never fail: a broken source or asset is logged and left out
+- **News**: Yahoo Finance `search` (crypto under `<BASE>-USD`, nothing for ETFs) plus the public Google News RSS (personal non-commercial use), searched by the cleaned Yahoo name and by the asset's optional `news_keywords` (`data.news_keywords`, set in the Watchlist drawer, SQL in `data_news_keywords.sql`). `mergeNews` dedupes per asset, keeps 30 days and reserves slots for the keyword results (shown with a "Your search" badge)
+- **Events**: Yahoo `quoteSummary` `calendarEvents` (earnings, ex-dividend, dividend payment), stocks only
+- Per-asset results are cached with `unstable_cache` (`getAssetNews` 1h, `getAssetEvents` 12h); a fetch where every source failed throws out of the cache function so outages are never cached as "no news"
+- Links from feeds are rendered only when `https:` (`isSafeUrl`); no thumbnails (the CSP only allows same-origin images)
+
 ### Logs
 - `Logger({ level, prefix, message?, error?, metadata?, userId? })` (`src/_bff/common/logger/logger.ts`) is the only way to log in the BFF: `prefix` is the source (e.g. `trpc`, `syncBankBalance`), ids and context go in `metadata` / `userId`, never interpolated into the message
 - It always writes to the console and, only when `NODE_ENV === 'production'`, inserts into `logs` via `after()` (plain fire-and-forget outside a request scope). `serializeError` keeps tagged error fields (`_tag`, `error_hash`, `cause`) and trims plain stacks to 4 lines
@@ -261,6 +268,7 @@ Rules:
 - Server Components read params via `searchParamsCache.parse(props.searchParams)`; Client Components read/write them via `useQueryState`
 - Transactions page (`src/modules/transactions/`): `filter_asset`, `filter_type` and `transaction_id` (detail drawer with Edit/Delete, deep-linkable) are client-only; `filter_year` drives the Monthly Purchases chart
 - Positions page (`src/modules/positions/`): `positions_type`, `positions_sort`, `positions_fees` and `positions_id` (detail drawer, deep-linkable) are client-only filters over the holdings rendered by the server
+- News page (`src/modules/news/`): `news_asset` is a client-only filter shared by the feed and the calendar
 
 ## Security and bot protection
 

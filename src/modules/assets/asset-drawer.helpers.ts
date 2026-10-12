@@ -7,6 +7,7 @@ export type AssetFormValues = {
     service: TickerData['service']
     symbol: TickerData['symbol']
     hex_color: string
+    news_keywords: string
     image: File | null
 }
 
@@ -17,6 +18,7 @@ export const EMPTY_VALUES: AssetFormValues = {
     service: TickerService.Coinbase,
     symbol: '€',
     hex_color: '',
+    news_keywords: '',
     image: null,
 }
 
@@ -62,6 +64,7 @@ export function toFormValues(asset: TickerData): AssetFormValues {
         service: asset.service,
         symbol: asset.symbol,
         hex_color: asset.hex_color ?? '',
+        news_keywords: asset.news_keywords ?? '',
         image: null,
     }
 }

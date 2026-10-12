@@ -116,7 +116,7 @@ export function selectActiveConnections(supabaseClient: SbClient) {
         .select('id, user_id, account_uid, consent_valid_until')
         .not('session_id', 'is', null)
         .not('account_uid', 'is', null)
-        .returns<ActiveBankConnection[]>()
+        .overrideTypes<ActiveBankConnection[]>()
 }
 
 export function updateConnectionBalance(

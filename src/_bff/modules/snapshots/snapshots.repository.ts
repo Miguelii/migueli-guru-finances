@@ -59,7 +59,7 @@ export const getMonthlySnapshotsByUserIdFn = (supabaseClient: SbClient, userId: 
                 .select(PORTFOLIO_SNAPSHOT_COLUMNS)
                 .eq('user_id', userId)
                 .order('snapshot_date', { ascending: true })
-                .returns<PortfolioSnapshotRow[]>()
+                .overrideTypes<PortfolioSnapshotRow[]>()
 
             if (error) throw error
 
@@ -93,7 +93,7 @@ export function selectAllTransactions(supabaseClient: SbClient) {
             .select('*')
             .order('id')
             .range(from, to)
-            .returns<UserTransaction[]>()
+            .overrideTypes<UserTransaction[]>()
     )
 }
 
@@ -111,7 +111,7 @@ export function selectTransactionsByUserId(supabaseClient: SbClient, userId: str
             .eq('user_id', userId)
             .order('id')
             .range(from, to)
-            .returns<UserTransaction[]>()
+            .overrideTypes<UserTransaction[]>()
     )
 }
 

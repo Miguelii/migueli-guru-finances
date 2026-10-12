@@ -75,6 +75,7 @@ export function AssetDrawer({ open, onOpenChange, asset }: Props) {
             service: values.service,
             symbol: values.symbol,
             hex_color: values.hex_color === '' ? undefined : values.hex_color,
+            news_keywords: values.news_keywords,
             image: values.image ? await readFileAsDataUrl(values.image) : undefined,
         }
 
@@ -229,6 +230,28 @@ export function AssetDrawer({ open, onOpenChange, asset }: Props) {
                                 />
                                 {fieldState.invalid && (
                                     <FieldError>Use the #rrggbb format</FieldError>
+                                )}
+                            </Field>
+                        )}
+                    />
+
+                    <Controller
+                        name="news_keywords"
+                        control={form.control}
+                        rules={{ maxLength: 120 }}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name}>
+                                    News search terms (optional)
+                                </FieldLabel>
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    placeholder="AtlasClear lawsuit"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError>Use at most 120 characters</FieldError>
                                 )}
                             </Field>
                         )}

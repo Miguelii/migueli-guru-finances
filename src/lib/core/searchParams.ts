@@ -14,6 +14,7 @@ import {
     POSITION_SORT_KEYS,
 } from '@/lib/constants/positions'
 import { ALL_TRANSACTION_ASSETS, ALL_TRANSACTION_TYPES } from '@/lib/constants/transactions'
+import { ALL_NEWS_ASSETS } from '@/lib/constants/news'
 import { TickerType, TransactionType } from '@/types/Transaction'
 import { LogLevel } from '@/types/Log'
 
@@ -33,6 +34,7 @@ export const paramsUrlKeys: UrlKeys<typeof paramsParsers> = {
     positions_sort: 'positions_sort',
     positions_fees: 'positions_fees',
     positions_id: 'positions_id',
+    news_asset: 'news_asset',
 }
 
 // Result of the bank connection flow (Enable Banking), set by /api/bank/callback
@@ -66,6 +68,9 @@ export const positionsFeesParser = parseAsBoolean.withDefault(false)
 
 export const positionsIdParser = parseAsString
 
+// News page: client-only asset filter over the feed rendered by the server
+export const newsAssetParser = parseAsString.withDefault(ALL_NEWS_ASSETS)
+
 const paramsParsers = {
     hide_prices: parseAsBoolean.withDefault(false),
     filter_asset: parseAsString.withDefault(ALL_TRANSACTION_ASSETS),
@@ -82,6 +87,7 @@ const paramsParsers = {
     positions_sort: positionsSortParser,
     positions_fees: positionsFeesParser,
     positions_id: positionsIdParser,
+    news_asset: newsAssetParser,
 } as const
 
 export const searchParamsCache = createSearchParamsCache(paramsParsers)

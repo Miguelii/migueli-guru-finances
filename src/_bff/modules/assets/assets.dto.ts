@@ -21,6 +21,13 @@ export const createAssetSchema = z.object({
         .regex(/^data:image\/(png|jpe?g|webp|gif|avif);base64,[A-Za-z0-9+/=]+$/u)
         .max(3_000_000)
         .optional(),
+    // Empty becomes null so an edit can clear it (undefined keys are not written)
+    news_keywords: z
+        .string()
+        .trim()
+        .max(120)
+        .optional()
+        .transform((value) => value || null),
 })
 
 export type CreateAssetProps = z.infer<typeof createAssetSchema>
