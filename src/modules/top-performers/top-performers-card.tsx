@@ -55,8 +55,8 @@ export function TopPerformersCard({ holdings, hidePrices }: Props) {
         <PortfolioCard
             cardId="top-performers"
             title="Performers"
-            className="shrink-0 w-full lg:w-[50%]"
-            openHeightClassName="h-auto lg:h-full"
+            className="shrink-0 w-full"
+            openHeightClassName="h-fit"
             contentClassName="flex flex-col gap-5 lg:flex-row lg:gap-10 lg:justify-between lg:px-5 w-full"
         >
             {best.length === 0 ? (

@@ -1,6 +1,7 @@
 import { Currency } from '@/types/Transaction'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import type { InvestedTimelinePoint } from '@/lib/portfolio/invested-timeline'
+import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
 
 const compactEurFormatter = new Intl.NumberFormat('pt-PT', {
     style: 'currency',
@@ -72,4 +73,20 @@ export function getInvestedChartSummary(
     if (hidePrices) return `Invested capital over time since ${since}`
 
     return `Invested capital grew to ${formatCurrency(last.investedEur, Currency.EUR)} since ${since}, current value ${formatCurrency(currentValue, Currency.EUR)}`
+}
+
+/**
+ * Swaps the current month's stored month-end point (the latest day the cron recorded)
+ * for the live totals, so the value chart always ends at the same numbers as the hero.
+ *
+ * @param snapshots - Stored month-end snapshots, oldest first.
+ * @param live - Today's totals computed from the current holdings.
+ */
+export function withLiveSnapshot(
+    snapshots: PortfolioSnapshotPoint[],
+    live: PortfolioSnapshotPoint
+): PortfolioSnapshotPoint[] {
+    const liveMonth = live.date.slice(0, 7)
+
+    return [...snapshots.filter((snapshot) => snapshot.date.slice(0, 7) < liveMonth), live]
 }

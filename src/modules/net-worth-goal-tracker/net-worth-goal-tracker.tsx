@@ -28,7 +28,8 @@ export function NetWorthGoalTracker({
         <PortfolioCard
             cardId="net-worth-goal"
             title="Net Worth Goal"
-            openHeightClassName="h-auto xl:h-full shrink-0 w-full xl:w-[50%]"
+            className="w-full min-w-0 lg:flex-1"
+            openHeightClassName="h-fit"
             actions={
                 <div className="flex items-center gap-1 text-xs font-medium tabular-nums text-muted-foreground">
                     <Target className="h-4 w-4 text-muted-foreground" />

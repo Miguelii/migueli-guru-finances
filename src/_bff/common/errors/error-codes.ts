@@ -42,6 +42,13 @@ export enum ErrorCode {
     BANK_BALANCES_REQUEST = 'u9hk3c7m',
     BANK_SYNC_UNAUTHORIZED = 'n3vp8j5z',
 
+    // Portfolio snapshots
+    SNAPSHOTS_DB_CLIENT = '8paaxd20',
+    SNAPSHOTS_GET_QUERY = 'yrxqpoix',
+    SNAPSHOTS_SOURCE_QUERY = 'looemw64',
+    SNAPSHOTS_UPSERT_QUERY = '45gwksfe',
+    SNAPSHOTS_DELETE_QUERY = 'gjad0v9s',
+
     // Cache (dev tools)
     CACHE_REVALIDATE_DEV_ONLY = 'f4rw9k2t',
 

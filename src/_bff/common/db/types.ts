@@ -7,6 +7,9 @@ export enum DBTables {
     TRANSACTIONS = 'transactions',
     BANK_CONNECTIONS = 'bank_connections',
     LOGS = 'logs',
+    PORTFOLIO_SNAPSHOTS = 'portfolio_snapshots',
+    // View: month-end row of portfolio_snapshots per user
+    PORTFOLIO_SNAPSHOTS_MONTHLY = 'portfolio_snapshots_monthly',
 }
 
 export enum DBBuckets {

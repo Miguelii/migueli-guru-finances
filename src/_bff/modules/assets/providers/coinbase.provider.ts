@@ -1,6 +1,13 @@
 import type { TickerData } from '@/types/Transaction'
 import { Effect } from 'effect'
+import { addDaysToDateKey } from '@/lib/portfolio/portfolio-snapshots'
 import { GetCoinbasePriceError } from '@/_bff/modules/assets/assets.errors'
+import {
+    COINBASE_API_URL,
+    COINBASE_DAILY_GRANULARITY,
+    COINBASE_EXCHANGE_API_URL,
+    COINBASE_MAX_CANDLES_PER_REQUEST,
+} from '@/_bff/modules/assets/assets.constants'
 
 type CoinbaseExchangeRatesJson = {
     data: {
@@ -8,6 +15,9 @@ type CoinbaseExchangeRatesJson = {
         rates: Record<string, string>
     }
 }
+
+// [time (unix seconds, start of the UTC day), low, high, open, close, volume]
+type CoinbaseCandle = [number, number, number, number, number, number]
 
 type CoinbasePair = {
     ticker: TickerData['ticker']
@@ -40,9 +50,8 @@ function toCoinbasePair(tick: TickerData): { base: string; quote: string } {
 function getQuotePrices(quote: string, pairs: CoinbasePair[]) {
     return Effect.tryPromise({
         try: async () => {
-            // Public endpoint, no authentication required
             const res = await fetch(
-                `https://api.coinbase.com/v2/exchange-rates?currency=${encodeURIComponent(quote)}`,
+                `${COINBASE_API_URL}/exchange-rates?currency=${encodeURIComponent(quote)}`,
                 { method: 'GET' }
             )
 
@@ -80,4 +89,74 @@ export function getCoinbasePrices(
     return Effect.forEach(pairsByQuote, ([quote, pairs]) => getQuotePrices(quote, pairs), {
         concurrency: 'unbounded',
     }).pipe(Effect.map((prices) => new Map(prices.flat())))
+}
+
+/**
+ * Fetches one window of daily candles (at most {@link COINBASE_MAX_CANDLES_PER_REQUEST}
+ * days, both ends inclusive) and keys each close by its UTC day.
+ *
+ * @param product - Coinbase product id (e.g. 'BTC-EUR')
+ * @param start - First day of the window, `YYYY-MM-DD`
+ * @param end - Last day of the window, `YYYY-MM-DD`
+ */
+function getCandlesWindow(product: string, start: string, end: string) {
+    return Effect.tryPromise({
+        try: async () => {
+            const params = new URLSearchParams({
+                granularity: String(COINBASE_DAILY_GRANULARITY),
+                start: `${start}T00:00:00Z`,
+                end: `${end}T00:00:00Z`,
+            })
+
+            const res = await fetch(
+                `${COINBASE_EXCHANGE_API_URL}/products/${encodeURIComponent(product)}/candles?${params}`,
+                { method: 'GET' }
+            )
+
+            if (!res.ok) throw new Error(`Fetch Failed status=${res.status} product=${product}`)
+
+            const candles: CoinbaseCandle[] = await res.json()
+
+            if (!Array.isArray(candles)) throw new Error(`Invalid candles product=${product}`)
+
+            return candles.map(
+                ([time, , , , close]) =>
+                    [new Date(time * 1000).toISOString().slice(0, 10), close] as const
+            )
+        },
+        catch: (cause) =>
+            new GetCoinbasePriceError({
+                cause,
+                message: 'Failed to fetch price history from Coinbase',
+            }),
+    })
+}
+
+/**
+ * Fetches the daily closes of an asset from Coinbase Exchange between two days
+ * (inclusive), paging sequentially through windows of the API maximum of candles so
+ * long histories stay under the public rate limit.
+ *
+ * @param tick - The asset to price
+ * @param from - First day, `YYYY-MM-DD`
+ * @param to - Last day, `YYYY-MM-DD`
+ * @returns An Effect resolving to a map of day to close price
+ */
+export function getCoinbasePriceHistory(
+    tick: TickerData,
+    from: string,
+    to: string
+): Effect.Effect<Map<string, number>, GetCoinbasePriceError> {
+    const { base, quote } = toCoinbasePair(tick)
+    const windows: { start: string; end: string }[] = []
+
+    for (let start = from; start <= to; ) {
+        const windowEnd = addDaysToDateKey(start, COINBASE_MAX_CANDLES_PER_REQUEST - 1)
+        windows.push({ start, end: windowEnd < to ? windowEnd : to })
+        start = addDaysToDateKey(windowEnd, 1)
+    }
+
+    return Effect.forEach(windows, ({ start, end }) =>
+        getCandlesWindow(`${base}-${quote}`, start, end)
+    ).pipe(Effect.map((closes) => new Map(closes.flat())))
 }
