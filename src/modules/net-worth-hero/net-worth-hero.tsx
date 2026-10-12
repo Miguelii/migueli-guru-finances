@@ -4,8 +4,11 @@ import { DeltaBadge } from '@/components/ui/delta-badge'
 import { getDeltaTone } from '@/components/ui/delta-badge.helpers'
 import { computePortfolioTotals, computeTypeBreakdown } from '@/lib/portfolio/calculations'
 import { buildInvestedTimeline } from '@/lib/portfolio/invested-timeline'
+import { type PortfolioSnapshotPoint, toDateKey } from '@/lib/portfolio/portfolio-snapshots'
+import { SNAPSHOT_TIME_ZONE } from '@/lib/constants/portfolio-snapshots'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
+import { getIsDev } from '@/lib/utils/index.server'
 import type { HoldingSummary } from '@/types/Holding'
 import {
     Currency,
@@ -16,12 +19,15 @@ import {
 } from '@/types/Transaction'
 import { AllocationBar } from '@/modules/net-worth-hero/allocation-bar'
 import { InvestedTimelineChart } from '@/modules/net-worth-hero/invested-timeline-chart'
+import { ValueTimelineChart } from '@/modules/net-worth-hero/value-timeline-chart'
+import { withLiveSnapshot } from '@/modules/net-worth-hero/net-worth-hero.helpers'
 
 type Props = {
     holdings: HoldingSummary[]
     transactions: Transaction[]
     tickerData: TickerData[]
     rates: CambioRates
+    snapshots: PortfolioSnapshotPoint[]
     hidePrices: boolean
 }
 
@@ -53,13 +59,26 @@ const Stat = ({ title, value, hidePrices, isSigned = false }: StatProps) => {
     )
 }
 
-export function NetWorthHero({ holdings, transactions, tickerData, rates, hidePrices }: Props) {
+export function NetWorthHero({
+    holdings,
+    transactions,
+    tickerData,
+    rates,
+    snapshots,
+    hidePrices,
+}: Props) {
     const totals = computePortfolioTotals(holdings)
     const { currentValue: currentValueNoCrypto } = computePortfolioTotals(
         holdings.filter((h) => h.tickerType !== TickerType.Crypto)
     )
     const breakdown = computeTypeBreakdown(holdings)
     const timeline = buildInvestedTimeline(transactions, tickerData, rates)
+    const valuePoints = withLiveSnapshot(snapshots, {
+        date: toDateKey(new Date(), SNAPSHOT_TIME_ZONE),
+        valueEur: totals.currentValue,
+        investedEur: totals.totalInvested,
+        realizedGlEur: totals.totalRealized,
+    })
 
     return (
         <Card className="gap-0 py-0 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
@@ -140,6 +159,17 @@ export function NetWorthHero({ holdings, transactions, tickerData, rates, hidePr
                         hidePrices={hidePrices}
                     />
                 </div>
+            </section>
+
+            <section
+                aria-labelledby="value-timeline-title"
+                className="flex min-w-0 flex-col gap-4 border-t p-5 lg:col-span-2 lg:p-6"
+            >
+                <ValueTimelineChart
+                    points={valuePoints}
+                    hidePrices={hidePrices}
+                    isDev={getIsDev()}
+                />
             </section>
         </Card>
     )

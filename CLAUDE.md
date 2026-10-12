@@ -159,7 +159,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - **The bank is never named in the code**: its name only lives in `ENABLE_BANKING_ASPSP_NAME`, and UI copy stays generic ("bank account")
 - Connect flow: `bank.startConnection` stores an OAuth `state` and returns the bank URL, the bank redirects to `GET /api/bank/callback`, which validates the `state`, creates the session and reads the balance once
 - **PSD2 limits**: max 4 unattended reads per day (the cron `invoke_sync_bank_balances.sql` runs 3x/day calling `POST /api/syncBankBalances`) and some banks cap consents at 90 days (requested for 89). The card asks to renew 14 days before expiry. A 429 (quota used up) is `EnableBankingRateLimitError`: never retried, stored as `RATE_LIMITED` (not `ERROR`), so the card keeps the last balance with a "Daily limit reached" badge and no Reconnect button
-- The balance is shown in the Emergency Fund summary card (`src/modules/emergency-fund/`) and is NOT part of holdings or net worth
+- The balance is shown in the Emergency Fund card (`src/modules/emergency-fund/`) on its own page `/portfolio/emergency-fund` (where the callback redirects back to) and is NOT part of holdings or net worth
 
 ### Logs
 - `Logger({ level, prefix, message?, error?, metadata?, userId? })` (`src/_bff/common/logger/logger.ts`) is the only way to log in the BFF: `prefix` is the source (e.g. `trpc`, `syncBankBalance`), ids and context go in `metadata` / `userId`, never interpolated into the message
@@ -178,7 +178,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - **Multi-currency** (EUR/USD/USDC per asset) with historical FX: costs and realized G/L convert to EUR at each transaction's `exchange_rate` (EUR per 1 USD/USDC at transaction date, e.g. `0.87`; fallback: current rate when absent), market value converts at the current rate
 - EUR conversion happens ONLY in `src/lib/portfolio/` (`fifo.ts`, `calculations.ts`, `transactions-summary.ts` for transaction values, month totals and the monthly purchases chart): `HoldingSummary` carries precomputed `_eur` fields and UI components consume them as-is (never convert in components)
 - **Capital gains tax** (`src/lib/portfolio/capital-gains-tax.ts`): rates per BUY (each lot's own holding period). Crypto 28% until 1 year, then exempt; ETFs and stocks 28% → 25.2% after 2 years → 22.4% after 5 → 19.6% after 8. The transactions list shows the current rate and the next step, the detail drawer the full bracket timeline
-- **Staking**: the Staking card estimates yearly rewards from a fixed APY per asset (`STAKING_APY` in `src/modules/staking/staking-card.constants.ts`) on the whole position (`current_value_eur * apy`, no compounding). Change a rate or add an asset there
+- **Staking**: the Staking card (own page `/portfolio/staking`) estimates yearly rewards from a fixed APY per asset (`STAKING_APY` in `src/modules/staking/staking-card.constants.ts`) on the whole position (`current_value_eur * apy`, no compounding). Change a rate or add an asset there
 - Formatters use `Intl` / `toLocale*String` with the `pt-PT` locale, not date-fns
 
 ## Code placement: helpers and constants

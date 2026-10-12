@@ -3,18 +3,22 @@ import type * as React from 'react'
 import {
     BriefcaseBusinessIcon,
     CircleDollarSignIcon,
+    CoinsIcon,
     DatabaseZapIcon,
     LayoutDashboardIcon,
+    LifeBuoyIcon,
     ReceiptTextIcon,
     ScrollTextIcon,
     type LucideProps,
 } from 'lucide-react'
 import {
     CACHE_ROUTE_PATH,
+    EMERGENCY_FUND_ROUTE_PATH,
     LOGS_ROUTE_PATH,
     POSITIONS_ROUTE_PATH,
     PRICES_ROUTE_PATH,
     PRIVATE_ROUTE_PATH,
+    STAKING_ROUTE_PATH,
     TRANSACTIONS_ROUTE_PATH,
 } from '@/lib/constants'
 
@@ -50,6 +54,16 @@ export const NAV_GROUPS: NavGroup[] = [
                 title: 'Positions',
                 url: POSITIONS_ROUTE_PATH,
                 Icon: BriefcaseBusinessIcon,
+            },
+            {
+                title: 'Staking',
+                url: STAKING_ROUTE_PATH,
+                Icon: CoinsIcon,
+            },
+            {
+                title: 'Emergency Fund',
+                url: EMERGENCY_FUND_ROUTE_PATH,
+                Icon: LifeBuoyIcon,
             },
             {
                 title: 'Watchlist',

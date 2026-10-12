@@ -1,7 +1,7 @@
 import { Effect } from 'effect'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
-import { HOME_PAGE_PATH, PRIVATE_ROUTE_PATH } from '@/lib/constants'
+import { EMERGENCY_FUND_ROUTE_PATH, HOME_PAGE_PATH, PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
@@ -20,8 +20,8 @@ import {
 
 const BANK_RESULT_PARAM = 'bank'
 
-function redirectToPortfolio(request: NextRequest, result: 'connected' | 'error') {
-    const url = new URL(PRIVATE_ROUTE_PATH, request.url)
+function redirectToEmergencyFund(request: NextRequest, result: 'connected' | 'error') {
+    const url = new URL(EMERGENCY_FUND_ROUTE_PATH, request.url)
     url.searchParams.set(BANK_RESULT_PARAM, result)
     return NextResponse.redirect(url)
 }
@@ -119,7 +119,7 @@ export const bankCallback = Effect.fn('bankCallback')(
         revalidateTag(getBankConnectionCacheTag(user.id), 'max')
         revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
 
-        return redirectToPortfolio(request, 'connected')
+        return redirectToEmergencyFund(request, 'connected')
     },
     (effect, request) =>
         effect.pipe(
@@ -130,7 +130,7 @@ export const bankCallback = Effect.fn('bankCallback')(
                     message: `${error._tag} failed`,
                     error,
                 })
-                return Effect.succeed(redirectToPortfolio(request, 'error'))
+                return Effect.succeed(redirectToEmergencyFund(request, 'error'))
             })
         )
 )

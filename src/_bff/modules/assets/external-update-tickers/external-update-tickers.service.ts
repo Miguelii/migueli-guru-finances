@@ -5,6 +5,7 @@ import { verifyApiKey } from '@/_bff/common/db/db.utils'
 import { updateTickersPrices } from '@/_bff/modules/assets/update-tickers-prices/update-tickers-prices.service'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
 import { GET_ALL_TRANSACTIONS_CACHE_KEY } from '@/_bff/modules/transactions/transactions.constants'
+import { recordPortfolioSnapshots } from '@/_bff/modules/snapshots/record-portfolio-snapshots/record-portfolio-snapshots.service'
 import {
     UnauthorizedUpdateTickersError,
     UpdateTickersStatusError,
@@ -28,7 +29,7 @@ function isAuthorizedHandler(request: NextRequest): boolean {
 
 /**
  * Handles the `POST /api/updateTickers` request: authorizes, updates ticker prices,
- * and revalidates the affected caches on success.
+ * records today's portfolio snapshots and revalidates the affected caches on success.
  * @param request - The incoming request
  */
 export function externalUpdateTickers(request: NextRequest): Promise<NextResponse> {
@@ -52,6 +53,9 @@ export function externalUpdateTickers(request: NextRequest): Promise<NextRespons
                 error_hash: ErrorCode.ASSETS_UPDATE_TICKERS_FAILED,
             })
         }
+
+        // Values today's snapshot with the prices just fetched (never fails)
+        yield* recordPortfolioSnapshots()
 
         revalidateTag(GET_ASSETS_CACHE_KEY, 'max')
         revalidateTag(GET_ALL_TRANSACTIONS_CACHE_KEY, 'max')
