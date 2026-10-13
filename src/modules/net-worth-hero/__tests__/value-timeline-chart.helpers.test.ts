@@ -3,7 +3,6 @@ import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots
 import { ValueRange } from '@/modules/net-worth-hero/value-timeline-chart.constants'
 import {
     filterPointsByRange,
-    getPeriodGain,
     getRangeStart,
 } from '@/modules/net-worth-hero/value-timeline-chart.helpers'
 import { withLiveSnapshot } from '@/modules/net-worth-hero/net-worth-hero.helpers'
@@ -47,25 +46,6 @@ describe('filterPointsByRange', () => {
 
     it('should return every point for All', () => {
         expect(filterPointsByRange(points, ValueRange.All)).toBe(points)
-    })
-})
-
-describe('getPeriodGain', () => {
-    it('should exclude deposits made during the period', () => {
-        // +500 deposited and +100 of market gain
-        const points = [point('2026-01-01', 1000, 1000), point('2026-02-01', 1600, 1500)]
-
-        expect(getPeriodGain(points)).toBe(100)
-    })
-
-    it('should count gains realized during the period', () => {
-        const points = [point('2026-01-01', 1200, 1000), point('2026-02-01', 0, 0, 250)]
-
-        expect(getPeriodGain(points)).toBe(50)
-    })
-
-    it('should return null with fewer than two points', () => {
-        expect(getPeriodGain([point('2026-01-01', 1000)])).toBeNull()
     })
 })
 

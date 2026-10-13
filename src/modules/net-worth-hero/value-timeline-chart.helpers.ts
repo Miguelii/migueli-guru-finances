@@ -1,7 +1,6 @@
-import { formatCurrency } from '@/lib/portfolio/formaters'
+import { formatCurrency, formatMonthLong } from '@/lib/portfolio/formaters'
 import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
 import { Currency } from '@/types/Transaction'
-import { formatMonthLong } from '@/modules/net-worth-hero/net-worth-hero.helpers'
 import {
     VALUE_RANGE_MONTHS,
     ValueRange,
@@ -66,30 +65,6 @@ export function filterPointsByRange(
     const firstInRange = points.findIndex((point) => point.date >= start)
 
     return points.slice(Math.max(0, firstInRange - 1))
-}
-
-/**
- * Total gain of a snapshot: unrealized (value minus open cost basis) plus realized.
- *
- * @param point - A month-end snapshot.
- */
-function getTotalGain(point: PortfolioSnapshotPoint): number {
-    return point.valueEur - point.investedEur + point.realizedGlEur
-}
-
-/**
- * Gain earned between the first and last point of a series, net of the money put in or
- * taken out (deposits move value and invested capital alike, so they cancel out).
- * Returns `null` with fewer than two points.
- *
- * @param points - Month-end snapshots, oldest first.
- */
-export function getPeriodGain(points: PortfolioSnapshotPoint[]): number | null {
-    const first = points.at(0)
-    const last = points.at(-1)
-    if (!first || !last || points.length < 2) return null
-
-    return getTotalGain(last) - getTotalGain(first)
 }
 
 /**

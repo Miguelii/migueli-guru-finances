@@ -6,15 +6,15 @@ import { Area, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from 'recharts
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { getDeltaTone } from '@/components/ui/delta-badge.helpers'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { formatCurrency } from '@/lib/portfolio/formaters'
+import {
+    formatCompactEur,
+    formatCurrency,
+    formatMonthLong,
+    formatMonthTick,
+} from '@/lib/portfolio/formaters'
 import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
 import { cn } from '@/lib/utils'
 import { Currency } from '@/types/Transaction'
-import {
-    formatCompactEur,
-    formatMonthLong,
-    formatMonthTick,
-} from '@/modules/net-worth-hero/net-worth-hero.helpers'
 import { RebuildSnapshotsButton } from '@/modules/net-worth-hero/rebuild-snapshots-button'
 import {
     VALUE_CHART_CONFIG,
@@ -25,7 +25,6 @@ import {
 } from '@/modules/net-worth-hero/value-timeline-chart.constants'
 import {
     filterPointsByRange,
-    getPeriodGain,
     getValueChartSummary,
 } from '@/modules/net-worth-hero/value-timeline-chart.helpers'
 
@@ -36,34 +35,7 @@ type Props = {
     isDev: boolean
 }
 
-type PeriodGainProps = {
-    value: number | null
-    hidePrices: boolean
-}
-
 const currency = Currency.EUR
-
-const PeriodGain = ({ value, hidePrices }: PeriodGainProps) => {
-    if (value === null) return null
-
-    const tone = getDeltaTone(value)
-
-    return (
-        <p className="text-xs text-muted-foreground">
-            Gain in period{' '}
-            <span
-                className={cn('font-medium tabular-nums', {
-                    'text-success': tone === 'positive',
-                    'text-destructive': tone === 'negative',
-                    'blur-sm select-none': hidePrices,
-                })}
-            >
-                {value > 0 ? '+' : ''}
-                {formatCurrency(value, currency)}
-            </span>
-        </p>
-    )
-}
 
 export function ValueTimelineChart({ points, hidePrices, isDev }: Props) {
     const shouldReduceMotion = useReducedMotion()
@@ -83,9 +55,6 @@ export function ValueTimelineChart({ points, hidePrices, isDev }: Props) {
                         Market value at the end of each month against the cost basis of open
                         positions
                     </p>
-                    {hasHistory && (
-                        <PeriodGain value={getPeriodGain(visiblePoints)} hidePrices={hidePrices} />
-                    )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     {isDev && <RebuildSnapshotsButton />}
