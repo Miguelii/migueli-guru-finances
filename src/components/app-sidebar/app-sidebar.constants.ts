@@ -10,12 +10,14 @@ import {
     NewspaperIcon,
     ReceiptTextIcon,
     ScrollTextIcon,
+    TrendingUpIcon,
     type LucideProps,
 } from 'lucide-react'
 import {
     CACHE_ROUTE_PATH,
     EMERGENCY_FUND_ROUTE_PATH,
     NEWS_ROUTE_PATH,
+    PLANNING_ROUTE_PATH,
     LOGS_ROUTE_PATH,
     POSITIONS_ROUTE_PATH,
     PRICES_ROUTE_PATH,
@@ -56,6 +58,11 @@ export const NAV_GROUPS: NavGroup[] = [
                 title: 'Positions',
                 url: POSITIONS_ROUTE_PATH,
                 Icon: BriefcaseBusinessIcon,
+            },
+            {
+                title: 'Planning',
+                url: PLANNING_ROUTE_PATH,
+                Icon: TrendingUpIcon,
             },
             {
                 title: 'Staking',

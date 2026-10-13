@@ -80,3 +80,53 @@ export function formatDate(dateStr: string) {
         year: 'numeric',
     })
 }
+
+const compactEurFormatter = new Intl.NumberFormat('pt-PT', {
+    style: 'currency',
+    currency: Currency.EUR,
+    notation: 'compact',
+    maximumFractionDigits: 1,
+})
+
+/**
+ * Parses a `YYYY-MM` month key into a local `Date` on the first day of that month.
+ *
+ * @param monthKey - Month key in `YYYY-MM` format.
+ */
+function parseMonthKey(monthKey: string): Date {
+    const [year, month] = monthKey.split('-').map(Number)
+    return new Date(year ?? 0, (month ?? 1) - 1, 1)
+}
+
+/**
+ * Formats a `YYYY-MM` month key as a short axis tick (e.g. `jan. 25`).
+ *
+ * @param monthKey - Month key in `YYYY-MM` format.
+ */
+export function formatMonthTick(monthKey: string): string {
+    return parseMonthKey(monthKey).toLocaleDateString('pt-PT', {
+        month: 'short',
+        year: '2-digit',
+    })
+}
+
+/**
+ * Formats a `YYYY-MM` month key for tooltips and summaries (e.g. `janeiro de 2025`).
+ *
+ * @param monthKey - Month key in `YYYY-MM` format.
+ */
+export function formatMonthLong(monthKey: string): string {
+    return parseMonthKey(monthKey).toLocaleDateString('pt-PT', {
+        month: 'long',
+        year: 'numeric',
+    })
+}
+
+/**
+ * Formats a EUR amount in compact notation for axis ticks (e.g. `12,5 mil €`).
+ *
+ * @param value - Amount in EUR.
+ */
+export function formatCompactEur(value: number): string {
+    return compactEurFormatter.format(value)
+}

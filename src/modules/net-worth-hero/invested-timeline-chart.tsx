@@ -3,7 +3,12 @@
 import { useReducedMotion } from 'motion/react'
 import { Area, AreaChart, CartesianGrid, ReferenceLine, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
-import { formatCurrency } from '@/lib/portfolio/formaters'
+import {
+    formatCompactEur,
+    formatCurrency,
+    formatMonthLong,
+    formatMonthTick,
+} from '@/lib/portfolio/formaters'
 import type { InvestedTimelinePoint } from '@/lib/portfolio/invested-timeline'
 import { cn } from '@/lib/utils'
 import { Currency } from '@/types/Transaction'
@@ -11,12 +16,7 @@ import {
     INVESTED_CHART_CONFIG,
     INVESTED_CHART_GRADIENT_ID,
 } from '@/modules/net-worth-hero/net-worth-hero.constants'
-import {
-    formatCompactEur,
-    formatMonthLong,
-    formatMonthTick,
-    getInvestedChartSummary,
-} from '@/modules/net-worth-hero/net-worth-hero.helpers'
+import { getInvestedChartSummary } from '@/modules/net-worth-hero/net-worth-hero.helpers'
 
 type Props = {
     points: InvestedTimelinePoint[]
