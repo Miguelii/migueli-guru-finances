@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { computeAnnualizedReturn } from '@/lib/portfolio/annualized-return'
 import type { CambioRates, Transaction, TickerData } from '@/types/Transaction'
-import { TransactionType, Ticker, Currency, TickerService, TickerType } from '@/types/Transaction'
+import { TransactionType } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { Currency } from '@/types/core/Currency'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
 
 const rates: CambioRates = { usdToEur: 0.85, usdcToEur: 0.9 }
 

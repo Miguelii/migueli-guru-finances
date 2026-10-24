@@ -1,6 +1,6 @@
 import type { ChartConfig } from '@/components/ui/chart'
 import { formatCurrency, formatMonthLong } from '@/lib/portfolio/formaters'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import { formatMonthlyContribution, type Scenario } from '@/modules/planning/planning-card.helpers'
 
 export type ScenarioChartRow = { month: string } & Record<string, number | string>

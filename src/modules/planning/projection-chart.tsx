@@ -10,13 +10,13 @@ import {
     formatMonthTick,
 } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
-import { Currency } from '@/types/Transaction'
 import type { Scenario } from '@/modules/planning/planning-card.helpers'
 import {
     getProjectionChartSummary,
     getScenarioChartConfig,
     toScenarioChartRows,
 } from '@/modules/planning/projection-chart.helpers'
+import { Currency } from '@/types/core/Currency'
 
 type Props = {
     scenarios: Scenario[]

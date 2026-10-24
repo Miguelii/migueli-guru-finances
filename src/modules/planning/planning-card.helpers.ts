@@ -2,7 +2,7 @@ import { SNAPSHOT_TIME_ZONE } from '@/lib/constants/portfolio-snapshots'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import type { AnnualizedReturn, OpeningValue } from '@/lib/portfolio/annualized-return'
 import { type PortfolioSnapshotPoint, toDateKey } from '@/lib/portfolio/portfolio-snapshots'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import {
     MILESTONES,
     RETURN_RATE_BOUNDS,

@@ -1,10 +1,10 @@
 import { txToEurRate } from '@/lib/portfolio/fifo'
 import { addDaysToDateKey } from '@/lib/portfolio/portfolio-snapshots'
+import { Currency } from '@/types/core/Currency'
+import type { Ticker } from '@/types/core/Ticker'
 import {
-    Currency,
     TransactionType,
     type CambioRates,
-    type Ticker,
     type TickerData,
     type Transaction,
 } from '@/types/Transaction'

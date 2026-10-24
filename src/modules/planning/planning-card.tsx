@@ -9,7 +9,8 @@ import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots
 import { formatCurrency, formatMonthTick, formatPercentage } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import type { HoldingSummary } from '@/types/Holding'
-import { Currency, type CambioRates, type TickerData, type Transaction } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
 import { PROJECTION_MONTHS } from '@/modules/planning/planning-card.constants'
 import {
     buildScenarios,
