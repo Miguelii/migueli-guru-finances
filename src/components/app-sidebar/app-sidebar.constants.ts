@@ -32,10 +32,15 @@ type NavIcon = React.ForwardRefExoticComponent<
     Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>
 >
 
+type NavCountKey = 'positions' | 'transactions' | 'watchlist'
+
+export type NavCounts = Record<NavCountKey, number>
+
 type NavItem = {
     title: string
     url: string
     Icon: NavIcon
+    countKey?: NavCountKey
 }
 
 export type NavGroup = {
@@ -45,6 +50,7 @@ export type NavGroup = {
 
 export const NAV_GROUPS: NavGroup[] = [
     {
+        label: 'Overview',
         items: [
             {
                 title: 'Portfolio',
@@ -52,15 +58,33 @@ export const NAV_GROUPS: NavGroup[] = [
                 Icon: LayoutDashboardIcon,
             },
             {
-                title: 'Transactions',
-                url: TRANSACTIONS_ROUTE_PATH,
-                Icon: ReceiptTextIcon,
-            },
-            {
                 title: 'Positions',
                 url: POSITIONS_ROUTE_PATH,
                 Icon: BriefcaseBusinessIcon,
+                countKey: 'positions',
             },
+            {
+                title: 'Transactions',
+                url: TRANSACTIONS_ROUTE_PATH,
+                Icon: ReceiptTextIcon,
+                countKey: 'transactions',
+            },
+            {
+                title: 'Watchlist',
+                url: PRICES_ROUTE_PATH,
+                Icon: CircleDollarSignIcon,
+                countKey: 'watchlist',
+            },
+            {
+                title: 'News',
+                url: NEWS_ROUTE_PATH,
+                Icon: NewspaperIcon,
+            },
+        ],
+    },
+    {
+        label: 'Planning',
+        items: [
             {
                 title: 'Planning',
                 url: PLANNING_ROUTE_PATH,
@@ -80,16 +104,6 @@ export const NAV_GROUPS: NavGroup[] = [
                 title: 'Emergency Fund',
                 url: EMERGENCY_FUND_ROUTE_PATH,
                 Icon: LifeBuoyIcon,
-            },
-            {
-                title: 'News',
-                url: NEWS_ROUTE_PATH,
-                Icon: NewspaperIcon,
-            },
-            {
-                title: 'Watchlist',
-                url: PRICES_ROUTE_PATH,
-                Icon: CircleDollarSignIcon,
             },
         ],
     },

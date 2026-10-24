@@ -10,13 +10,17 @@ import {
 import Image from 'next/image'
 import { SignOutApp } from '@/modules/auth/sign-out-app'
 import { NavMain } from '@/components/app-sidebar/app-sidebar-nav'
+import { getNavCounts } from '@/components/app-sidebar/app-sidebar.helpers'
+import { getPortfolioData } from '@/lib/portfolio/portfolio-data.server'
 import { getIsDev } from '@/lib/utils/index.server'
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const { transactions, data, holdings } = await getPortfolioData()
+
     return (
         <Sidebar collapsible="icon" {...props}>
-            <SidebarHeader>
-                <div className="flex items-center gap-2.5 p-1.5">
+            <SidebarHeader className="pt-3 pb-1">
+                <div className="flex items-center gap-3 px-1.5">
                     <Image
                         src="/assets/logo.webp"
                         width={32}
@@ -25,14 +29,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         alt="Migueli Guru Finances Logo"
                         unoptimized
                     />
-                    <span className="text-base font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+                    <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
                         Migueli Finances
                     </span>
                     <SidebarTrigger className="ml-auto cursor-pointer group-data-[collapsible=icon]:ml-0" />
                 </div>
             </SidebarHeader>
-            <SidebarContent>
-                <NavMain isDev={getIsDev()} />
+            <SidebarContent className="gap-1">
+                <NavMain isDev={getIsDev()} counts={getNavCounts(transactions, data, holdings)} />
             </SidebarContent>
             <SidebarFooter className="py-3 flex flex-col gap-5">
                 <Image

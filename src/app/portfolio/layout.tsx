@@ -43,7 +43,7 @@ export default async function PortfolioDashboard({ children }: Props) {
             defaultOpen={sidebarState}
             style={
                 {
-                    '--sidebar-width': 'calc(var(--spacing) * 54)',
+                    '--sidebar-width': 'calc(var(--spacing) * 60)',
                     '--header-height': 'calc(var(--spacing) * 12)',
                 } as React.CSSProperties
             }
