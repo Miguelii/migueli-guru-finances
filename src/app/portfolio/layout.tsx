@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
 import { AppSidebar } from '@/components/app-sidebar/app-sidebar'
+import { getNavCounts } from '@/components/app-sidebar/app-sidebar.helpers'
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { HidePrices } from '@/modules/dashboard-actions/hide-prices'
@@ -36,7 +37,7 @@ export default async function PortfolioDashboard({ children }: Props) {
         })
     )
 
-    const { data, holdings } = await getPortfolioData()
+    const { transactions, data, holdings } = await getPortfolioData()
 
     return (
         <SidebarProvider
@@ -48,7 +49,7 @@ export default async function PortfolioDashboard({ children }: Props) {
                 } as React.CSSProperties
             }
         >
-            <AppSidebar variant="inset" />
+            <AppSidebar variant="inset" counts={getNavCounts(transactions, data, holdings)} />
             <SidebarInset className="min-w-0 overflow-hidden">
                 <PortfolioCardProvider initialState={cardState}>
                     <div className="flex flex-col gap-6 p-4 pt-2 md:p-6 md:pt-4 w-full min-w-0 overflow-hidden">

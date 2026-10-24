@@ -10,13 +10,14 @@ import {
 import Image from 'next/image'
 import { SignOutApp } from '@/modules/auth/sign-out-app'
 import { NavMain } from '@/components/app-sidebar/app-sidebar-nav'
-import { getNavCounts } from '@/components/app-sidebar/app-sidebar.helpers'
-import { getPortfolioData } from '@/lib/portfolio/portfolio-data.server'
+import type { NavCounts } from '@/components/app-sidebar/app-sidebar.constants'
 import { getIsDev } from '@/lib/utils/index.server'
 
-export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const { transactions, data, holdings } = await getPortfolioData()
+type Props = React.ComponentProps<typeof Sidebar> & {
+    counts: NavCounts
+}
 
+export function AppSidebar({ counts, ...props }: Props) {
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader className="pt-3 pb-1">
@@ -36,7 +37,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
                 </div>
             </SidebarHeader>
             <SidebarContent className="gap-1">
-                <NavMain isDev={getIsDev()} counts={getNavCounts(transactions, data, holdings)} />
+                <NavMain isDev={getIsDev()} counts={counts} />
             </SidebarContent>
             <SidebarFooter className="py-3 flex flex-col gap-5">
                 <Image
