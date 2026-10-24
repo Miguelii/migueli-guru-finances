@@ -1,6 +1,6 @@
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
-import type { Currency } from '@/types/Transaction'
+import type { Currency } from '@/types/core/Currency'
 import { getGoalProgress } from '@/components/goal-progress/goal-progress.helpers'
 import { ProgressRing } from '@/components/goal-progress/progress-ring'
 

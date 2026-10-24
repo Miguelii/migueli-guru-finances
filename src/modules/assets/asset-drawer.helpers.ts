@@ -1,4 +1,7 @@
-import { Currency, TickerService, TickerType, type TickerData } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
+import type { TickerData } from '@/types/Transaction'
 
 export type AssetFormValues = {
     ticker: string

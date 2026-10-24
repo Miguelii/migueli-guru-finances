@@ -5,11 +5,11 @@ import {
     getTransactionValueEur,
     summarizeTransactions,
 } from '@/lib/portfolio/transactions-summary'
+import { Currency } from '@/types/core/Currency'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
 import {
-    Currency,
-    Ticker,
-    TickerService,
-    TickerType,
     TransactionType,
     type CambioRates,
     type TickerData,

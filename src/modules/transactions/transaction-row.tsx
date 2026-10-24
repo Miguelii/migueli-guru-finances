@@ -5,8 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatQuantity } from '@/lib/portfolio/formaters'
 import { getTransactionValueEur } from '@/lib/portfolio/transactions-summary'
 import { cn } from '@/lib/utils'
+import { Currency } from '@/types/core/Currency'
 import {
-    Currency,
     TransactionType,
     type CambioRates,
     type TickerData,

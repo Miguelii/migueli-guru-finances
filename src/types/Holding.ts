@@ -1,4 +1,5 @@
-import type { Ticker, TickerData } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
+import type { TickerData } from '@/types/Transaction'
 
 export type HoldingSummary = {
     ticker_id: Ticker
@@ -24,6 +25,7 @@ export type HoldingSummary = {
     total_gl_with_fees_pct: number
     // EUR metrics: costs at each transaction's historical exchange_rate
     // (fallback: current rate), market value at the current rate
+    current_price_eur: number
     current_value_eur: number
     total_invested_eur: number
     total_fees_eur: number

@@ -1,4 +1,6 @@
-import { Currency, TickerService, TickerType } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
 import { z } from 'zod'
 
 export const createAssetSchema = z.object({

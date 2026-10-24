@@ -6,7 +6,9 @@ import {
     getYahooNews,
 } from '@/_bff/modules/news/providers/yahoo-news.provider'
 import { PortfolioEventType } from '@/types/News'
-import { Ticker, TickerType, type TickerData } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerType } from '@/types/core/TickerType'
+import type { TickerData } from '@/types/Transaction'
 
 const { searchMock, quoteSummaryMock, quoteMock } = vi.hoisted(() => ({
     searchMock: vi.fn(),
@@ -109,16 +111,16 @@ describe('getYahooCalendarEvents', () => {
 describe('getYahooNames', () => {
     it('should name every asset with one request, preferring the long name', async () => {
         quoteMock.mockResolvedValue({
-            ATCH: { longName: 'AtlasClear Holdings, Inc.', shortName: 'AtlasClear' },
-            'BTC-USD': { shortName: 'Bitcoin USD' },
+            [Ticker.ATCH]: { longName: 'AtlasClear Holdings, Inc.', shortName: 'AtlasClear' },
+            [`${Ticker.BTC}-USD`]: { shortName: 'Bitcoin USD' },
         })
 
         const result = await run(getYahooNames([stock, crypto]))
 
         expect(quoteMock).toHaveBeenCalledTimes(1)
         expect(Result.isSuccess(result) && Object.fromEntries(result.success)).toEqual({
-            ATCH: 'AtlasClear Holdings, Inc.',
-            BTC: 'Bitcoin USD',
+            [Ticker.ATCH]: 'AtlasClear Holdings, Inc.',
+            [Ticker.BTC]: 'Bitcoin USD',
         })
     })
 })

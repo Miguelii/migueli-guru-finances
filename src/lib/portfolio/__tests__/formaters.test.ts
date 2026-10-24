@@ -5,7 +5,7 @@ import {
     formatPercentage,
     formatDate,
 } from '@/lib/portfolio/formaters'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 
 // ─── formatCurrency ──────────────────────────────────────────────────────────
 

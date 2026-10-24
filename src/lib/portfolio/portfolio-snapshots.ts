@@ -1,4 +1,5 @@
-import type { Ticker, TickerData, Transaction } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
+import type { TickerData, Transaction } from '@/types/Transaction'
 import { TransactionType } from '@/types/Transaction'
 import { aggregateHoldings, computePortfolioTotals } from '@/lib/portfolio/calculations'
 import { getCambioRates, toEur } from '@/lib/utils'

@@ -15,7 +15,8 @@ import {
 } from '@/lib/constants/positions'
 import { ALL_TRANSACTION_ASSETS, ALL_TRANSACTION_TYPES } from '@/lib/constants/transactions'
 import { ALL_NEWS_ASSETS } from '@/lib/constants/news'
-import { TickerType, TransactionType } from '@/types/Transaction'
+import { TickerType } from '@/types/core/TickerType'
+import { TransactionType } from '@/types/Transaction'
 import { LogLevel } from '@/types/Log'
 
 export const paramsUrlKeys: UrlKeys<typeof paramsParsers> = {

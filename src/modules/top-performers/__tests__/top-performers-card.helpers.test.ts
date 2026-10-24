@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { getTopMovers } from '@/modules/top-performers/top-performers-card.helpers'
-import { Ticker, TickerType } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerType } from '@/types/core/TickerType'
 import type { HoldingSummary } from '@/types/Holding'
 
 const holding = (

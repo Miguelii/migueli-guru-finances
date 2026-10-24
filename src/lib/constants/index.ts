@@ -18,6 +18,8 @@ export const POSITIONS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/positions` as const
 
 export const PLANNING_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/planning` as const
 
+export const ETF_PLANNING_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/etf-planning` as const
+
 export const STAKING_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/staking` as const
 
 export const EMERGENCY_FUND_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/emergency-fund` as const

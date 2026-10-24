@@ -1,12 +1,12 @@
 import { txToEurRate } from '@/lib/portfolio/fifo'
+import { Currency } from '@/types/core/Currency'
 import {
-    Currency,
     TransactionType,
     type CambioRates,
-    type Ticker,
     type TickerData,
     type Transaction,
 } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
 
 const MONTHS = 12
 

@@ -1,6 +1,7 @@
 import type { ChartConfig } from '@/components/ui/chart'
 import type { MonthlyPurchasesEur } from '@/lib/portfolio/transactions-summary'
-import type { Ticker, TickerData } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
+import type { TickerData } from '@/types/Transaction'
 import { FALLBACK_ASSET_COLOR } from '@/lib/constants/asset-types'
 import { MONTH_LABELS } from '@/modules/monthly-purchases/monthly-purchases-card.constants'
 

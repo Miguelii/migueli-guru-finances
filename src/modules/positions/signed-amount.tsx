@@ -1,7 +1,7 @@
 import { getDeltaTone } from '@/components/ui/delta-badge.helpers'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 
 type Props = {
     value: number

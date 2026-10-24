@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { formatCurrency, formatQuantity } from '@/lib/portfolio/formaters'
 import { getTransactionFeeEur, getTransactionValueEur } from '@/lib/portfolio/transactions-summary'
 import { cn } from '@/lib/utils'
-import { Currency, type CambioRates, type TickerData, type Transaction } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
 import {
     TYPE_BADGE_VARIANT,
     TYPE_LABEL,

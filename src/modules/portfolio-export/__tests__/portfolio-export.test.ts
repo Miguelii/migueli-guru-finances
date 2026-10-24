@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { createPortfolioOverview } from '@/modules/portfolio-export/portfolio-export.helpers'
 import type { HoldingSummary } from '@/types/Holding'
-import { Currency, Ticker, TickerType } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerType } from '@/types/core/TickerType'
 
 const makeHolding = (overrides: Partial<HoldingSummary>): HoldingSummary => ({
     ticker_id: Ticker.ETH,
@@ -25,6 +27,7 @@ const makeHolding = (overrides: Partial<HoldingSummary>): HoldingSummary => ({
     total_gl_pct: 20,
     total_gl_with_fees: 20,
     total_gl_with_fees_pct: 20,
+    current_price_eur: 120,
     current_value_eur: 120,
     total_invested_eur: 100,
     total_fees_eur: 0,

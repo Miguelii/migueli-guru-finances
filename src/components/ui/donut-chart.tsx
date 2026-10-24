@@ -11,7 +11,7 @@ import {
     type ChartConfig,
 } from '@/components/ui/chart'
 import { formatCurrency, formatPercentage } from '@/lib/portfolio/formaters'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import { cn } from '@/lib/utils'
 
 export type DonutChartItem = {

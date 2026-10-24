@@ -1,4 +1,5 @@
-import { TickerType, TransactionType, type Transaction } from '@/types/Transaction'
+import { TickerType } from '@/types/core/TickerType'
+import { TransactionType, type Transaction } from '@/types/Transaction'
 
 type TaxBracket = {
     /** Holding period (in whole years since the BUY) from which the rate applies */

@@ -1,5 +1,5 @@
 import type { HoldingSummary } from '@/types/Holding'
-import { TickerType } from '@/types/Transaction'
+import { TickerType } from '@/types/core/TickerType'
 
 type TopMovers = {
     best: HoldingSummary[]

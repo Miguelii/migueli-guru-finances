@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { groupNewsByDay } from '@/modules/news/news-feed.helpers'
 import { NewsProvider, type NewsItem } from '@/types/News'
-import { Ticker } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
 
 const item = (publishedAt: string, ticker = Ticker.BTC): NewsItem => ({
     id: `${ticker}:${publishedAt}`,

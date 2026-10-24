@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { getStakingTotals, getStakingYields } from '@/modules/staking/staking-card.helpers'
-import { Ticker } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
 import type { HoldingSummary } from '@/types/Holding'
 
 const holding = (ticker_id: Ticker, total_quantity: number, current_value_eur: number) =>

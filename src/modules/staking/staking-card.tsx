@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatPercentage, formatQuantity } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import type { HoldingSummary } from '@/types/Holding'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 import { STAKING_APY } from '@/modules/staking/staking-card.constants'
 import {

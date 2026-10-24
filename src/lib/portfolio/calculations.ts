@@ -1,5 +1,7 @@
-import type { CambioRates, Ticker, TickerData, Transaction } from '@/types/Transaction'
-import { Currency, TickerType } from '@/types/Transaction'
+import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
+import { Currency } from '@/types/core/Currency'
+import { TickerType } from '@/types/core/TickerType'
 import type { HoldingSummary } from '@/types/Holding'
 import { toEur } from '@/lib/utils'
 import { processTransactions } from '@/lib/portfolio/fifo'
@@ -107,6 +109,7 @@ function buildHolding(
         total_gl_pct: pct(totalGl, totalCostBasis),
         total_gl_with_fees: totalGlWithFees,
         total_gl_with_fees_pct: pct(totalGlWithFees, totalCostBasisWithFees),
+        current_price_eur: toEur(currentPrice, currency, rates),
         current_value_eur: currentValueEur,
         total_invested_eur: totalInvestedEur,
         total_fees_eur: totalFeesEur,
@@ -150,6 +153,26 @@ export function aggregateHoldings(
     }
 
     return holdings.toSorted((a, b) => a.ticker_id.localeCompare(b.ticker_id))
+}
+
+/**
+ * Zero-quantity holdings for the assets without any transaction (never bought), so planning
+ * views can show them next to the real positions with their metadata and EUR price.
+ *
+ * @param holdings - Holdings from {@link aggregateHoldings}.
+ * @param tickerData - Ticker metadata with current prices.
+ * @param rates - Current exchange rates.
+ */
+export function buildUnheldHoldings(
+    holdings: HoldingSummary[],
+    tickerData: TickerData[],
+    rates: CambioRates
+): HoldingSummary[] {
+    const heldTickers = new Set(holdings.map((holding) => holding.ticker_id))
+
+    return tickerData
+        .filter((td) => !heldTickers.has(td.ticker))
+        .map((td) => buildHolding(td.ticker, [], td, rates))
 }
 
 export type PortfolioTotals = {

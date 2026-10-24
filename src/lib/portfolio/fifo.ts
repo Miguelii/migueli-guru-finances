@@ -1,5 +1,6 @@
 import type { CambioRates, Transaction } from '@/types/Transaction'
-import { Currency, TransactionType } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { TransactionType } from '@/types/Transaction'
 import { toEur } from '@/lib/utils'
 
 /** Quantities below this threshold are treated as zero (floating-point residue). */

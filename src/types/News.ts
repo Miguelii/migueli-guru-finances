@@ -1,4 +1,4 @@
-import type { Ticker } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
 
 export enum NewsProvider {
     Yahoo = 'yahoo',

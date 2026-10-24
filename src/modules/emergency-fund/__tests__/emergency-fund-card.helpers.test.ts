@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { BankSyncStatus, type BankBalanceSummary } from '@/types/BankConnection'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import { EmergencyFundStatus } from '@/modules/emergency-fund/emergency-fund-card.constants'
 import {
     getDaysUntil,

@@ -1,5 +1,5 @@
 import { BankSyncStatus, type BankBalanceSummary } from '@/types/BankConnection'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import {
     CONSENT_EXPIRING_THRESHOLD_DAYS,
     EmergencyFundStatus,

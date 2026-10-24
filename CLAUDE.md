@@ -177,7 +177,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 
 ## Portfolio data
 
-- Assets are dynamic: created in-app via the Watchlist "Add asset" form (`assets.create` mutation). The `Ticker` enum in `src/types/Transaction.ts` only covers the long-standing ones
+- Assets are dynamic: created in-app via the Watchlist "Add asset" form (`assets.create` mutation). The `Ticker` enum in `src/types/core/Ticker.ts` only covers the long-standing ones
 - Transaction types: `BUY`, `SELL`, `REWARD`, `FEE`
 - Pure functions for all calculations, no side effects. The portfolio engine lives in `src/lib/portfolio/`
 - **FIFO** realized G/L (chronological lots, oldest sold first, matches Portuguese tax rules) in `fifo.ts`. `avg_cost_per_share` of the remaining position is the weighted average of the remaining lots; REWARD transactions enter as zero-cost lots

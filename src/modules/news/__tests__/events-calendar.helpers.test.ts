@@ -8,7 +8,7 @@ import {
     shiftMonth,
 } from '@/modules/news/events-calendar.helpers'
 import { PortfolioEventType, type PortfolioEvent } from '@/types/News'
-import { Ticker } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
 
 const event = (date: string, ticker = Ticker.ATCH): PortfolioEvent => ({
     id: `${ticker}:${date}`,

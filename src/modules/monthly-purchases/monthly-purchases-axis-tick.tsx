@@ -1,7 +1,7 @@
 import type { XAxisTickContentProps } from 'recharts'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 
 type Props = Partial<XAxisTickContentProps> & {
     monthlyTotals: number[]

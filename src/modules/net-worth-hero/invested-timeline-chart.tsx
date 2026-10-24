@@ -11,7 +11,7 @@ import {
 } from '@/lib/portfolio/formaters'
 import type { InvestedTimelinePoint } from '@/lib/portfolio/invested-timeline'
 import { cn } from '@/lib/utils'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import {
     INVESTED_CHART_CONFIG,
     INVESTED_CHART_GRADIENT_ID,

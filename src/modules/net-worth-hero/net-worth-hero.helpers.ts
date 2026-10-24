@@ -1,4 +1,4 @@
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import { formatCurrency, formatMonthLong } from '@/lib/portfolio/formaters'
 import type { InvestedTimelinePoint } from '@/lib/portfolio/invested-timeline'
 import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'

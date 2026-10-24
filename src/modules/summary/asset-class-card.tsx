@@ -5,7 +5,8 @@ import { ASSET_TYPE_META } from '@/lib/constants/asset-types'
 import type { TypeBreakdownItem } from '@/lib/portfolio/calculations'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
-import { Currency, type TickerType } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import type { TickerType } from '@/types/core/TickerType'
 
 type Props = {
     type: TickerType

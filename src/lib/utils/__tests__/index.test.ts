@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { cn, getBuildId, getCambioRates, getLatestUpdate, groupAssetsByType } from '@/lib/utils'
 import type { TickerData } from '@/types/Transaction'
-import { Currency, Ticker, TickerService, TickerType } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
 
 // ─── cn ──────────────────────────────────────────────────────────────────────
 

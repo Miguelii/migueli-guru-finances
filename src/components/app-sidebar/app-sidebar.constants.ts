@@ -9,6 +9,7 @@ import {
     LifeBuoyIcon,
     NewspaperIcon,
     ReceiptTextIcon,
+    ScaleIcon,
     ScrollTextIcon,
     TrendingUpIcon,
     type LucideProps,
@@ -16,6 +17,7 @@ import {
 import {
     CACHE_ROUTE_PATH,
     EMERGENCY_FUND_ROUTE_PATH,
+    ETF_PLANNING_ROUTE_PATH,
     NEWS_ROUTE_PATH,
     PLANNING_ROUTE_PATH,
     LOGS_ROUTE_PATH,
@@ -63,6 +65,11 @@ export const NAV_GROUPS: NavGroup[] = [
                 title: 'Planning',
                 url: PLANNING_ROUTE_PATH,
                 Icon: TrendingUpIcon,
+            },
+            {
+                title: 'ETF Planning',
+                url: ETF_PLANNING_ROUTE_PATH,
+                Icon: ScaleIcon,
             },
             {
                 title: 'Staking',

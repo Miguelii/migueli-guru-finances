@@ -1,4 +1,4 @@
-import type { Currency } from '@/types/Transaction'
+import type { Currency } from '@/types/core/Currency'
 
 type HoldingPreviewSide = {
     quantity: number

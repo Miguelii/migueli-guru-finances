@@ -19,7 +19,7 @@ import {
 import { cn } from '@/lib/utils'
 import { POSITION_SORT_LABEL } from '@/modules/positions/positions.constants'
 import type { PositionTypeFilter } from '@/modules/positions/positions.helpers'
-import type { TickerType } from '@/types/Transaction'
+import type { TickerType } from '@/types/core/TickerType'
 
 type Props = {
     type: PositionTypeFilter

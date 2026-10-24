@@ -6,7 +6,8 @@ import {
     filterByAsset,
 } from '@/modules/news/news-explorer.helpers'
 import { NewsProvider, PortfolioEventType, type NewsItem, type PortfolioEvent } from '@/types/News'
-import { Ticker, type TickerData } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import type { TickerData } from '@/types/Transaction'
 
 const item = (ticker: Ticker, publishedAt = '2026-10-12T09:00:00.000Z'): NewsItem => ({
     id: `${ticker}:${publishedAt}`,

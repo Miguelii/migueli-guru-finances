@@ -14,7 +14,6 @@ import {
 } from '@/lib/portfolio/formaters'
 import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
 import { cn } from '@/lib/utils'
-import { Currency } from '@/types/Transaction'
 import { RebuildSnapshotsButton } from '@/modules/net-worth-hero/rebuild-snapshots-button'
 import {
     VALUE_CHART_CONFIG,
@@ -27,6 +26,7 @@ import {
     filterPointsByRange,
     getValueChartSummary,
 } from '@/modules/net-worth-hero/value-timeline-chart.helpers'
+import { Currency } from '@/types/core/Currency'
 
 type Props = {
     points: PortfolioSnapshotPoint[]

@@ -13,7 +13,8 @@ import {
     buildHistoricalSnapshots,
     toDateKey,
 } from '@/lib/portfolio/portfolio-snapshots'
-import { TickerType, type TickerData } from '@/types/Transaction'
+import { TickerType } from '@/types/core/TickerType'
+import type { TickerData } from '@/types/Transaction'
 import { getCoinbasePriceHistory } from '@/_bff/modules/assets/providers/coinbase.provider'
 import { getFinancePriceHistory } from '@/_bff/modules/assets/providers/yahoo.provider'
 import {

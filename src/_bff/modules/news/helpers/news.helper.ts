@@ -1,5 +1,6 @@
 import type { NewsItem } from '@/types/News'
-import { TickerType, type TickerData } from '@/types/Transaction'
+import { TickerType } from '@/types/core/TickerType'
+import type { TickerData } from '@/types/Transaction'
 import {
     NEWS_KEYWORD_SLOTS_PER_ASSET,
     NEWS_MAX_AGE_DAYS,

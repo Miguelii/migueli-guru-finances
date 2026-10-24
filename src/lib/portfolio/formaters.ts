@@ -1,5 +1,5 @@
 import { CRYPTO_CURRENCIES } from '@/lib/constants'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 
 /**
  * Extracts a valid ISO 4217 currency code from a currency string.

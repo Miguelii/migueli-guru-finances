@@ -1,4 +1,4 @@
-import { Ticker } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
 
 // Yearly staking rate per asset (0.025 = 2.5%). Set to what the exchange pays, one line per asset
 export const STAKING_APY: Partial<Record<Ticker, number>> = {

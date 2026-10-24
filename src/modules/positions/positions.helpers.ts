@@ -2,7 +2,7 @@ import { ASSET_TYPE_META } from '@/lib/constants/asset-types'
 import { ALL_POSITION_TYPES, type PositionSortKey } from '@/lib/constants/positions'
 import { computePortfolioTotals, type PortfolioTotals } from '@/lib/portfolio/calculations'
 import type { HoldingSummary } from '@/types/Holding'
-import type { TickerType } from '@/types/Transaction'
+import type { TickerType } from '@/types/core/TickerType'
 
 export type PositionTypeFilter = typeof ALL_POSITION_TYPES | TickerType
 

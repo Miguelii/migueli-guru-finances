@@ -8,7 +8,8 @@ import {
     sortPositions,
     splitPositions,
 } from '@/modules/positions/positions.helpers'
-import { Ticker, TickerType } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerType } from '@/types/core/TickerType'
 import type { HoldingSummary } from '@/types/Holding'
 
 const holding = (ticker: Ticker, overrides: Partial<HoldingSummary> = {}) =>

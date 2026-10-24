@@ -1,13 +1,9 @@
 import { getCambioRates } from '@/lib/utils'
 import { processTransactions } from '@/lib/portfolio/fifo'
 import { ALL_TRANSACTION_ASSETS, ALL_TRANSACTION_TYPES } from '@/lib/constants/transactions'
-import {
-    Currency,
-    type Transaction,
-    type Ticker,
-    type TickerData,
-    TransactionType,
-} from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { type Transaction, type TickerData, TransactionType } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
 import { formatTaxRate, type CapitalGainsTax } from '@/lib/portfolio/capital-gains-tax'
 
 const DAY_MS = 1000 * 60 * 60 * 24

@@ -3,7 +3,8 @@ import {
     buildAssetAllocation,
     buildTypeAllocation,
 } from '@/modules/allocation-chart/allocation-card-with-chart.helpers'
-import { Ticker, TickerType } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerType } from '@/types/core/TickerType'
 import type { HoldingSummary } from '@/types/Holding'
 
 const holding = (

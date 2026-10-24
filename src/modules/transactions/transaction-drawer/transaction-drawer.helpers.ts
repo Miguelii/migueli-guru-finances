@@ -1,10 +1,6 @@
-import {
-    Currency,
-    TransactionType,
-    type Ticker,
-    type TickerData,
-    type Transaction,
-} from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
 import { processTransactions } from '@/lib/portfolio/fifo'
 import { getCambioRates } from '@/lib/utils'
 import type { FormValues } from '.'

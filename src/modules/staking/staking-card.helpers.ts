@@ -1,5 +1,5 @@
 import type { HoldingSummary } from '@/types/Holding'
-import type { Ticker } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
 import { MONTHS_PER_YEAR } from '@/modules/staking/staking-card.constants'
 
 export type StakingYield = {

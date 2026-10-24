@@ -15,13 +15,9 @@ import { paramsUrlKeys } from '@/lib/core/searchParams'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { aggregateMonthlyPurchasesEur } from '@/lib/portfolio/transactions-summary'
 import { cn } from '@/lib/utils'
-import {
-    Currency,
-    type CambioRates,
-    type Ticker,
-    type TickerData,
-    type Transaction,
-} from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
+import type { Ticker } from '@/types/core/Ticker'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 import {
     FIRST_YEAR,

@@ -1,5 +1,5 @@
 import { ArrowLeftRight, BarChart3, Bitcoin, TrendingUp, type LucideIcon } from 'lucide-react'
-import { TickerType } from '@/types/Transaction'
+import { TickerType } from '@/types/core/TickerType'
 
 type AssetTypeMeta = {
     label: string

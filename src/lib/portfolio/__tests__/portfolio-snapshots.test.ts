@@ -7,7 +7,11 @@ import {
     toDateKey,
 } from '@/lib/portfolio/portfolio-snapshots'
 import type { Transaction, TickerData } from '@/types/Transaction'
-import { TransactionType, Ticker, Currency, TickerService, TickerType } from '@/types/Transaction'
+import { TransactionType } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { Currency } from '@/types/core/Currency'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -163,8 +167,8 @@ describe('buildHistoricalSnapshots', () => {
             }),
         ]
         const prices = history({
-            VUAA: { '2026-01-01': 100, '2026-01-02': 110 },
-            'EUR=X': { '2026-01-01': 0.95, '2026-01-02': 0.8 },
+            [Ticker.VUAA]: { '2026-01-01': 100, '2026-01-02': 110 },
+            [Ticker.USD_EUR]: { '2026-01-01': 0.95, '2026-01-02': 0.8 },
         })
 
         const result = buildHistoricalSnapshots(txs, [vuaaTd, usdRateTd], prices, '2026-01-02')

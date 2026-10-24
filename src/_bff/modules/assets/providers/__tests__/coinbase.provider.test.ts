@@ -1,7 +1,8 @@
 import { Effect, Result } from 'effect'
 import { afterEach, describe, it, expect, vi } from 'vitest'
 import { getCoinbasePrices } from '@/_bff/modules/assets/providers/coinbase.provider'
-import { Currency, type TickerData } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import type { TickerData } from '@/types/Transaction'
 
 vi.mock('server-only', () => ({}))
 

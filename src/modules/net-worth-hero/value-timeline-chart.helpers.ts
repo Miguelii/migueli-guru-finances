@@ -1,6 +1,6 @@
 import { formatCurrency, formatMonthLong } from '@/lib/portfolio/formaters'
 import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import {
     VALUE_RANGE_MONTHS,
     ValueRange,

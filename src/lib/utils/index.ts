@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { Currency, Ticker, type CambioRates, type TickerData } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { Ticker } from '@/types/core/Ticker'
+import type { CambioRates, TickerData } from '@/types/Transaction'
 
 /**
  * Merges Tailwind CSS classes with `clsx` and `tailwind-merge`,

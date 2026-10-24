@@ -5,7 +5,9 @@ import {
     parseGoogleNewsRss,
 } from '@/_bff/modules/news/providers/google-news.provider'
 import { NewsProvider } from '@/types/News'
-import { Ticker, TickerType, type TickerData } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerType } from '@/types/core/TickerType'
+import type { TickerData } from '@/types/Transaction'
 
 vi.mock('server-only', () => ({}))
 

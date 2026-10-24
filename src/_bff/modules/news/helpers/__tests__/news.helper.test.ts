@@ -7,7 +7,8 @@ import {
     toYahooNewsSymbol,
 } from '@/_bff/modules/news/helpers/news.helper'
 import { NewsProvider, type NewsItem } from '@/types/News'
-import { Ticker, TickerType } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerType } from '@/types/core/TickerType'
 
 const news = (overrides: Partial<NewsItem> & { title: string; publishedAt: string }): NewsItem => ({
     id: overrides.title,

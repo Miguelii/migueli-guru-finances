@@ -1,4 +1,5 @@
-import { TickerType, type TickerData } from '@/types/Transaction'
+import { TickerType } from '@/types/core/TickerType'
+import type { TickerData } from '@/types/Transaction'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

@@ -2,12 +2,17 @@
 import { describe, it, expect } from 'vitest'
 import {
     aggregateHoldings,
+    buildUnheldHoldings,
     computePortfolioTotals,
     computeTypeBreakdown,
     getOpenPositionTickers,
 } from '@/lib/portfolio/calculations'
 import type { CambioRates, Transaction, TickerData } from '@/types/Transaction'
-import { TransactionType, Ticker, Currency, TickerService, TickerType } from '@/types/Transaction'
+import { TransactionType } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { Currency } from '@/types/core/Currency'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
 
 const rates: CambioRates = { usdToEur: 0.85, usdcToEur: 0.9 }
 
@@ -821,5 +826,32 @@ describe('getOpenPositionTickers', () => {
         const holdings = aggregateHoldings(txs, [ethTd, solTd, usdTd], rates)
 
         expect(getOpenPositionTickers(holdings)).toEqual([Ticker.ETH])
+    })
+})
+
+// ─── buildUnheldHoldings ─────────────────────────────────────────────────────
+
+describe('buildUnheldHoldings', () => {
+    it('should build zero-quantity holdings for the assets never bought', () => {
+        const vuaaTd = makeTd({
+            ticker: Ticker.VUAA,
+            type: TickerType.Etf,
+            currency: Currency.USD,
+            curr_price: 100,
+        })
+        const holdings = aggregateHoldings(
+            [makeTx({ id: '1', ticker_id: Ticker.ETH, quantity: 1, value: 1000 })],
+            [ethTd, vuaaTd],
+            rates
+        )
+
+        const [vuaa, ...rest] = buildUnheldHoldings(holdings, [ethTd, vuaaTd], rates)
+
+        expect(rest).toEqual([])
+        expect(vuaa.ticker_id).toBe(Ticker.VUAA)
+        expect(vuaa.tickerType).toBe(TickerType.Etf)
+        expect(vuaa.total_quantity).toBe(0)
+        expect(vuaa.current_value_eur).toBe(0)
+        expect(vuaa.current_price_eur).toBeCloseTo(85)
     })
 })

@@ -31,7 +31,8 @@ import {
     SYMBOLS,
     toFormValues,
 } from '@/modules/assets/asset-drawer.helpers'
-import { Currency, type TickerData } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import type { TickerData } from '@/types/Transaction'
 import { Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'

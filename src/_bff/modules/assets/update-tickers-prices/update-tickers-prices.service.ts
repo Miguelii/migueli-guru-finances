@@ -1,7 +1,7 @@
 import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { Logger } from '@/_bff/common/logger/logger'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
-import { type TickerData } from '@/types/Transaction'
+import type { TickerData } from '@/types/Transaction'
 import type { SbClient } from '@/_bff/common/db/types'
 import { Effect, Schedule } from 'effect'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'

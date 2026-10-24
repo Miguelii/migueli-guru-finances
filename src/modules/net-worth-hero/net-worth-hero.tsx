@@ -10,13 +10,9 @@ import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import { getIsDev } from '@/lib/utils/index.server'
 import type { HoldingSummary } from '@/types/Holding'
-import {
-    Currency,
-    TickerType,
-    type CambioRates,
-    type TickerData,
-    type Transaction,
-} from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { TickerType } from '@/types/core/TickerType'
+import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
 import { AllocationBar } from '@/modules/net-worth-hero/allocation-bar'
 import { InvestedTimelineChart } from '@/modules/net-worth-hero/invested-timeline-chart'
 import { ValueTimelineChart } from '@/modules/net-worth-hero/value-timeline-chart'

@@ -7,15 +7,11 @@ import {
     groupTransactionsByMonth,
 } from '@/modules/transactions/transactions-card/transactions-card.helpers'
 import { getCapitalGainsTax } from '@/lib/portfolio/capital-gains-tax'
-import {
-    Currency,
-    Ticker,
-    TickerService,
-    TickerType,
-    TransactionType,
-    type TickerData,
-    type Transaction,
-} from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
+import { TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
 
 const tickerData: TickerData[] = [
     {

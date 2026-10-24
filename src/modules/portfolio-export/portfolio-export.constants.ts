@@ -1,4 +1,4 @@
-import { TickerType } from '@/types/Transaction'
+import { TickerType } from '@/types/core/TickerType'
 
 export const PORTFOLIO_EXPORT_FILENAME = 'portfolio-overview.txt'
 

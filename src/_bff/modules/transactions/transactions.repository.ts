@@ -1,4 +1,4 @@
-import { type Transaction } from '@/types/Transaction'
+import type { Transaction } from '@/types/Transaction'
 import { DBTables } from '@/_bff/common/db/types'
 import { unstable_cache } from 'next/cache'
 import type { SbClient } from '@/_bff/common/db/types'

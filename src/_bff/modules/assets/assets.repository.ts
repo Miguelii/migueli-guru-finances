@@ -1,5 +1,5 @@
 import { DBTables } from '@/_bff/common/db/types'
-import { type TickerData } from '@/types/Transaction'
+import type { TickerData } from '@/types/Transaction'
 import { unstable_cache } from 'next/cache'
 import type { SbClient } from '@/_bff/common/db/types'
 import {

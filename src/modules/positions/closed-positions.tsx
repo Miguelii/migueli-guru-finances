@@ -3,7 +3,7 @@
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import type { HoldingSummary } from '@/types/Holding'
-import { Currency } from '@/types/Transaction'
+import { Currency } from '@/types/core/Currency'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 import { PositionAsset } from '@/modules/positions/position-asset'
 import { SignedAmount } from '@/modules/positions/signed-amount'

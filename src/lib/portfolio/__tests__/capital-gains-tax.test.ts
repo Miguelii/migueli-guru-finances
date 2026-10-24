@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { formatTaxRate, getCapitalGainsTax } from '@/lib/portfolio/capital-gains-tax'
-import { Ticker, TickerType, TransactionType, type Transaction } from '@/types/Transaction'
+import { Ticker } from '@/types/core/Ticker'
+import { TickerType } from '@/types/core/TickerType'
+import { TransactionType, type Transaction } from '@/types/Transaction'
 
 const buy = (buy_date: Transaction['buy_date'], type = TransactionType.Buy): Transaction => ({
     id: '1',
