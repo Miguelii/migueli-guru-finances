@@ -1,8 +1,12 @@
 import { BankSyncStatus, type BankBalanceSummary } from '@/types/BankConnection'
 import { Currency } from '@/types/core/Currency'
 import {
+    CAR_INSURANCE_DUE_MONTH,
+    CAR_INSURANCE_GOAL,
     CONSENT_EXPIRING_THRESHOLD_DAYS,
+    EMERGENCY_FUND_GOAL,
     EmergencyFundStatus,
+    TOTAL_GOAL,
 } from '@/modules/emergency-fund/emergency-fund-card.constants'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -12,6 +16,86 @@ const dateTimeFormatter = new Intl.DateTimeFormat('pt-PT', {
     timeStyle: 'short',
     timeZone: 'Europe/Lisbon',
 })
+
+const dueMonthFormatter = new Intl.DateTimeFormat('pt-PT', {
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+})
+
+export type FundBucket = {
+    saved: number
+    goal: number
+    missing: number
+    isComplete: boolean
+}
+
+type EmergencyFundPlan = {
+    fund: FundBucket
+    insurance: FundBucket & {
+        dueDate: Date
+        monthsLeft: number
+        isDueThisMonth: boolean
+        monthly: number
+    }
+    surplus: number
+    thisMonthTotal: number
+}
+
+const roundCents = (value: number) => Math.round(value * 100) / 100
+
+const toBucket = (saved: number, goal: number): FundBucket => ({
+    saved,
+    goal,
+    missing: roundCents(goal - saved),
+    isComplete: saved >= goal,
+})
+
+/**
+ * Splits the bank balance into the emergency fund (filled first) and the car insurance
+ * (the rest), and works out what to add: the fund gap as a one-off top-up and the
+ * insurance gap spread over the months left until the next due June. In the due month
+ * itself the whole insurance gap is due at once.
+ *
+ * @param balance - Current bank balance
+ * @param now - Reference date (defaults to now), read in UTC
+ */
+export function getEmergencyFundPlan(balance: number, now = new Date()): EmergencyFundPlan {
+    const fundSaved = Math.min(Math.max(balance, 0), EMERGENCY_FUND_GOAL)
+    const insuranceSaved = Math.min(Math.max(balance - EMERGENCY_FUND_GOAL, 0), CAR_INSURANCE_GOAL)
+
+    const fund = toBucket(fundSaved, EMERGENCY_FUND_GOAL)
+    const insuranceBucket = toBucket(insuranceSaved, CAR_INSURANCE_GOAL)
+
+    const month = now.getUTCMonth() + 1
+    const dueYear = now.getUTCFullYear() + (month > CAR_INSURANCE_DUE_MONTH ? 1 : 0)
+    const monthsLeft = Math.max(
+        (dueYear - now.getUTCFullYear()) * 12 + CAR_INSURANCE_DUE_MONTH - month,
+        1
+    )
+    const monthly = roundCents(insuranceBucket.missing / monthsLeft)
+
+    return {
+        fund,
+        insurance: {
+            ...insuranceBucket,
+            dueDate: new Date(Date.UTC(dueYear, CAR_INSURANCE_DUE_MONTH - 1, 1)),
+            monthsLeft,
+            isDueThisMonth: month === CAR_INSURANCE_DUE_MONTH,
+            monthly,
+        },
+        surplus: roundCents(Math.max(balance - TOTAL_GOAL, 0)),
+        thisMonthTotal: roundCents(fund.missing + monthly),
+    }
+}
+
+export function formatDueMonth(date: Date): string {
+    return dueMonthFormatter.format(date)
+}
+
+export function formatMonthsLeft(months: number): string {
+    return `${months} ${months === 1 ? 'month' : 'months'}`
+}
 
 /**
  * Whole days left until the given date (rounded up, negative once it has passed).
