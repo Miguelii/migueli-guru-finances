@@ -1,15 +1,7 @@
 import type { Badge } from '@/components/ui/badge'
 import type { ComponentProps } from 'react'
 
-// The bank balance fills the emergency fund first, the rest goes to the car insurance
-export const EMERGENCY_FUND_GOAL = 4_000
-
-export const CAR_INSURANCE_GOAL = 1_000
-
-// 1-based month the yearly car insurance is due (June)
-export const CAR_INSURANCE_DUE_MONTH = 6
-
-export const TOTAL_GOAL = EMERGENCY_FUND_GOAL + CAR_INSURANCE_GOAL
+export const DEFAULT_EMERGENCY_FUND_GOAL = 5_000
 
 // Show the renew button this many days before the PSD2 consent expires
 export const CONSENT_EXPIRING_THRESHOLD_DAYS = 14
