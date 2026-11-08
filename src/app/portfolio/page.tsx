@@ -6,7 +6,6 @@ import { NetWorthHero } from '@/modules/net-worth-hero/net-worth-hero'
 import { AssetClassCards } from '@/modules/summary/asset-class-cards'
 import { AllocationCardWithChart } from '@/modules/allocation-chart/allocation-card-with-chart'
 import { TopPerformersCard } from '@/modules/top-performers/top-performers-card'
-import { NetWorthGoalTracker } from '@/modules/net-worth-goal-tracker/net-worth-goal-tracker'
 
 export const metadata: Metadata = {
     title: 'Portfolio | Migueli Guru Finances',
@@ -41,7 +40,6 @@ export default async function PortfolioPage(props: Props) {
             <AllocationCardWithChart holdings={holdings} hidePrices={hidePrices} />
 
             <TopPerformersCard holdings={holdings} hidePrices={hidePrices} />
-            <NetWorthGoalTracker holdings={holdings} hidePrices={hidePrices} />
         </main>
     )
 }

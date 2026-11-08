@@ -90,12 +90,6 @@ export function parsePercentInput(value: string): number {
  * Parses a EUR amount input (accepts `,` as decimal separator). Invalid or negative input is 0.
  * @param value - Raw input value.
  */
-export function parseAmountInput(value: string): number {
-    const parsed = Number(value.replace(',', '.'))
-
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0
-}
-
 export function parseTargetInputs(inputs: Record<string, string>): EtfTargets {
     return Object.fromEntries(
         Object.entries(inputs).map(([tickerId, value]) => [tickerId, parsePercentInput(value)])

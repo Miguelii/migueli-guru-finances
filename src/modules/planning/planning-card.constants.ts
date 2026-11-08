@@ -20,6 +20,12 @@ export const SCENARIOS = [
         monthlyContributionEur: 1500,
         color: 'var(--color-chart-4)',
         swatchClassName: 'bg-chart-4',
+        strokeDasharray: '12 4',
+    },
+    {
+        monthlyContributionEur: 1800,
+        color: 'var(--color-chart-5)',
+        swatchClassName: 'bg-chart-5',
         strokeDasharray: undefined,
     },
 ] as const

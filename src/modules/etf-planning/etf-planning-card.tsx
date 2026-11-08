@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { formatCurrency, formatPercentage, formatQuantity } from '@/lib/portfolio/formaters'
-import { cn } from '@/lib/utils'
+import { cn, parseAmountInput } from '@/lib/utils'
 import type { HoldingSummary } from '@/types/Holding'
 import { Currency } from '@/types/core/Currency'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
@@ -22,7 +22,6 @@ import {
     getInitialTargetInputs,
     getTargetSplitLabel,
     isSuggestedBuy,
-    parseAmountInput,
     parseTargetInputs,
     toUnits,
     type AllocationSegment,

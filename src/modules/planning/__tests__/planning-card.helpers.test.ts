@@ -159,13 +159,16 @@ describe('buildScenarios', () => {
     it('should build one projection per monthly amount', () => {
         const scenarios = buildScenarios(input)
 
-        expect(scenarios.map((s) => s.monthlyContributionEur)).toEqual([1000, 1250, 1500])
+        expect(scenarios.map((s) => s.monthlyContributionEur)).toEqual([1000, 1250, 1500, 1800])
         expect(scenarios.map((s) => s.key)).toEqual([
             'contribution1000',
             'contribution1250',
             'contribution1500',
+            'contribution1800',
         ])
-        expect(scenarios.map((s) => s.points.at(-1)?.investedEur)).toEqual([32000, 38000, 44000])
+        expect(scenarios.map((s) => s.points.at(-1)?.investedEur)).toEqual([
+            32000, 38000, 44000, 51200,
+        ])
     })
 
     it('should compare each milestone with the first scenario', () => {
@@ -176,6 +179,7 @@ describe('buildScenarios', () => {
             [0, 0, 0],
             [0, 3000, 6000],
             [0, 6000, 12000],
+            [0, 9600, 19200],
         ])
     })
 })

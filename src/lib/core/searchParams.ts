@@ -15,6 +15,7 @@ import {
 } from '@/lib/constants/positions'
 import { ALL_TRANSACTION_ASSETS, ALL_TRANSACTION_TYPES } from '@/lib/constants/transactions'
 import { ALL_NEWS_ASSETS } from '@/lib/constants/news'
+import { DEFAULT_PLANNING_TAB, PLANNING_TABS } from '@/lib/constants/planning'
 import { TickerType } from '@/types/core/TickerType'
 import { TransactionType } from '@/types/Transaction'
 import { LogLevel } from '@/types/Log'
@@ -36,6 +37,8 @@ export const paramsUrlKeys: UrlKeys<typeof paramsParsers> = {
     positions_fees: 'positions_fees',
     positions_id: 'positions_id',
     news_asset: 'news_asset',
+    planning_tab: 'planning_tab',
+    house_price: 'house_price',
 }
 
 // Result of the bank connection flow (Enable Banking), set by /api/bank/callback
@@ -72,6 +75,11 @@ export const positionsIdParser = parseAsString
 // News page: client-only asset filter over the feed rendered by the server
 export const newsAssetParser = parseAsString.withDefault(ALL_NEWS_ASSETS)
 
+// Planning page: client-only tab and selected house
+export const planningTabParser =
+    parseAsStringLiteral(PLANNING_TABS).withDefault(DEFAULT_PLANNING_TAB)
+export const housePriceParser = parseAsInteger
+
 const paramsParsers = {
     hide_prices: parseAsBoolean.withDefault(false),
     filter_asset: parseAsString.withDefault(ALL_TRANSACTION_ASSETS),
@@ -89,6 +97,8 @@ const paramsParsers = {
     positions_fees: positionsFeesParser,
     positions_id: positionsIdParser,
     news_asset: newsAssetParser,
+    planning_tab: planningTabParser,
+    house_price: housePriceParser,
 } as const
 
 export const searchParamsCache = createSearchParamsCache(paramsParsers)

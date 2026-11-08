@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { parseAmountInput } from '@/lib/utils'
 import {
     formatDrift,
     getAllocationSegments,
@@ -8,7 +9,6 @@ import {
     getInitialTargetInputs,
     getTargetSplitLabel,
     isSuggestedBuy,
-    parseAmountInput,
     parsePercentInput,
     parseTargetInputs,
     toUnits,

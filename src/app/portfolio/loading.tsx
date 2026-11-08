@@ -5,7 +5,6 @@ const STAT_KEYS = ['stat-1', 'stat-2', 'stat-3'] as const
 const ASSET_CLASS_KEYS = ['asset-class-1', 'asset-class-2', 'asset-class-3'] as const
 const LEGEND_KEYS = ['legend-1', 'legend-2', 'legend-3', 'legend-4'] as const
 const MOVER_KEYS = ['mover-1', 'mover-2', 'mover-3', 'mover-4', 'mover-5', 'mover-6'] as const
-const GOAL_KEYS = ['goal-1', 'goal-2'] as const
 
 export default function Loading() {
     return (
@@ -84,17 +83,6 @@ export default function Loading() {
                         ))}
                     </CardContent>
                 </Card>
-            </section>
-
-            <section className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-                {GOAL_KEYS.map((key) => (
-                    <Card key={key}>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <Skeleton className="h-5 w-32" />
-                            <Skeleton className="h-4 w-24" />
-                        </CardHeader>
-                    </Card>
-                ))}
             </section>
         </main>
     )

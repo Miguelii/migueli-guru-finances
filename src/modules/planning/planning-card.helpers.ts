@@ -73,7 +73,7 @@ export function formatMonthlyContribution(amountEur: number): string {
     return `${formatCurrency(amountEur, Currency.EUR, 0)} / month`
 }
 
-function toMonthKey(date: Date): string {
+export function toMonthKey(date: Date): string {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 }
 

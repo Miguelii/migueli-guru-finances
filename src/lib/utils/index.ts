@@ -13,6 +13,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Parses a user-typed amount, accepting a comma as the decimal separator.
+ * Returns `0` for empty, invalid or negative input.
+ * @param value - Raw input value.
+ */
+export function parseAmountInput(value: string): number {
+    const parsed = Number(value.replace(',', '.'))
+
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0
+}
+
+/**
  * Returns the build timestamp used for cache-busting.
  * Falls back to `'1'` in local development.
  * @public

@@ -21,18 +21,21 @@ describe('toScenarioChartRows', () => {
                 contribution1000: 10000,
                 contribution1250: 10000,
                 contribution1500: 10000,
+                contribution1800: 10000,
             },
             {
                 month: '2026-11',
                 contribution1000: 11000,
                 contribution1250: 11250,
                 contribution1500: 11500,
+                contribution1800: 11800,
             },
             {
                 month: '2026-12',
                 contribution1000: 12000,
                 contribution1250: 12500,
                 contribution1500: 13000,
+                contribution1800: 13600,
             },
         ])
     })
@@ -50,6 +53,7 @@ describe('getScenarioChartConfig', () => {
             'contribution1000',
             'contribution1250',
             'contribution1500',
+            'contribution1800',
         ])
         expect(config.contribution1250?.color).toBe('var(--color-chart-2)')
         expect(config.contribution1250?.label).toContain('/ month')
