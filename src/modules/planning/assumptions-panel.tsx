@@ -13,6 +13,7 @@ type Props = {
     inputs: HouseInputs
     savedEur: number
     monthlySavingEur: number
+    netSalaryEur: number
     annualRatePct: number
     termYears: number
     hidePrices: boolean
@@ -61,6 +62,7 @@ export function AssumptionsPanel({
     inputs,
     savedEur,
     monthlySavingEur,
+    netSalaryEur,
     annualRatePct,
     termYears,
     hidePrices,
@@ -79,6 +81,9 @@ export function AssumptionsPanel({
                     <li className={cn({ 'blur-sm select-none': hidePrices })}>
                         {formatPaymentEur(monthlySavingEur)} / month
                     </li>
+                    <li className={cn({ 'blur-sm select-none': hidePrices })}>
+                        {formatPaymentEur(netSalaryEur)} net salary
+                    </li>
                     <li>{annualRatePct}% TAN</li>
                     <li>{termYears} years</li>
                 </ul>
@@ -96,7 +101,7 @@ export function AssumptionsPanel({
 
             {isOpen && (
                 <div id="house-assumptions" className="flex flex-col gap-4 border-t p-5 lg:px-6">
-                    <div className="grid grid-cols-2 items-start gap-4 lg:grid-cols-4">
+                    <div className="grid grid-cols-2 items-start gap-4 lg:grid-cols-5">
                         <AssumptionField
                             id="house-saved"
                             label="Already saved"
@@ -113,6 +118,14 @@ export function AssumptionsPanel({
                             suffix="€"
                             isPrivate={hidePrices}
                             onChange={(value) => onChange('monthlySaving', value)}
+                        />
+                        <AssumptionField
+                            id="house-net-salary"
+                            label="Net salary"
+                            value={inputs.netSalary}
+                            suffix="€"
+                            isPrivate={hidePrices}
+                            onChange={(value) => onChange('netSalary', value)}
                         />
                         <AssumptionField
                             id="house-annual-rate"

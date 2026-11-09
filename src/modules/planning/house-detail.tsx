@@ -9,6 +9,7 @@ import {
     PAYMENT_BAR_CLASS_NAMES,
 } from '@/modules/planning/house-planner-card.constants'
 import {
+    formatEffortRate,
     formatEstimateEur,
     formatPaymentEur,
     formatTimeToSave,
@@ -24,6 +25,7 @@ import { StarMark } from '@/modules/planning/star-mark'
 type Props = {
     plan: HousePlan
     gaugeMaxEur: number
+    netSalaryEur: number
     hidePrices: boolean
 }
 
@@ -31,11 +33,19 @@ type StarRowProps = {
     star: HouseStar
     priceEur: number
     gaugeMaxEur: number
+    netSalaryEur: number
     showLimitLabel: boolean
     hidePrices: boolean
 }
 
-const StarRow = ({ star, priceEur, gaugeMaxEur, showLimitLabel, hidePrices }: StarRowProps) => {
+const StarRow = ({
+    star,
+    priceEur,
+    gaugeMaxEur,
+    netSalaryEur,
+    showLimitLabel,
+    hidePrices,
+}: StarRowProps) => {
     const limitPct = getGaugePct(HEALTHY_PAYMENT_EUR.max, gaugeMaxEur)
     const limitLabel = `${formatPaymentEur(HEALTHY_PAYMENT_EUR.max)} limit`
 
@@ -56,9 +66,21 @@ const StarRow = ({ star, priceEur, gaugeMaxEur, showLimitLabel, hidePrices }: St
 
             <div className="flex min-w-0 flex-col gap-1.5">
                 <p className="flex flex-wrap items-baseline justify-between gap-x-3 tabular-nums">
-                    <span className="text-xl font-semibold tracking-tight">
-                        {formatPaymentEur(star.monthlyPaymentEur)}
-                        <span className="text-xs font-normal text-muted-foreground"> / month</span>
+                    <span className="flex flex-wrap items-baseline gap-x-3">
+                        <span className="text-xl font-semibold tracking-tight">
+                            {formatPaymentEur(star.monthlyPaymentEur)}
+                            <span className="text-xs font-normal text-muted-foreground">
+                                {' '}
+                                / month
+                            </span>
+                        </span>
+                        <span
+                            className={cn('text-xs font-medium', {
+                                'blur-sm select-none': hidePrices,
+                            })}
+                        >
+                            {formatEffortRate(star.monthlyPaymentEur, netSalaryEur)} effort rate
+                        </span>
                     </span>
                     <span className="text-xs text-muted-foreground">
                         {getPaymentNote(star.monthlyPaymentEur)}
@@ -114,7 +136,7 @@ const StarRow = ({ star, priceEur, gaugeMaxEur, showLimitLabel, hidePrices }: St
     )
 }
 
-export function HouseDetail({ plan, gaugeMaxEur, hidePrices }: Props) {
+export function HouseDetail({ plan, gaugeMaxEur, netSalaryEur, hidePrices }: Props) {
     const status = HOUSE_STATUSES[plan.status]
     const { downPaymentEur, monthsToSave } = plan.lowestPaymentGoal
 
@@ -136,6 +158,7 @@ export function HouseDetail({ plan, gaugeMaxEur, hidePrices }: Props) {
                         star={star}
                         priceEur={plan.priceEur}
                         gaugeMaxEur={gaugeMaxEur}
+                        netSalaryEur={netSalaryEur}
                         showLimitLabel={index === plan.stars.length - 1}
                         hidePrices={hidePrices}
                     />

@@ -10,6 +10,7 @@ import { HouseLevelPicker } from '@/modules/planning/house-level-picker'
 import { getAffordability, getPaymentFactor } from '@/modules/planning/house-loan.helpers'
 import {
     DEFAULT_ANNUAL_RATE_PCT,
+    DEFAULT_NET_MONTHLY_SALARY_EUR,
     DEFAULT_TERM_YEARS,
     HOUSE_PRICES_EUR,
 } from '@/modules/planning/house-planner-card.constants'
@@ -37,6 +38,7 @@ export function HousePlannerCard({ portfolioValueEur, hidePrices }: Props) {
 
     const savedEur = parseAmountInput(inputs.saved)
     const monthlySavingEur = parseAmountInput(inputs.monthlySaving)
+    const netSalaryEur = parseAmountInput(inputs.netSalary) || DEFAULT_NET_MONTHLY_SALARY_EUR
     const annualRatePct = parseAmountInput(inputs.annualRate) || DEFAULT_ANNUAL_RATE_PCT
     const termYears = parseAmountInput(inputs.term) || DEFAULT_TERM_YEARS
     const loan = { annualRatePct, termYears }
@@ -73,6 +75,7 @@ export function HousePlannerCard({ portfolioValueEur, hidePrices }: Props) {
                 <HouseDetail
                     plan={selectedPlan}
                     gaugeMaxEur={getGaugeMaxEur(plans)}
+                    netSalaryEur={netSalaryEur}
                     hidePrices={hidePrices}
                 />
             )}
@@ -81,6 +84,7 @@ export function HousePlannerCard({ portfolioValueEur, hidePrices }: Props) {
                 inputs={inputs}
                 savedEur={savedEur}
                 monthlySavingEur={monthlySavingEur}
+                netSalaryEur={netSalaryEur}
                 annualRatePct={annualRatePct}
                 termYears={termYears}
                 hidePrices={hidePrices}

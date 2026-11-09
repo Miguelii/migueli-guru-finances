@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
     buildHousePlans,
+    formatEffortRate,
     formatTimeToSave,
     getGaugeMaxEur,
     getHouseStatus,
@@ -227,6 +228,14 @@ describe('formatTimeToSave', () => {
         [38, '3y 2m'],
     ])('should format %s months', (months, expected) => {
         expect(formatTimeToSave(months)).toBe(expected)
+    })
+})
+
+describe('formatEffortRate', () => {
+    it('should divide the payment by the net salary', () => {
+        expect(formatEffortRate(600, 2100)).toBe('29%')
+        expect(formatEffortRate(1050, 2100)).toBe('50%')
+        expect(formatEffortRate(600, 1500)).toBe('40%')
     })
 })
 

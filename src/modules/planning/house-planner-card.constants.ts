@@ -10,6 +10,8 @@ export const HEALTHY_PAYMENT_EUR = { min: 500, max: 600 } as const
 // Above the healthy limit but still close to it, anything higher is shown as heavy
 export const STRETCH_PAYMENT_EUR = 750
 
+export const DEFAULT_NET_MONTHLY_SALARY_EUR = 2100
+
 export const DEFAULT_MONTHLY_SAVING_EUR = 1700
 
 // 12-month Euribor (about 3.25% in late 2026) plus a typical spread

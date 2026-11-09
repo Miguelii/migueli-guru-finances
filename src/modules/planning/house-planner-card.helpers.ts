@@ -3,6 +3,7 @@ import { Currency } from '@/types/core/Currency'
 import {
     DEFAULT_ANNUAL_RATE_PCT,
     DEFAULT_MONTHLY_SAVING_EUR,
+    DEFAULT_NET_MONTHLY_SALARY_EUR,
     DEFAULT_TERM_YEARS,
     DOWN_PAYMENT_RATIOS,
     HEALTHY_PAYMENT_EUR,
@@ -239,6 +240,7 @@ export function getInitialHouseInputs(portfolioValueEur: number) {
     return {
         saved: String(Math.round(portfolioValueEur)),
         monthlySaving: String(DEFAULT_MONTHLY_SAVING_EUR),
+        netSalary: String(DEFAULT_NET_MONTHLY_SALARY_EUR),
         annualRate: String(DEFAULT_ANNUAL_RATE_PCT),
         term: String(DEFAULT_TERM_YEARS),
     }
@@ -275,6 +277,16 @@ export function formatTimeToSave(months: number | null): string {
     const remainingMonths = months % MONTHS_PER_YEAR
 
     return remainingMonths === 0 ? `${years}y` : `${years}y ${remainingMonths}m`
+}
+
+/**
+ * Share of the net salary that goes to the monthly payment, e.g. `36%`.
+ *
+ * @param monthlyPaymentEur - Monthly payment.
+ * @param netSalaryEur - Net monthly salary.
+ */
+export function formatEffortRate(monthlyPaymentEur: number, netSalaryEur: number): string {
+    return `${Math.round((monthlyPaymentEur / netSalaryEur) * 100)}%`
 }
 
 /**
