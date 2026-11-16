@@ -3,20 +3,19 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { DeltaBadge } from '@/components/ui/delta-badge'
 import { getDeltaTone } from '@/components/ui/delta-badge.helpers'
-import { computeAnnualizedReturn } from '@/lib/portfolio/annualized-return'
 import { computePortfolioTotals } from '@/lib/portfolio/calculations'
-import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
 import { formatCurrency, formatMonthTick, formatPercentage } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import type { HoldingSummary } from '@/types/Holding'
 import { Currency } from '@/types/core/Currency'
-import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
-import { PROJECTION_MONTHS } from '@/modules/planning/planning-card.constants'
+import type { Transaction } from '@/types/Transaction'
+import {
+    PROJECTION_ANNUAL_RATE,
+    PROJECTION_MONTHS,
+} from '@/modules/planning/planning-card.constants'
 import {
     buildScenarios,
     formatMonthlyContribution,
-    getYearOpening,
-    resolveProjectionRate,
     type Scenario,
     type ScenarioMilestone,
 } from '@/modules/planning/planning-card.helpers'
@@ -25,9 +24,6 @@ import { ProjectionChart } from '@/modules/planning/projection-chart'
 type Props = {
     holdings: HoldingSummary[]
     transactions: Transaction[]
-    tickerData: TickerData[]
-    rates: CambioRates
-    snapshots: PortfolioSnapshotPoint[]
     hidePrices: boolean
 }
 
@@ -173,14 +169,7 @@ const ScenarioRow = ({ scenario, baseContributionEur, hidePrices }: ScenarioRowP
     )
 }
 
-export function PlanningCard({
-    holdings,
-    transactions,
-    tickerData,
-    rates,
-    snapshots,
-    hidePrices,
-}: Props) {
+export function PlanningCard({ holdings, transactions, hidePrices }: Props) {
     if (transactions.length === 0) {
         return (
             <Card className="grid h-64 place-items-center px-4 text-center text-sm text-muted-foreground">
@@ -190,20 +179,10 @@ export function PlanningCard({
     }
 
     const totals = computePortfolioTotals(holdings)
-    // Year to date; early in the year (too short to annualize) the whole history is used
-    const annualized =
-        computeAnnualizedReturn(
-            transactions,
-            tickerData,
-            rates,
-            totals.currentValue,
-            getYearOpening(snapshots)
-        ) ?? computeAnnualizedReturn(transactions, tickerData, rates, totals.currentValue)
-    const projectionRate = resolveProjectionRate(annualized)
     const scenarios = buildScenarios({
         startValueEur: totals.currentValue,
         startInvestedEur: totals.totalInvested,
-        annualRate: projectionRate.rate,
+        annualRate: PROJECTION_ANNUAL_RATE,
         months: PROJECTION_MONTHS,
     })
     const baseContributionEur = scenarios.at(0)?.monthlyContributionEur ?? 0
@@ -228,19 +207,12 @@ export function PlanningCard({
                 </div>
                 <p className="max-w-prose text-sm text-muted-foreground">
                     What the portfolio could be worth in 1 and 2 years investing {amounts} every
-                    month at your current annualized return.
+                    month at an assumed fixed return.
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
-                    {projectionRate.since ? (
-                        <Badge variant="outline" className="tabular-nums">
-                            {projectionRate.rate > 0 && '+'}
-                            {formatPercentage(projectionRate.rate * 100)} / year since{' '}
-                            {formatMonthTick(projectionRate.since)}
-                        </Badge>
-                    ) : (
-                        <Badge variant="outline">Not enough history, 0% assumed</Badge>
-                    )}
-                    {projectionRate.isCapped && <Badge variant="secondary">Capped</Badge>}
+                    <Badge variant="outline" className="tabular-nums">
+                        +{formatPercentage(PROJECTION_ANNUAL_RATE * 100)} / year assumed
+                    </Badge>
                 </div>
                 <dl className="grid grid-cols-3 gap-4 border-t pt-4">
                     <TodayStat

@@ -36,5 +36,5 @@ export const MILESTONES = [
     { offset: 24, label: 'In 2 years', shortLabel: '+2y' },
 ] as const
 
-// A short or lucky history can annualize into absurd rates, so the projection is clamped
-export const RETURN_RATE_BOUNDS = { min: -0.3, max: 0.3 }
+// Fixed yearly return assumed by the projection (`0.08` = 8%), not the portfolio's own history
+export const PROJECTION_ANNUAL_RATE = 0.08

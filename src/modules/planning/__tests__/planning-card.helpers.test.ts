@@ -3,64 +3,9 @@ import {
     buildProjection,
     buildScenarios,
     getMilestones,
-    getYearOpening,
-    resolveProjectionRate,
 } from '@/modules/planning/planning-card.helpers'
 
 const now = new Date(2026, 9, 13)
-
-const snapshot = (date: string, valueEur: number) => ({
-    date,
-    valueEur,
-    investedEur: 0,
-    realizedGlEur: 0,
-})
-
-// ─── getYearOpening ──────────────────────────────────────────────────────────
-
-describe('getYearOpening', () => {
-    it('should pick the last snapshot of the previous year', () => {
-        const snapshots = [
-            snapshot('2025-11-30', 900),
-            snapshot('2025-12-31', 1000),
-            snapshot('2026-01-31', 1100),
-        ]
-
-        expect(getYearOpening(snapshots, now)).toEqual({ date: '2025-12-31', valueEur: 1000 })
-    })
-
-    it('should return undefined when every snapshot is from this year', () => {
-        expect(getYearOpening([snapshot('2026-01-31', 1100)], now)).toBeUndefined()
-        expect(getYearOpening([], now)).toBeUndefined()
-    })
-})
-
-// ─── resolveProjectionRate ───────────────────────────────────────────────────
-
-describe('resolveProjectionRate', () => {
-    it('should assume 0% without an annualized return', () => {
-        expect(resolveProjectionRate(null)).toEqual({ rate: 0, since: null, isCapped: false })
-    })
-
-    it('should keep a rate inside the bounds', () => {
-        expect(resolveProjectionRate({ rate: 0.1, since: '2024-03-01' })).toEqual({
-            rate: 0.1,
-            since: '2024-03-01',
-            isCapped: false,
-        })
-    })
-
-    it('should cap rates outside the bounds', () => {
-        expect(resolveProjectionRate({ rate: 0.9, since: '2024-03-01' })).toMatchObject({
-            rate: 0.3,
-            isCapped: true,
-        })
-        expect(resolveProjectionRate({ rate: -0.6, since: '2024-03-01' })).toMatchObject({
-            rate: -0.3,
-            isCapped: true,
-        })
-    })
-})
 
 // ─── buildProjection ─────────────────────────────────────────────────────────
 

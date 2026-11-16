@@ -1,23 +1,8 @@
-import { SNAPSHOT_TIME_ZONE } from '@/lib/constants/portfolio-snapshots'
 import { formatCurrency } from '@/lib/portfolio/formaters'
-import type { AnnualizedReturn, OpeningValue } from '@/lib/portfolio/annualized-return'
-import { type PortfolioSnapshotPoint, toDateKey } from '@/lib/portfolio/portfolio-snapshots'
 import { Currency } from '@/types/core/Currency'
-import {
-    MILESTONES,
-    RETURN_RATE_BOUNDS,
-    SCENARIOS,
-} from '@/modules/planning/planning-card.constants'
+import { MILESTONES, SCENARIOS } from '@/modules/planning/planning-card.constants'
 
 const MONTHS_PER_YEAR = 12
-
-export type ProjectionRate = {
-    /** Yearly rate used by the projection, `0.08` = 8% */
-    rate: number
-    /** Day of the first cash flow, `null` when there is not enough history */
-    since: string | null
-    isCapped: boolean
-}
 
 export type ProjectionPoint = {
     /** Month key in `YYYY-MM` format */
@@ -75,38 +60,6 @@ export function formatMonthlyContribution(amountEur: number): string {
 
 export function toMonthKey(date: Date): string {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-}
-
-/**
- * The last stored snapshot before the current year (normally 31 December), used as the
- * starting value of the year-to-date return. `undefined` when the portfolio started
- * this year or there is no snapshot.
- *
- * @param snapshots - Stored month-end snapshots, oldest first.
- * @param now - Reference date (defaults to the current date).
- */
-export function getYearOpening(
-    snapshots: PortfolioSnapshotPoint[],
-    now: Date = new Date()
-): OpeningValue | undefined {
-    const yearStart = `${toDateKey(now, SNAPSHOT_TIME_ZONE).slice(0, 4)}-01-01`
-    const opening = snapshots.findLast((snapshot) => snapshot.date < yearStart)
-
-    return opening && { date: opening.date, valueEur: opening.valueEur }
-}
-
-/**
- * Clamps the annualized return to `RETURN_RATE_BOUNDS`, falling back to 0% when it
- * could not be computed.
- *
- * @param annualized - The portfolio's annualized return, or `null` without enough history.
- */
-export function resolveProjectionRate(annualized: AnnualizedReturn | null): ProjectionRate {
-    if (!annualized) return { rate: 0, since: null, isCapped: false }
-
-    const rate = Math.min(Math.max(annualized.rate, RETURN_RATE_BOUNDS.min), RETURN_RATE_BOUNDS.max)
-
-    return { rate, since: annualized.since, isCapped: rate !== annualized.rate }
 }
 
 /**
