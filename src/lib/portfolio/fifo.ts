@@ -53,7 +53,7 @@ export function txToEurRate(tx: Transaction, currency: Currency, rates: CambioRa
  * @param lots - FIFO queue of open lots (mutated in place).
  * @param quantity - Quantity to consume.
  */
-function consumeLots(lots: Lot[], quantity: number): { costOfSold: number; costOfSoldEur: number } {
+function consumeLots(lots: Lot[], quantity: number) {
     let remaining = quantity
     let costOfSold = 0
     let costOfSoldEur = 0

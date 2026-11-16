@@ -6,24 +6,29 @@ import { FORCE_SIGN_OUT_API_PATH } from '@/lib/constants'
 const assign = vi.fn()
 
 function makeError(code: string) {
+    // SAFETY: the link only reads data.code from this mocked tRPC error envelope.
     return new TRPCClientError('failed', {
         result: { error: { message: 'failed', code: -1, data: { code } } },
     } as never)
 }
 
-async function runLink(error: TRPCClientError<never>) {
-    const { unauthorizedLink } = await import('@/lib/trpc/trpc-unauthorized-link')
-    const op = {
+function makeOperation(): Operation {
+    return {
         id: 1,
         type: 'query',
         path: 'assets.getAll',
         input: undefined,
         context: {},
-        signal: null,
-    } as unknown as Operation
+        signal: new AbortController().signal,
+    } satisfies Operation
+}
+
+async function runLink(error: TRPCClientError<never>) {
+    const { unauthorizedLink } = await import('@/lib/trpc/trpc-unauthorized-link')
+    // SAFETY: unauthorizedLink ignores the client runtime and only invokes the supplied next callback.
     const result = unauthorizedLink({} as never)({
-        op,
-        next: () => observable((observer) => observer.error(error as never)),
+        op: makeOperation(),
+        next: () => observable((observer) => observer.error(error)),
     })
     return observableToPromise(result)
 }
@@ -38,9 +43,10 @@ describe('unauthorizedLink', () => {
     it('redirects to the forced sign-out once and forwards the error', async () => {
         const error = makeError('UNAUTHORIZED')
         const { unauthorizedLink } = await import('@/lib/trpc/trpc-unauthorized-link')
+        // SAFETY: unauthorizedLink ignores the client runtime and only invokes the supplied next callback.
         const link = unauthorizedLink({} as never)
-        const next = () => observable((observer) => observer.error(error as never))
-        const op = {} as Operation
+        const next = () => observable((observer) => observer.error(error))
+        const op = makeOperation()
 
         await expect(observableToPromise(link({ op, next }))).rejects.toBe(error)
         await expect(observableToPromise(link({ op, next }))).rejects.toBe(error)

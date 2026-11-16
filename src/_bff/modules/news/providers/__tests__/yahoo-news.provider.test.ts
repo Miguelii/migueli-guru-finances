@@ -8,7 +8,6 @@ import {
 import { PortfolioEventType } from '@/types/News'
 import { Ticker } from '@/types/core/Ticker'
 import { TickerType } from '@/types/core/TickerType'
-import type { TickerData } from '@/types/Transaction'
 
 const { searchMock, quoteSummaryMock, quoteMock } = vi.hoisted(() => ({
     searchMock: vi.fn(),
@@ -25,8 +24,8 @@ vi.mock('yahoo-finance2', () => ({
     },
 }))
 
-const stock = { ticker: Ticker.ATCH, type: TickerType.Stock } as unknown as TickerData
-const crypto = { ticker: Ticker.BTC, type: TickerType.Crypto } as unknown as TickerData
+const stock = { ticker: Ticker.ATCH, type: TickerType.Stock }
+const crypto = { ticker: Ticker.BTC, type: TickerType.Crypto }
 
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect.result(effect))
 

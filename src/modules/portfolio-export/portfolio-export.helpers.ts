@@ -84,9 +84,8 @@ export function createPortfolioOverview(holdings: HoldingSummary[]): string {
     }
 
     for (const holding of holdings) {
-        if (groupedHoldings.has(holding.tickerType as PortfolioExportType)) {
-            groupedHoldings.get(holding.tickerType as PortfolioExportType)?.push(holding)
-        }
+        const exportType = PORTFOLIO_EXPORT_TYPES.find((type) => type === holding.tickerType)
+        if (exportType) groupedHoldings.get(exportType)?.push(holding)
     }
 
     const supportedHoldings = Array.from(groupedHoldings.values()).flat()

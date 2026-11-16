@@ -2,6 +2,6 @@
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "tags": ["-lintignore"],
     "entry": ["src/env/load-system-envs.ts"],
-    "ignoreDependencies": ["husky"],
-    "ignore": ["src/components/ui/**", "public/sw.js"]
+    "ignoreDependencies": ["husky", "@oxlint/plugins"],
+    "ignore": ["src/components/ui/**", "public/sw.js", "tools/**"]
 }

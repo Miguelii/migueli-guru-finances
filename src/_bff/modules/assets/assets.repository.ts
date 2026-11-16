@@ -24,6 +24,7 @@ export const getAssetsFn = (supabaseClient: SbClient, userId: string) =>
 
             if (error) throw error
 
+            // SAFETY: select('*') returns all `data` table columns represented by TickerData.
             return data as TickerData[]
         },
         [GET_ASSETS_CACHE_KEY, userId],

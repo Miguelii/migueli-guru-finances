@@ -1,3 +1,4 @@
+import { Predicate } from 'effect'
 import { LOG_RANGE_MS, type LogRange } from '@/lib/constants/logs'
 import { LOG_LEVELS, LOGS_HISTOGRAM_BUCKETS, LOGS_LOCALE } from '@/modules/logs/logs.constants'
 import { LogLevel, type LogEntry } from '@/types/Log'
@@ -129,15 +130,13 @@ export function formatLogTimestamp(createdAt: string): string {
  * `metadata.error`, if any.
  * @param log - Log entry to inspect.
  */
-export function getLogErrorSummary(log: LogEntry): { tag?: string; hash?: string } {
+export function getLogErrorSummary(log: LogEntry) {
     const error = log.metadata?.error
 
-    if (typeof error !== 'object' || error === null) return {}
-
-    const { _tag: tag, error_hash: hash } = error as Record<string, unknown>
+    if (!Predicate.isObject(error)) return {}
 
     return {
-        tag: typeof tag === 'string' ? tag : undefined,
-        hash: typeof hash === 'string' ? hash : undefined,
+        tag: Predicate.isString(error._tag) ? error._tag : undefined,
+        hash: Predicate.isString(error.error_hash) ? error.error_hash : undefined,
     }
 }

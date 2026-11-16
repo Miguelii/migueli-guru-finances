@@ -3,6 +3,7 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import type { LogRange } from '@/lib/constants/logs'
+import { isTimestamp } from '@/modules/logs/logs-histogram.helpers'
 import { LOG_LEVELS, LOGS_CHART_CONFIG } from '@/modules/logs/logs.constants'
 import { formatBucketLabel, type LogHistogramBucket } from '@/modules/logs/logs.helpers'
 
@@ -34,9 +35,7 @@ export function LogsHistogram({ buckets, range }: Props) {
                             <ChartTooltipContent
                                 labelFormatter={(_, payload) => {
                                     const start = payload?.[0]?.payload?.start
-                                    return typeof start === 'number'
-                                        ? formatBucketLabel(start, range)
-                                        : ''
+                                    return isTimestamp(start) ? formatBucketLabel(start, range) : ''
                                 }}
                             />
                         }

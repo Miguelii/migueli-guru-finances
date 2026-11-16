@@ -1,4 +1,4 @@
-import { Effect, Result } from 'effect'
+import { Effect, Predicate, Result } from 'effect'
 import { afterEach, describe, it, expect, vi } from 'vitest'
 import {
     createSession,
@@ -19,12 +19,20 @@ const config: EnableBankingConfig = {
     appUrl: 'https://wallet.test',
 }
 
-const mockFetch = (status: number, body: unknown) =>
-    vi
-        .spyOn(globalThis, 'fetch')
-        .mockResolvedValue(
-            new Response(typeof body === 'string' ? body : JSON.stringify(body), { status })
-        )
+type MockJsonValue =
+    | string
+    | number
+    | boolean
+    | null
+    | MockJsonValue[]
+    | { readonly [key: string]: MockJsonValue }
+
+const mockFetch = (status: number, body: string | MockJsonValue) =>
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(Predicate.isString(body) ? body : (JSON.stringify(body) ?? 'null'), {
+            status,
+        })
+    )
 
 const run = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect.result(effect))
 

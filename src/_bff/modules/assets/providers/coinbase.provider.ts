@@ -1,4 +1,4 @@
-import type { TickerData } from '@/types/Transaction'
+import type { PriceTicker } from '@/_bff/modules/assets/assets.dto'
 import { Effect } from 'effect'
 import { addDaysToDateKey } from '@/lib/portfolio/portfolio-snapshots'
 import { GetCoinbasePriceError } from '@/_bff/modules/assets/assets.errors'
@@ -20,7 +20,7 @@ type CoinbaseExchangeRatesJson = {
 type CoinbaseCandle = [number, number, number, number, number, number]
 
 type CoinbasePair = {
-    ticker: TickerData['ticker']
+    ticker: string
     base: string
 }
 
@@ -30,7 +30,7 @@ type CoinbasePair = {
  *
  * @param tick - The asset data containing the ticker symbol and currency
  */
-function toCoinbasePair(tick: TickerData): { base: string; quote: string } {
+function toCoinbasePair(tick: PriceTicker) {
     if (tick.ticker.includes('-')) {
         const [base, quote] = tick.ticker.toUpperCase().split('-')
         return { base, quote }
@@ -79,8 +79,8 @@ function getQuotePrices(quote: string, pairs: CoinbasePair[]) {
  * @returns An Effect resolving to a map of ticker to price, missing the unknown pairs
  */
 export function getCoinbasePrices(
-    ticks: TickerData[]
-): Effect.Effect<Map<TickerData['ticker'], number>, GetCoinbasePriceError> {
+    ticks: PriceTicker[]
+): Effect.Effect<Map<string, number>, GetCoinbasePriceError> {
     const pairsByQuote = Map.groupBy(
         ticks.map((tick) => ({ ticker: tick.ticker, ...toCoinbasePair(tick) })),
         (pair) => pair.quote
@@ -143,7 +143,7 @@ function getCandlesWindow(product: string, start: string, end: string) {
  * @returns An Effect resolving to a map of day to close price
  */
 export function getCoinbasePriceHistory(
-    tick: TickerData,
+    tick: PriceTicker,
     from: string,
     to: string
 ): Effect.Effect<Map<string, number>, GetCoinbasePriceError> {

@@ -1,4 +1,5 @@
 import type { NewsItem } from '@/types/News'
+import { Predicate } from 'effect'
 import { TickerType } from '@/types/core/TickerType'
 import type { TickerData } from '@/types/Transaction'
 import {
@@ -110,7 +111,7 @@ export function buildNewsQueries(
  * @param url - The untrusted link
  */
 export function isSafeUrl(url: unknown): url is string {
-    if (typeof url !== 'string') return false
+    if (!Predicate.isString(url)) return false
 
     try {
         return new URL(url).protocol === 'https:'

@@ -85,20 +85,18 @@ export function syncBankBalance(
             })
         }
     }).pipe(
-        Effect.catch((error) => {
-            // Quota exhausted: the stored balance is still valid, not a sync error
-            if (error._tag === 'EnableBankingRateLimitError') {
-                Logger({
-                    level: 'warn',
-                    prefix: 'syncBankBalance',
-                    message: 'daily PSD2 read quota exceeded, keeping the last balance',
-                    error,
-                    metadata: { connectionId: id },
-                })
+        Effect.catchTag('EnableBankingRateLimitError', (error) => {
+            Logger({
+                level: 'warn',
+                prefix: 'syncBankBalance',
+                message: 'daily PSD2 read quota exceeded, keeping the last balance',
+                error,
+                metadata: { connectionId: id },
+            })
 
-                return markStatus(supabaseClient, id, BankSyncStatus.RateLimited)
-            }
-
+            return markStatus(supabaseClient, id, BankSyncStatus.RateLimited)
+        }),
+        Effect.catchTag('EnableBankingConsentError', (error) => {
             Logger({
                 level: 'error',
                 prefix: 'syncBankBalance',
@@ -107,13 +105,18 @@ export function syncBankBalance(
                 metadata: { connectionId: id },
             })
 
-            return markStatus(
-                supabaseClient,
-                id,
-                error._tag === 'EnableBankingConsentError'
-                    ? BankSyncStatus.Expired
-                    : BankSyncStatus.Error
-            )
+            return markStatus(supabaseClient, id, BankSyncStatus.Expired)
+        }),
+        Effect.catch((error) => {
+            Logger({
+                level: 'error',
+                prefix: 'syncBankBalance',
+                message: `${error._tag} failed`,
+                error,
+                metadata: { connectionId: id },
+            })
+
+            return markStatus(supabaseClient, id, BankSyncStatus.Error)
         })
     )
 }

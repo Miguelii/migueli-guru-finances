@@ -6,7 +6,7 @@ export type HoldingSummary = {
     symbol: TickerData['ticker']
     tickerLogo: TickerData['logo']
     tickerHexColor: TickerData['hex_color']
-    tickerType: TickerData['type']
+    tickerType: TickerData['type'] | undefined
     currency: TickerData['currency']
     total_quantity: number
     total_invested: number

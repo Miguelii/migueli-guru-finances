@@ -2,8 +2,13 @@ import type { HoldingSummary } from '@/types/Holding'
 import type { Ticker } from '@/types/core/Ticker'
 import { MONTHS_PER_YEAR } from '@/modules/staking/staking-card.constants'
 
-export type StakingYield = {
-    holding: HoldingSummary
+export type StakingHolding = Pick<
+    HoldingSummary,
+    'ticker_id' | 'total_quantity' | 'current_value_eur'
+>
+
+export type StakingYield<T extends StakingHolding = HoldingSummary> = {
+    holding: T
     apy: number
     yearlyTokens: number
     yearlyEur: number
@@ -22,10 +27,10 @@ export type StakingTotals = {
  * @param holdings - All holding summaries (EUR values already converted).
  * @param apyByTicker - Yearly rate per ticker (`0.025` = 2.5%).
  */
-export function getStakingYields(
-    holdings: HoldingSummary[],
+export function getStakingYields<T extends StakingHolding>(
+    holdings: T[],
     apyByTicker: Partial<Record<Ticker, number>>
-): StakingYield[] {
+): StakingYield<T>[] {
     return holdings
         .flatMap((holding) => {
             const apy = apyByTicker[holding.ticker_id]
@@ -47,7 +52,9 @@ export function getStakingYields(
         .toSorted((a, b) => b.yearlyEur - a.yearlyEur)
 }
 
-export function getStakingTotals(yields: StakingYield[]): StakingTotals {
+export function getStakingTotals<T extends StakingHolding>(
+    yields: StakingYield<T>[]
+): StakingTotals {
     const yearlyEur = yields.reduce((sum, item) => sum + item.yearlyEur, 0)
     const stakedEur = yields.reduce((sum, item) => sum + item.holding.current_value_eur, 0)
 

@@ -5,22 +5,20 @@ import {
 } from '@/modules/allocation-chart/allocation-card-with-chart.helpers'
 import { Ticker } from '@/types/core/Ticker'
 import { TickerType } from '@/types/core/TickerType'
-import type { HoldingSummary } from '@/types/Holding'
 
 const holding = (
     symbol: Ticker,
     tickerType: TickerType,
     current_value_eur: number,
     tickerHexColor?: string
-) =>
-    ({
-        symbol,
-        tickerType,
-        current_value_eur,
-        total_invested_eur: 0,
-        realized_gl_eur: 0,
-        tickerHexColor,
-    }) as HoldingSummary
+) => ({
+    symbol,
+    tickerType,
+    current_value_eur,
+    total_invested_eur: 0,
+    realized_gl_eur: 0,
+    tickerHexColor,
+})
 
 describe('buildAssetAllocation', () => {
     it('should sort by current value and skip closed positions', () => {

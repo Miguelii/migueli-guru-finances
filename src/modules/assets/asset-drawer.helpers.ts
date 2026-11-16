@@ -36,6 +36,8 @@ export const ASSET_TYPES: TickerData['type'][] = [
 export const SERVICES: TickerData['service'][] = [TickerService.Coinbase, TickerService.Yahoo]
 export const SYMBOLS: TickerData['symbol'][] = ['€', '$', '€-$', '$-€']
 
+import { z } from 'zod'
+
 /**
  * Reads a file as a base64 data URL (used to send the logo through the
  * JSON-only tRPC transport).
@@ -45,7 +47,15 @@ export const SYMBOLS: TickerData['symbol'][] = ['€', '$', '€-$', '$-€']
 export function readFileAsDataUrl(file: File) {
     return new Promise<string>((resolve, reject) => {
         const reader = new FileReader()
-        reader.addEventListener('load', () => resolve(reader.result as string))
+        reader.addEventListener('load', () => {
+            const result = z.string().safeParse(reader.result)
+
+            if (result.success) {
+                resolve(result.data)
+            } else {
+                reject(new Error('Failed to read file as a data URL'))
+            }
+        })
         reader.addEventListener('error', () =>
             reject(new Error('Failed to read file', { cause: reader.error }))
         )

@@ -24,6 +24,8 @@ type Props = {
     hidePrices: boolean
 }
 
+type TooltipValue = number | string | ReadonlyArray<number | string> | undefined
+
 export function InvestedTimelineChart({ points, currentValue, hidePrices }: Props) {
     const shouldReduceMotion = useReducedMotion()
 
@@ -110,7 +112,7 @@ export function InvestedTimelineChart({ points, currentValue, hidePrices }: Prop
 }
 
 function renderTooltipValue(hidePrices: boolean) {
-    return function TooltipValue(value: unknown) {
+    return function TooltipValue(value: TooltipValue) {
         return (
             <div className="flex w-full items-center justify-between gap-4">
                 <span className="text-muted-foreground">Invested</span>

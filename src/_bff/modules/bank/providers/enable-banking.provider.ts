@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { Effect, Schedule } from 'effect'
+import { Effect, Predicate, Schedule } from 'effect'
 import { z } from 'zod'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { ENABLE_BANKING_API_URL } from '@/_bff/modules/bank/bank.constants'
@@ -189,7 +189,7 @@ export function getAccountBalances(config: EnableBankingConfig, accountUid: stri
     }).pipe(
         Effect.retry({
             schedule: retryPolicy,
-            while: (error) => error._tag === 'EnableBankingUnavailableError',
+            while: Predicate.isTagged('EnableBankingUnavailableError'),
         }),
         Effect.map(({ balances }) => balances)
     )

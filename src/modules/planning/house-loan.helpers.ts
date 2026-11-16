@@ -96,7 +96,7 @@ export function getAffordability(
     savedEur: number,
     monthlySavingEur: number,
     paymentFactor: number
-): { todayEur: number; laterEur: number } {
+) {
     const priceFor = (amountEur: number) =>
         getAffordablePrice(amountEur, HEALTHY_PAYMENT_EUR.max, paymentFactor)
 

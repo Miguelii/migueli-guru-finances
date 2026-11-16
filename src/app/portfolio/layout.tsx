@@ -43,6 +43,7 @@ export default async function PortfolioDashboard({ children }: Props) {
         <SidebarProvider
             defaultOpen={sidebarState}
             style={
+                // SAFETY: these are the CSS custom properties consumed by the sidebar layout.
                 {
                     '--sidebar-width': 'calc(var(--spacing) * 60)',
                     '--header-height': 'calc(var(--spacing) * 12)',

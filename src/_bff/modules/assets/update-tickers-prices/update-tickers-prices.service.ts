@@ -9,6 +9,7 @@ import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.e
 import { UpdateTickersError } from '@/_bff/modules/assets/assets.errors'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
 import { GET_ALL_TRANSACTIONS_CACHE_KEY } from '@/_bff/modules/transactions/transactions.constants'
+import type { PriceTicker } from '@/_bff/modules/assets/assets.dto'
 import { getCoinbasePrices } from '@/_bff/modules/assets/providers/coinbase.provider'
 import { getFinancePrices } from '@/_bff/modules/assets/providers/yahoo.provider'
 import { selectAllTickers, updateAssetPrice } from '@/_bff/modules/assets/assets.repository'
@@ -19,9 +20,11 @@ type UpdateReturn = {
     status: number
 }
 
+type FetchableTicker = PriceTicker & { service: TickerData['service'] }
+
 const priceFetchers: Record<
     TickerData['service'],
-    (ticks: TickerData[]) => Effect.Effect<Map<TickerData['ticker'], number>, Error>
+    (ticks: PriceTicker[]) => Effect.Effect<Map<string, number>, Error>
 > = {
     coinbase: getCoinbasePrices,
     yahoo: getFinancePrices,
@@ -55,6 +58,7 @@ export function updateTickersPrices(): Promise<UpdateReturn> {
             catch: (cause) => new SbQueryError({ cause }),
         })
 
+        // SAFETY: selectAllTickers reads the complete `data` table row, whose stored fields match TickerData.
         const tickers = ((tickerRows ?? []) as TickerData[]).filter(
             (t) => t.service in priceFetchers
         )
@@ -95,7 +99,7 @@ export function updateTickersPrices(): Promise<UpdateReturn> {
  * @param ticks - The assets to fetch the prices for
  * @returns An Effect that always succeeds with a map of ticker to price
  */
-function fetchPrices(ticks: TickerData[]): Effect.Effect<Map<TickerData['ticker'], number>> {
+function fetchPrices(ticks: FetchableTicker[]): Effect.Effect<Map<string, number>> {
     const ticksByService = Map.groupBy(
         ticks.filter((tick) => tick.service in priceFetchers),
         (tick) => tick.service
@@ -128,7 +132,7 @@ function fetchPrices(ticks: TickerData[]): Effect.Effect<Map<TickerData['ticker'
                         error,
                         metadata: { service, tickers: serviceTicks.map((tick) => tick.ticker) },
                     })
-                    return Effect.succeed(new Map<TickerData['ticker'], number>())
+                    return Effect.succeed(new Map<string, number>())
                 })
             ),
         { concurrency: 'unbounded' }
@@ -141,7 +145,7 @@ function fetchPrices(ticks: TickerData[]): Effect.Effect<Map<TickerData['ticker'
  * @param tick - The asset data to fetch the price for
  * @returns An Effect that always succeeds with a price number or `null`
  */
-export function fetchPrice(tick: TickerData): Effect.Effect<number | null> {
+export function fetchPrice(tick: FetchableTicker): Effect.Effect<number | null> {
     return fetchPrices([tick]).pipe(Effect.map((prices) => prices.get(tick.ticker) ?? null))
 }
 

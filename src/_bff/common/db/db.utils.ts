@@ -52,10 +52,7 @@ export async function createDBServerClient(
                         // The `setAll` method was called from a Server Component.
                     }
 
-                    hooks?.onSetAll?.(
-                        cookiesToSet,
-                        headersStore as unknown as Record<string, string>
-                    )
+                    hooks?.onSetAll?.(cookiesToSet, Object.fromEntries(headersStore.entries()))
                 },
             },
         }

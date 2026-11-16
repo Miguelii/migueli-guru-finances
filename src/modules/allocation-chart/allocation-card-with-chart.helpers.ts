@@ -9,7 +9,9 @@ import type { HoldingSummary } from '@/types/Holding'
  *
  * @param holdings - All holding summaries.
  */
-export function buildAssetAllocation(holdings: HoldingSummary[]): DonutChartItem[] {
+export function buildAssetAllocation(
+    holdings: Pick<HoldingSummary, 'symbol' | 'current_value_eur' | 'tickerHexColor'>[]
+): DonutChartItem[] {
     const open = holdings.filter((h) => h.current_value_eur > 0)
     const total = open.reduce((sum, h) => sum + h.current_value_eur, 0)
 
@@ -28,7 +30,9 @@ export function buildAssetAllocation(holdings: HoldingSummary[]): DonutChartItem
  *
  * @param holdings - All holding summaries.
  */
-export function buildTypeAllocation(holdings: HoldingSummary[]): DonutChartItem[] {
+export function buildTypeAllocation(
+    holdings: Parameters<typeof computeTypeBreakdown>[0]
+): DonutChartItem[] {
     return computeTypeBreakdown(holdings).map((item) => ({
         name: ASSET_TYPE_META[item.type].label,
         value: item.currentValue,

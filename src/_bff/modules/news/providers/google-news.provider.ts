@@ -1,17 +1,41 @@
 import { XMLParser } from 'fast-xml-parser'
-import { Effect } from 'effect'
+import { Effect, Predicate } from 'effect'
+import { z } from 'zod'
 import { NewsProvider, type NewsItem } from '@/types/News'
 import { type NewsAsset, type NewsQuery, isSafeUrl } from '@/_bff/modules/news/helpers/news.helper'
 import { GOOGLE_NEWS_RSS_URL } from '@/_bff/modules/news/news.constants'
 import { GetGoogleNewsError } from '@/_bff/modules/news/news.errors'
 
-type RssItem = {
-    title?: unknown
-    link?: unknown
-    guid?: unknown
-    pubDate?: unknown
-    source?: unknown
-}
+const xmlTextSchema = z.union([
+    z.string(),
+    z.object({ '#text': z.string().optional() }).passthrough(),
+])
+const rssItemSchema = z
+    .object({
+        title: xmlTextSchema.optional(),
+        link: xmlTextSchema.optional(),
+        guid: xmlTextSchema.optional(),
+        pubDate: xmlTextSchema.optional(),
+        source: xmlTextSchema.optional(),
+    })
+    .passthrough()
+const rssChannelSchema = z
+    .union([
+        z.object({
+            item: z.union([rssItemSchema, z.array(rssItemSchema)]).optional(),
+        }),
+        z.literal(''),
+    ])
+    .transform((channel) => (channel === '' ? {} : channel))
+const rssDocumentSchema = z.object({
+    rss: z
+        .object({
+            channel: rssChannelSchema.optional(),
+        })
+        .optional(),
+})
+
+type XmlText = z.infer<typeof xmlTextSchema>
 
 // Tag values stay strings (a numeric headline must not become a number)
 const parser = new XMLParser({ ignoreAttributes: false, parseTagValue: false })
@@ -21,10 +45,9 @@ const parser = new XMLParser({ ignoreAttributes: false, parseTagValue: false })
  *
  * @param node - Parsed XML node
  */
-function readText(node: unknown): string {
-    if (typeof node === 'string') return node.trim()
-    if (node && typeof node === 'object' && '#text' in node) return String(node['#text']).trim()
-    return ''
+function readText(node: XmlText | undefined): string {
+    if (Predicate.isString(node)) return node.trim()
+    return node?.['#text']?.trim() ?? ''
 }
 
 /**
@@ -51,7 +74,7 @@ export function parseGoogleNewsRss(
     ticker: NewsAsset['ticker'],
     fromKeywords: boolean
 ): NewsItem[] {
-    const document = parser.parse(xml) as { rss?: { channel?: { item?: RssItem | RssItem[] } } }
+    const document = rssDocumentSchema.parse(parser.parse(xml))
     const rawItems = document.rss?.channel?.item
     const items = toArray(rawItems)
 
@@ -91,7 +114,7 @@ export function parseGoogleNewsRss(
  * @returns An Effect resolving to the matching news
  */
 export function getGoogleNews(
-    asset: NewsAsset,
+    asset: Pick<NewsAsset, 'ticker'>,
     { query, fromKeywords }: NewsQuery
 ): Effect.Effect<NewsItem[], GetGoogleNewsError> {
     return Effect.tryPromise({

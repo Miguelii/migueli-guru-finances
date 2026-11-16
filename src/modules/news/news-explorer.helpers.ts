@@ -25,13 +25,16 @@ export function buildAssetFilterOptions(
     events: PortfolioEvent[]
 ): AssetFilterOption[] {
     return assets
-        .map((asset) => ({
-            ticker: asset.ticker,
-            logo: asset.logo,
-            newsCount: news.filter((item) => item.ticker === asset.ticker).length,
-            eventCount: events.filter((event) => event.ticker === asset.ticker).length,
-        }))
-        .filter((option) => option.newsCount > 0 || option.eventCount > 0)
+        .flatMap((asset) => {
+            const option = {
+                ticker: asset.ticker,
+                logo: asset.logo,
+                newsCount: news.filter((item) => item.ticker === asset.ticker).length,
+                eventCount: events.filter((event) => event.ticker === asset.ticker).length,
+            }
+
+            return option.newsCount > 0 || option.eventCount > 0 ? [option] : []
+        })
         .toSorted((a, b) => b.newsCount - a.newsCount || a.ticker.localeCompare(b.ticker))
 }
 

@@ -41,6 +41,7 @@ export const getBankConnectionByUserIdFn = (supabaseClient: SbClient, userId: st
 
             if (error) throw error
 
+            // SAFETY: the selected columns are exactly PublicBankConnection's fields.
             return data as PublicBankConnection | null
         },
         [GET_BANK_CONNECTION_CACHE_KEY, userId],

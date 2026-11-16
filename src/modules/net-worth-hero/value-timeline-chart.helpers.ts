@@ -1,10 +1,15 @@
 import { formatCurrency, formatMonthLong } from '@/lib/portfolio/formaters'
 import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
-import { Currency } from '@/types/core/Currency'
 import {
+    VALUE_RANGES,
     VALUE_RANGE_MONTHS,
     ValueRange,
 } from '@/modules/net-worth-hero/value-timeline-chart.constants'
+import { Currency } from '@/types/core/Currency'
+
+export function isValueRange(value: string): value is ValueRange {
+    return VALUE_RANGES.some((range) => range === value)
+}
 
 /**
  * Parses a `YYYY-MM-DD` day key into a local `Date` at midnight of that day.

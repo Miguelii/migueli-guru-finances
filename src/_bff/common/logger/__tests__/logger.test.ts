@@ -1,11 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { Data } from 'effect'
+import { Data, Predicate } from 'effect'
 
 const afterMock = vi.fn()
 const createDBServerClientMock = vi.fn()
 
 vi.mock('server-only', () => ({}))
-vi.mock('next/server', () => ({ after: (fn: () => unknown) => afterMock(fn) }))
+vi.mock('next/server', () => ({
+    after: (fn: () => void) => {
+        afterMock(fn)
+    },
+}))
 vi.mock('@/_bff/common/db/db.utils', () => ({
     createDBServerClient: (...args: unknown[]) => createDBServerClientMock(...args),
 }))
@@ -33,20 +37,23 @@ describe('serializeError', () => {
             error_hash: 'abc12345',
         })
 
-        const result = serializeError(error) as Record<string, unknown>
+        const result = serializeError(error)
 
-        expect(result._tag).toBe('SampleError')
-        expect(result.message).toBe('query failed')
-        expect(result.error_hash).toBe('abc12345')
-        expect(result.stack).toBeUndefined()
-        expect(result.cause).toMatchObject({ name: 'Error', message: 'db down' })
+        expect(result).toMatchObject({
+            message: 'query failed',
+            error_hash: 'abc12345',
+            cause: { name: 'Error', message: 'db down' },
+        })
+        expect(Predicate.isObject(result) && '_tag' in result && result._tag).toBe('SampleError')
+        expect(result).not.toHaveProperty('stack')
     })
 
     it('trims the stack of plain errors to 4 lines', () => {
-        const result = serializeError(new TypeError('boom')) as Record<string, unknown>
+        const result = serializeError(new TypeError('boom'))
 
         expect(result).toMatchObject({ name: 'TypeError', message: 'boom' })
-        expect(String(result.stack).split('\n').length).toBeLessThanOrEqual(4)
+        const stack = Predicate.isObject(result) && 'stack' in result ? result.stack : undefined
+        expect(Predicate.isString(stack) && stack.split('\n').length <= 4).toBe(true)
     })
 
     it('maps arrays (Effect defects) recursively', () => {

@@ -19,7 +19,7 @@ const makeTd = (overrides: Partial<TickerData> & { ticker: Ticker }): TickerData
     currency: Currency.EUR,
     symbol: '€',
     logo: '/assets/ethereum.webp',
-    hex_color: '#627EEA' as TickerData['hex_color'],
+    hex_color: '#627EEA',
     type: TickerType.Crypto,
     ...overrides,
 })

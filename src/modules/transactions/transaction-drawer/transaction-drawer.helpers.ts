@@ -1,6 +1,5 @@
 import { Currency } from '@/types/core/Currency'
 import { TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
-import type { Ticker } from '@/types/core/Ticker'
 import { processTransactions } from '@/lib/portfolio/fifo'
 import { getCambioRates } from '@/lib/utils'
 import type { FormValues } from '.'
@@ -57,6 +56,10 @@ function nowDbDate(): string {
     return toDbDate(new Date().toISOString().slice(0, 16))
 }
 
+function isDbDate(value: string): value is Transaction['buy_date'] {
+    return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/u.test(value)
+}
+
 /**
  * Builds a hypothetical transaction from the drawer's form values so a holding
  * preview can be computed before the transaction is saved. Returns `null` when
@@ -65,20 +68,23 @@ function nowDbDate(): string {
  *
  * @param values - Current form values (strings).
  */
-function buildPreviewTransaction(values: FormValues): Transaction | null {
+function buildPreviewTransaction(values: FormValues, tickerData: TickerData[]): Transaction | null {
     if (!values.ticker_id) return null
+    const ticker = tickerData.find((item) => item.ticker === values.ticker_id)?.ticker
+    if (!ticker) return null
 
     const quantity = toNumber(values.quantity)
     const needsQuantity = values.type !== TransactionType.Fee
     if (needsQuantity && (quantity == null || quantity <= 0)) return null
 
+    const buyDate = values.buy_date ? toDbDate(values.buy_date) : nowDbDate()
+    if (!isDbDate(buyDate)) return null
+
     return {
         id: '__preview__',
-        ticker_id: values.ticker_id as Ticker,
+        ticker_id: ticker,
         type: values.type,
-        buy_date: (values.buy_date
-            ? toDbDate(values.buy_date)
-            : nowDbDate()) as Transaction['buy_date'],
+        buy_date: buyDate,
         quantity,
         transaction_price: toNumber(values.transaction_price),
         value: toNumber(values.value),
@@ -114,7 +120,7 @@ export function computeHoldingPreview({
     tickerData: TickerData[]
     editingId: string | null
 }): HoldingPreview | null {
-    const hypothetical = buildPreviewTransaction(values)
+    const hypothetical = buildPreviewTransaction(values, tickerData)
     if (!hypothetical) return null
 
     const ticker = hypothetical.ticker_id

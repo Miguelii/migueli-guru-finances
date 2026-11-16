@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getNavCounts } from '@/components/app-sidebar/app-sidebar.helpers'
 import type { HoldingSummary } from '@/types/Holding'
-import type { TickerData, Transaction } from '@/types/Transaction'
 import { Currency } from '@/types/core/Currency'
 import { Ticker } from '@/types/core/Ticker'
 import { TickerType } from '@/types/core/TickerType'
@@ -55,8 +54,8 @@ const holdings = [
 
 describe('getNavCounts', () => {
     it('counts transactions, open positions and watchlist assets', () => {
-        const transactions = [{}, {}, {}] as Transaction[]
-        const data = [{}, {}] as TickerData[]
+        const transactions = [{}, {}, {}]
+        const data = [{}, {}]
 
         expect(getNavCounts(transactions, data, holdings)).toEqual({
             positions: 3,

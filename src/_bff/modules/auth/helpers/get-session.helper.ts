@@ -3,6 +3,8 @@ import { Effect } from 'effect'
 import {
     isAuthApiError,
     isAuthSessionMissingError,
+    type AuthApiError,
+    type AuthSessionMissingError,
     type SupabaseClient,
     type User,
 } from '@supabase/supabase-js'
@@ -23,7 +25,9 @@ const INVALID_SESSION_STATUSES = new Set([400, 401, 403, 404])
  * revoked, refresh token already used) rather than an infrastructure failure.
  * @param error - The error returned by `supabase.auth.getUser()`.
  */
-export function isInvalidSessionError(error: unknown): boolean {
+export function isInvalidSessionError(
+    error: unknown
+): error is AuthApiError | AuthSessionMissingError {
     if (isAuthSessionMissingError(error)) return true
     return isAuthApiError(error) && INVALID_SESSION_STATUSES.has(error.status)
 }

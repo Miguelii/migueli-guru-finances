@@ -3,7 +3,9 @@ import 'server-only'
 import { createSign } from 'node:crypto'
 import { ENABLE_BANKING_JWT_TTL_SECONDS } from '@/_bff/modules/bank/bank.constants'
 
-function toBase64UrlJson(value: object): string {
+type JwtJsonFields = Record<string, string | number>
+
+function toBase64UrlJson(value: JwtJsonFields): string {
     return Buffer.from(JSON.stringify(value)).toString('base64url')
 }
 

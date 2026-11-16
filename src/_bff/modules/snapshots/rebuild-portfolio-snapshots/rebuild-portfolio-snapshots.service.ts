@@ -143,6 +143,7 @@ export const rebuildPortfolioSnapshots = Effect.fn('rebuildPortfolioSnapshots')(
         })
     }
 
+    // SAFETY: selectAllTickers reads the complete `data` table row, whose stored fields match TickerData.
     const tickers = (tickerRows ?? []) as TickerData[]
     const yesterday = addDaysToDateKey(toDateKey(new Date(), SNAPSHOT_TIME_ZONE), -1)
     const result: RebuildResult = { days: 0, missingHistory: [] }

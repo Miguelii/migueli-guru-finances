@@ -29,6 +29,7 @@ export const getAllTransactionsByUserIdFn = (supabaseClient: SbClient, userId: s
 
             if (error) throw error
 
+            // SAFETY: the select returns all transaction columns defined by the database schema.
             return data as Transaction[]
         },
         [GET_ALL_TRANSACTIONS_CACHE_KEY, userId],

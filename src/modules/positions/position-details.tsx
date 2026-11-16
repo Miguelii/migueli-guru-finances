@@ -51,6 +51,7 @@ export function PositionDetails({ holding: h, openValueEur, hidePrices, onClose 
     const isNative = h.currency !== Currency.EUR
     const blurClass = { 'blur-sm select-none': hidePrices }
     const isOpen = h.total_quantity > 0
+    const assetType = h.tickerType ? ASSET_TYPE_META[h.tickerType] : undefined
 
     const withNative = (eur: number, native: number) => (
         <span className={cn('flex flex-col items-end', blurClass)}>
@@ -69,11 +70,8 @@ export function PositionDetails({ holding: h, openValueEur, hidePrices, onClose 
                 <PositionAsset holding={h} hidePrices={hidePrices} showQuantity={false} />
                 <div className="flex items-center gap-2">
                     <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span
-                            aria-hidden="true"
-                            className={cn('size-2', ASSET_TYPE_META[h.tickerType].bgClassName)}
-                        />
-                        {ASSET_TYPE_META[h.tickerType].label}
+                        <span aria-hidden="true" className={cn('size-2', assetType?.bgClassName)} />
+                        {assetType?.label ?? 'Unknown'}
                     </span>
                     <Button
                         variant="ghost"
