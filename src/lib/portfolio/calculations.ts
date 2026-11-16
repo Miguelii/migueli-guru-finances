@@ -93,7 +93,7 @@ function buildHolding(
         tickerLogo: td?.logo,
         tickerHexColor: td?.hex_color,
         currency,
-        tickerType: td?.type as TickerData['type'],
+        tickerType: td?.type,
         total_quantity: totalQuantity,
         total_invested: totalInvested,
         total_fees: totalFees,
@@ -170,9 +170,9 @@ export function buildUnheldHoldings(
 ): HoldingSummary[] {
     const heldTickers = new Set(holdings.map((holding) => holding.ticker_id))
 
-    return tickerData
-        .filter((td) => !heldTickers.has(td.ticker))
-        .map((td) => buildHolding(td.ticker, [], td, rates))
+    return tickerData.flatMap((td) =>
+        heldTickers.has(td.ticker) ? [] : [buildHolding(td.ticker, [], td, rates)]
+    )
 }
 
 export type PortfolioTotals = {
@@ -183,13 +183,18 @@ export type PortfolioTotals = {
     totalRealized: number
 }
 
+type PortfolioTotalsHolding = Pick<
+    HoldingSummary,
+    'total_invested_eur' | 'current_value_eur' | 'realized_gl_eur'
+>
+
 /**
  * Computes portfolio totals in EUR from the holdings' precomputed `_eur` fields.
  * `unrealizedGl` excludes realized gains — realized is reported separately.
  *
  * @param holdings - Array of holding summaries to aggregate.
  */
-export function computePortfolioTotals(holdings: HoldingSummary[]): PortfolioTotals {
+export function computePortfolioTotals(holdings: PortfolioTotalsHolding[]): PortfolioTotals {
     const totalInvested = holdings.reduce((sum, h) => sum + h.total_invested_eur, 0)
 
     const totalRealized = holdings.reduce((sum, h) => sum + h.realized_gl_eur, 0)
@@ -222,8 +227,10 @@ export type TypeBreakdownItem = {
  *
  * @param holdings - Array of holding summaries to group.
  */
-export function computeTypeBreakdown(holdings: HoldingSummary[]): TypeBreakdownItem[] {
-    const grouped = new Map<TickerType, HoldingSummary[]>()
+export function computeTypeBreakdown(
+    holdings: (PortfolioTotalsHolding & Pick<HoldingSummary, 'tickerType'>)[]
+): TypeBreakdownItem[] {
+    const grouped = new Map<TickerType, PortfolioTotalsHolding[]>()
 
     for (const holding of holdings) {
         if (holding.tickerType == null) continue
@@ -255,7 +262,9 @@ export function computeTypeBreakdown(holdings: HoldingSummary[]): TypeBreakdownI
  * @param holdings - Array of holding summaries.
  */
 export function getOpenPositionTickers(holdings: HoldingSummary[]): Ticker[] {
-    return holdings
-        .filter((h) => h.total_quantity > 0 && h.tickerType !== TickerType.Cambio)
-        .map((h) => h.ticker_id)
+    return holdings.flatMap((holding) =>
+        holding.total_quantity > 0 && holding.tickerType !== TickerType.Cambio
+            ? [holding.ticker_id]
+            : []
+    )
 }

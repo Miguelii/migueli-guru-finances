@@ -7,7 +7,6 @@ import { type CreateAssetProps } from '@/_bff/modules/assets/assets.dto'
 import { insertAsset } from '@/_bff/modules/assets/assets.repository'
 import { fetchPrice } from '@/_bff/modules/assets/update-tickers-prices/update-tickers-prices.service'
 import { uploadAssetImage } from '@/_bff/modules/assets/helpers/upload-asset-image.helper'
-import type { TickerData } from '@/types/Transaction'
 import { Effect } from 'effect'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
@@ -22,7 +21,7 @@ export const createAsset = Effect.fn('createAsset')(function* (props: CreateAsse
 
     const logoPath = image ? yield* uploadAssetImage(bd, assetProps.ticker, image) : null
 
-    const price = yield* fetchPrice({ ...assetProps, curr_price: 0 } as TickerData)
+    const price = yield* fetchPrice(assetProps)
 
     const { error } = yield* Effect.tryPromise({
         try: () =>

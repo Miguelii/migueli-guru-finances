@@ -25,6 +25,7 @@ import {
 import {
     filterPointsByRange,
     getValueChartSummary,
+    isValueRange,
 } from '@/modules/net-worth-hero/value-timeline-chart.helpers'
 import { Currency } from '@/types/core/Currency'
 
@@ -35,7 +36,20 @@ type Props = {
     isDev: boolean
 }
 
+type TooltipValue = number | string | ReadonlyArray<number | string> | undefined
+type TooltipName = number | string | undefined
+type TooltipItem = { payload?: PortfolioSnapshotPoint }
+
 const currency = Currency.EUR
+
+function getValueChartLabel(key: string) {
+    switch (key) {
+        case 'valueEur':
+            return VALUE_CHART_CONFIG.valueEur.label
+        case 'investedEur':
+            return VALUE_CHART_CONFIG.investedEur.label
+    }
+}
 
 export function ValueTimelineChart({ points, hidePrices, isDev }: Props) {
     const shouldReduceMotion = useReducedMotion()
@@ -61,7 +75,9 @@ export function ValueTimelineChart({ points, hidePrices, isDev }: Props) {
                     {hasHistory && (
                         <Tabs
                             value={range}
-                            onValueChange={(value) => setRange(value as ValueRange)}
+                            onValueChange={(value) => {
+                                if (isValueRange(value)) setRange(value)
+                            }}
                         >
                             <TabsList className="rounded-none">
                                 {VALUE_RANGES.map((option) => (
@@ -173,14 +189,15 @@ export function ValueTimelineChart({ points, hidePrices, isDev }: Props) {
 
 function renderTooltipValue(hidePrices: boolean) {
     return function TooltipValue(
-        value: unknown,
-        name: unknown,
-        _item: unknown,
-        index: number,
-        point: unknown
+        value: TooltipValue,
+        name: TooltipName,
+        item: TooltipItem,
+        index: number
     ) {
-        const key = String(name) as keyof typeof VALUE_CHART_CONFIG
-        const snapshot = point as PortfolioSnapshotPoint
+        const key = String(name)
+        const label = getValueChartLabel(key)
+        // SAFETY: Recharts passes the original row from `visiblePoints` as the tooltip item's payload.
+        const snapshot = item.payload as PortfolioSnapshotPoint
         const gain = snapshot.valueEur - snapshot.investedEur
         const tone = getDeltaTone(gain)
 
@@ -193,7 +210,7 @@ function renderTooltipValue(hidePrices: boolean) {
                             className="h-2.5 w-1 shrink-0"
                             style={{ backgroundColor: `var(--color-${key})` }}
                         />
-                        {VALUE_CHART_CONFIG[key]?.label}
+                        {label}
                     </span>
                     <span
                         className={cn('font-medium tabular-nums', {

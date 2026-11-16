@@ -7,6 +7,9 @@ import {
 } from '@/modules/news/news-explorer.helpers'
 import { NewsProvider, PortfolioEventType, type NewsItem, type PortfolioEvent } from '@/types/News'
 import { Ticker } from '@/types/core/Ticker'
+import { Currency } from '@/types/core/Currency'
+import { TickerService } from '@/types/core/TickerService'
+import { TickerType } from '@/types/core/TickerType'
 import type { TickerData } from '@/types/Transaction'
 
 const item = (ticker: Ticker, publishedAt = '2026-10-12T09:00:00.000Z'): NewsItem => ({
@@ -28,7 +31,16 @@ const event = (ticker: Ticker): PortfolioEvent => ({
     isEstimate: false,
 })
 
-const asset = (ticker: Ticker) => ({ ticker, logo: null }) as unknown as TickerData
+const asset = (ticker: Ticker): TickerData => ({
+    ticker,
+    curr_price: 0,
+    last_updated_at: '2026-01-01 00:00:00',
+    service: TickerService.Yahoo,
+    currency: Currency.EUR,
+    symbol: '€',
+    logo: null,
+    type: TickerType.Crypto,
+})
 
 describe('buildAssetFilterOptions', () => {
     it('should list assets with news or events, most news first', () => {

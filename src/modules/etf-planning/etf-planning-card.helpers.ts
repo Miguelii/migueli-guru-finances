@@ -9,8 +9,18 @@ import {
 
 export type EtfTargets = Record<string, number>
 
-export type EtfPlanRow = {
-    holding: HoldingSummary
+export type EtfPlanningHolding = Pick<
+    HoldingSummary,
+    | 'ticker_id'
+    | 'tickerType'
+    | 'total_quantity'
+    | 'current_value_eur'
+    | 'current_price_eur'
+    | 'tickerHexColor'
+>
+
+export type EtfPlanRow<T extends EtfPlanningHolding = HoldingSummary> = {
+    holding: T
     currentEur: number
     currentPct: number
     targetPct: number
@@ -29,14 +39,14 @@ export type AllocationSegment = {
     pct: number
 }
 
-export type EtfPlan = {
-    rows: EtfPlanRow[]
+export type EtfPlan<T extends EtfPlanningHolding = HoldingSummary> = {
+    rows: EtfPlanRow<T>[]
     totalEur: number
     targetsSumPct: number
     minBuyToBalanceEur: number
     contributionEur: number
     isBalanced: boolean
-    untargetedHeld: HoldingSummary[]
+    untargetedHeld: T[]
 }
 
 /**
@@ -46,11 +56,11 @@ export type EtfPlan = {
  * @param unheldHoldings - Zero-quantity holdings of the assets never bought.
  * @param targets - Target % per `ticker_id`.
  */
-export function getEtfPositions(
-    holdings: HoldingSummary[],
-    unheldHoldings: HoldingSummary[],
+export function getEtfPositions<T extends EtfPlanningHolding>(
+    holdings: T[],
+    unheldHoldings: T[],
     targets: EtfTargets
-): HoldingSummary[] {
+): T[] {
     return [...holdings, ...unheldHoldings]
         .filter(
             (holding) =>
@@ -65,8 +75,8 @@ export function getEtfPositions(
  * @param positions - ETFs from `getEtfPositions`.
  * @param targets - Target % per `ticker_id` (e.g. `ETF_TARGET_ALLOCATION`).
  */
-export function getInitialTargetInputs(
-    positions: HoldingSummary[],
+export function getInitialTargetInputs<T extends Pick<HoldingSummary, 'ticker_id'>>(
+    positions: T[],
     targets: EtfTargets
 ): Record<string, string> {
     return Object.fromEntries(
@@ -131,27 +141,32 @@ function fillTowardsTarget(items: { valueEur: number; weight: number }[], amount
  * @param targets - Target % per `ticker_id`.
  * @param contributionEur - Optional amount about to be invested.
  */
-export function getEtfPlan(
-    positions: HoldingSummary[],
+export function getEtfPlan<T extends EtfPlanningHolding>(
+    positions: T[],
     targets: EtfTargets,
     contributionEur: number
-): EtfPlan {
+): EtfPlan<T> {
     const totalEur = positions.reduce((sum, holding) => sum + holding.current_value_eur, 0)
     const targetsSumPct = positions.reduce(
         (sum, holding) => sum + (targets[holding.ticker_id] ?? 0),
         0
     )
 
-    const weightOf = (holding: HoldingSummary) =>
+    const weightOf = (holding: T) =>
         targetsSumPct > 0 ? (targets[holding.ticker_id] ?? 0) / targetsSumPct : 0
 
-    const targeted = positions
-        .filter((holding) => weightOf(holding) > 0)
-        .map((holding) => ({
-            tickerId: holding.ticker_id,
-            valueEur: holding.current_value_eur,
-            weight: weightOf(holding),
-        }))
+    const targeted = positions.flatMap((holding) => {
+        const weight = weightOf(holding)
+        if (weight <= 0) return []
+
+        return [
+            {
+                tickerId: holding.ticker_id,
+                valueEur: holding.current_value_eur,
+                weight,
+            },
+        ]
+    })
 
     // Without selling, the most overweight ETF sets the portfolio size where every weight matches
     const balancedTotalEur = Math.max(0, ...targeted.map((item) => item.valueEur / item.weight))
@@ -210,7 +225,7 @@ export function toUnits(amountEur: number, unitPriceEur: number): number {
  * Normalised target split of the targeted ETFs in row order (e.g. `'60/40'`).
  * @param plan - Plan from `getEtfPlan`.
  */
-export function getTargetSplitLabel(plan: EtfPlan): string {
+export function getTargetSplitLabel<T extends EtfPlanningHolding>(plan: EtfPlan<T>): string {
     if (plan.targetsSumPct <= 0) return ''
 
     return plan.rows
@@ -240,8 +255,8 @@ export function formatDrift(driftPct: number): string {
  * @param plan - Plan from `getEtfPlan`.
  * @param split - Which split to draw.
  */
-export function getAllocationSegments(
-    plan: EtfPlan,
+export function getAllocationSegments<T extends EtfPlanningHolding>(
+    plan: EtfPlan<T>,
     split: 'current' | 'target'
 ): AllocationSegment[] {
     return plan.rows.flatMap((row) => {

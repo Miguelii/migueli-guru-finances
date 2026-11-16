@@ -92,7 +92,7 @@ export function groupAssetsByType(items: TickerData[]): Map<TickerData['type'], 
  * @param data - List of ticker data to search for exchange rates
  * @returns Object containing the EUR rates for USD and USDC
  */
-export function getCambioRates(data: TickerData[]): CambioRates {
+export function getCambioRates(data: Pick<TickerData, 'ticker' | 'curr_price'>[]): CambioRates {
     const rates: CambioRates = { usdToEur: 0, usdcToEur: 0 }
 
     for (const { curr_price, ticker } of data) {

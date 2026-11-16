@@ -82,6 +82,7 @@ export function PositionsTable({
                     const unrealized = getUnrealized(h, includeFees)
                     const weight = getPositionWeight(h, openValueEur)
                     const isNative = h.currency !== Currency.EUR
+                    const assetType = h.tickerType ? ASSET_TYPE_META[h.tickerType] : undefined
 
                     return (
                         <TableRow
@@ -95,7 +96,7 @@ export function PositionsTable({
                                     aria-hidden="true"
                                     className={cn(
                                         'absolute inset-y-2 left-0 w-0.5',
-                                        ASSET_TYPE_META[h.tickerType].bgClassName
+                                        assetType?.bgClassName
                                     )}
                                 />
                                 <button
@@ -140,7 +141,7 @@ export function PositionsTable({
                                             <span
                                                 className={cn(
                                                     'block h-full',
-                                                    ASSET_TYPE_META[h.tickerType].bgClassName
+                                                    assetType?.bgClassName
                                                 )}
                                                 style={{ width: `${weight}%` }}
                                             />

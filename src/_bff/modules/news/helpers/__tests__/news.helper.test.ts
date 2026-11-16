@@ -22,9 +22,7 @@ const news = (overrides: Partial<NewsItem> & { title: string; publishedAt: strin
 
 describe('toYahooNewsSymbol', () => {
     it('should keep stock and ETF tickers and quote crypto in USD', () => {
-        expect(toYahooNewsSymbol({ ticker: 'VUAA.L' as Ticker, type: TickerType.Etf })).toBe(
-            'VUAA.L'
-        )
+        expect(toYahooNewsSymbol({ ticker: Ticker.VUAA, type: TickerType.Etf })).toBe(Ticker.VUAA)
         expect(toYahooNewsSymbol({ ticker: Ticker.BTC, type: TickerType.Crypto })).toBe('BTC-USD')
         expect(toYahooNewsSymbol({ ticker: Ticker.USDC_EUR, type: TickerType.Crypto })).toBe(
             'USDC-USD'

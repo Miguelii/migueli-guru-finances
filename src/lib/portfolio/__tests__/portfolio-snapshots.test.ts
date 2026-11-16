@@ -36,10 +36,12 @@ const makeTx = (
 
 const history = (entries: Record<string, Record<string, number>>): PriceHistory =>
     new Map(
-        Object.entries(entries).map(([ticker, closes]) => [
-            ticker as Ticker,
-            new Map(Object.entries(closes)),
-        ])
+        Object.entries(entries).map(([ticker, closes]) => {
+            const tickerId = Object.values(Ticker).find((candidate) => candidate === ticker)
+            if (!tickerId) throw new Error(`Unknown ticker in test price history: ${ticker}`)
+
+            return [tickerId, new Map(Object.entries(closes))]
+        })
     )
 
 const ethTd = makeTd({ ticker: Ticker.ETH, curr_price: 2000 })

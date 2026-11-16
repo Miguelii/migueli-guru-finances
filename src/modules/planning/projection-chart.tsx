@@ -23,6 +23,9 @@ type Props = {
     hidePrices: boolean
 }
 
+type TooltipValue = number | string | ReadonlyArray<number | string> | undefined
+type TooltipName = number | string | undefined
+
 const currency = Currency.EUR
 
 export function ProjectionChart({ scenarios, hidePrices }: Props) {
@@ -104,7 +107,7 @@ function renderTooltipValue(
     config: ReturnType<typeof getScenarioChartConfig>,
     hidePrices: boolean
 ) {
-    return function TooltipValue(value: unknown, name: unknown) {
+    return function TooltipValue(value: TooltipValue, name: TooltipName) {
         const key = String(name)
 
         return (

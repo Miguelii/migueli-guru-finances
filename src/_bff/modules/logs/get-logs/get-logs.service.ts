@@ -29,6 +29,7 @@ export const getLogs = Effect.fn('getLogs')(function* ({ range, search }: GetLog
         })
     }
 
+    // SAFETY: selectLogs maps the database `logs` columns to the LogEntry schema.
     const logs = (data ?? []) as LogEntry[]
 
     return { logs, isTruncated: logs.length >= LOGS_FETCH_LIMIT }

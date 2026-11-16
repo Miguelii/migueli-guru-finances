@@ -45,7 +45,14 @@ export function TransactionsToolbar({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Tabs
                 value={type}
-                onValueChange={(value) => onTypeChange(value as TransactionTypeFilter)}
+                onValueChange={(value) => {
+                    if (
+                        value === ALL_TRANSACTION_TYPES ||
+                        availableTypes.some((availableType) => availableType === value)
+                    ) {
+                        onTypeChange(value)
+                    }
+                }}
                 className="min-w-0"
             >
                 <TabsList className="rounded-none">
@@ -72,20 +79,24 @@ export function TransactionsToolbar({
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                    {assetItems.map(({ value, label }) => (
-                        <SelectItem key={value} value={value} className="text-xs">
-                            <span className="flex items-center gap-2">
-                                {value !== ALL_TRANSACTION_ASSETS && (
-                                    <AssetLogo
-                                        logo={tickerMap.get(value as Ticker)?.logo}
-                                        ticker={value}
-                                        className="size-4"
-                                    />
-                                )}
-                                {label}
-                            </span>
-                        </SelectItem>
-                    ))}
+                    {assetItems.map(({ value, label }) => {
+                        const ticker = assets.find((assetTicker) => assetTicker === value)
+
+                        return (
+                            <SelectItem key={value} value={value} className="text-xs">
+                                <span className="flex items-center gap-2">
+                                    {ticker && (
+                                        <AssetLogo
+                                            logo={tickerMap.get(ticker)?.logo}
+                                            ticker={value}
+                                            className="size-4"
+                                        />
+                                    )}
+                                    {label}
+                                </span>
+                            </SelectItem>
+                        )
+                    })}
                 </SelectContent>
             </Select>
         </div>

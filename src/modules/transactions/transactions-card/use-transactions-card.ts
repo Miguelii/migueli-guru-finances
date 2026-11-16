@@ -3,7 +3,7 @@ import { parseAsString, useQueryState } from 'nuqs'
 import { paramsUrlKeys, transactionIdParser, transactionTypeParser } from '@/lib/core/searchParams'
 import { ALL_TRANSACTION_ASSETS } from '@/lib/constants/transactions'
 import { summarizeTransactions } from '@/lib/portfolio/transactions-summary'
-import type { CambioRates, TickerData, Transaction, TransactionType } from '@/types/Transaction'
+import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
 import type { Currency } from '@/types/core/Currency'
 import type { Ticker } from '@/types/core/Ticker'
 import {
@@ -53,7 +53,7 @@ export function useTransactionsCard({ transactions, tickerData, rates }: Props) 
         [transactions]
     )
     const availableTypes = useMemo(
-        () => Array.from(new Set(transactions.map((tx) => tx.type))) as TransactionType[],
+        () => Array.from(new Set(transactions.map((tx) => tx.type))),
         [transactions]
     )
 

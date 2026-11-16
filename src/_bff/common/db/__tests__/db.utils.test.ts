@@ -34,6 +34,22 @@ vi.mock('@/env/server', () => ({
     },
 }))
 
+type CookieHandlers = {
+    getAll: () => { name: string; value: string }[]
+    setAll: (
+        cookies: { name: string; value: string; options: object }[],
+        headers?: Record<string, string>
+    ) => void
+}
+
+function getCookieHandlers(): CookieHandlers {
+    const options = vi.mocked(createServerClient).mock.calls[0]?.[2]
+    if (!options) throw new Error('createServerClient was not called')
+
+    // SAFETY: createDBServerClient passed these callbacks directly to the mocked client factory.
+    return options.cookies as CookieHandlers
+}
+
 // ─── verifyApiKey ────────────────────────────────────────────────────────────
 
 describe('verifyApiKey', () => {
@@ -84,9 +100,7 @@ describe('createDBServerClient', () => {
         await createDBServerClient()
 
         // Extract the getAll handler passed to createServerClient
-        const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2].cookies as {
-            getAll: () => { name: string; value: string }[]
-        }
+        const cookieHandlers = getCookieHandlers()
         const result = cookieHandlers.getAll()
 
         expect(mockGetAll).toHaveBeenCalled()
@@ -97,9 +111,7 @@ describe('createDBServerClient', () => {
         const onGetAll = vi.fn()
         await createDBServerClient(false, { onGetAll })
 
-        const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2].cookies as {
-            getAll: () => { name: string; value: string }[]
-        }
+        const cookieHandlers = getCookieHandlers()
         cookieHandlers.getAll()
 
         expect(mockGetAll).toHaveBeenCalled()
@@ -111,12 +123,7 @@ describe('createDBServerClient', () => {
         await createDBServerClient(false, { onSetAll })
 
         const cookiesToSet = [{ name: 'sb-token', value: 'xyz', options: {} }]
-        const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2].cookies as {
-            setAll: (
-                cookies: { name: string; value: string; options: object }[],
-                headers?: Record<string, string>
-            ) => void
-        }
+        const cookieHandlers = getCookieHandlers()
         cookieHandlers.setAll(cookiesToSet)
 
         expect(mockSet).toHaveBeenCalledWith('sb-token', 'xyz', {})
@@ -130,12 +137,7 @@ describe('createDBServerClient', () => {
 
         await createDBServerClient()
 
-        const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2].cookies as {
-            setAll: (
-                cookies: { name: string; value: string; options: object }[],
-                headers?: Record<string, string>
-            ) => void
-        }
+        const cookieHandlers = getCookieHandlers()
 
         // Should not throw
         expect(() =>
@@ -152,13 +154,7 @@ describe('createDBServerClient', () => {
         await createDBServerClient(false, { onSetAll })
 
         const cookiesToSet = [{ name: 'sb-token', value: 'xyz', options: {} }]
-        const cookieHandlers = vi.mocked(createServerClient).mock.calls[0][2]
-            .cookies as unknown as {
-            setAll: (
-                cookies: { name: string; value: string; options: object }[],
-                headers?: Record<string, string>
-            ) => void
-        }
+        const cookieHandlers = getCookieHandlers()
         cookieHandlers.setAll(cookiesToSet)
 
         expect(onSetAll).toHaveBeenCalledWith(cookiesToSet, expect.anything())

@@ -2,7 +2,7 @@ import { ASSET_TYPE_META } from '@/lib/constants/asset-types'
 import { ALL_POSITION_TYPES, type PositionSortKey } from '@/lib/constants/positions'
 import { computePortfolioTotals, type PortfolioTotals } from '@/lib/portfolio/calculations'
 import type { HoldingSummary } from '@/types/Holding'
-import type { TickerType } from '@/types/core/TickerType'
+import { TickerType } from '@/types/core/TickerType'
 
 export type PositionTypeFilter = typeof ALL_POSITION_TYPES | TickerType
 
@@ -16,17 +16,17 @@ export type UnrealizedGl = {
     pct: number
 }
 
-export function splitPositions(holdings: HoldingSummary[]) {
+export function splitPositions<T extends Pick<HoldingSummary, 'total_quantity'>>(holdings: T[]) {
     return {
         open: holdings.filter((h) => h.total_quantity > 0),
         closed: holdings.filter((h) => h.total_quantity <= 0),
     }
 }
 
-export function filterPositionsByType(
-    positions: HoldingSummary[],
+export function filterPositionsByType<T extends Pick<HoldingSummary, 'tickerType'>>(
+    positions: T[],
     type: PositionTypeFilter
-): HoldingSummary[] {
+): T[] {
     return type === ALL_POSITION_TYPES ? positions : positions.filter((h) => h.tickerType === type)
 }
 
@@ -35,10 +35,12 @@ export function filterPositionsByType(
  * types the user actually holds).
  * @param positions - Open positions.
  */
-export function getAvailableTypes(positions: HoldingSummary[]): TickerType[] {
-    const present = new Set(positions.map((h) => h.tickerType))
+export function getAvailableTypes(positions: Pick<HoldingSummary, 'tickerType'>[]): TickerType[] {
+    const present = new Set(
+        positions.flatMap((holding) => (holding.tickerType ? [holding.tickerType] : []))
+    )
 
-    return (Object.keys(ASSET_TYPE_META) as TickerType[]).filter((type) => present.has(type))
+    return Object.values(TickerType).filter((type) => type in ASSET_TYPE_META && present.has(type))
 }
 
 /**
@@ -46,7 +48,16 @@ export function getAvailableTypes(positions: HoldingSummary[]): TickerType[] {
  * @param holding - Position summary.
  * @param includeFees - Use the `_with_fees` metrics.
  */
-export function getUnrealized(holding: HoldingSummary, includeFees: boolean): UnrealizedGl {
+export function getUnrealized(
+    holding: Pick<
+        HoldingSummary,
+        | 'unrealized_gl_with_fees_eur'
+        | 'unrealized_gl_with_fees_eur_pct'
+        | 'unrealized_gl_eur'
+        | 'unrealized_gl_eur_pct'
+    >,
+    includeFees: boolean
+): UnrealizedGl {
     return includeFees
         ? {
               value: holding.unrealized_gl_with_fees_eur,
@@ -62,12 +73,19 @@ export function getUnrealized(holding: HoldingSummary, includeFees: boolean): Un
  * @param sortKey - Sort key from the URL.
  * @param includeFees - Whether unrealized G/L includes fees.
  */
-export function sortPositions(
-    positions: HoldingSummary[],
-    sortKey: PositionSortKey,
-    includeFees: boolean
-): HoldingSummary[] {
-    const metric: Record<Exclude<PositionSortKey, 'name'>, (h: HoldingSummary) => number> = {
+export function sortPositions<
+    T extends Pick<
+        HoldingSummary,
+        | 'symbol'
+        | 'current_value_eur'
+        | 'unrealized_gl_with_fees_eur'
+        | 'unrealized_gl_with_fees_eur_pct'
+        | 'unrealized_gl_eur'
+        | 'unrealized_gl_eur_pct'
+        | 'total_gl_eur'
+    >,
+>(positions: T[], sortKey: PositionSortKey, includeFees: boolean): T[] {
+    const metric: Record<Exclude<PositionSortKey, 'name'>, (h: T) => number> = {
         value: (h) => h.current_value_eur,
         unrealized: (h) => getUnrealized(h, includeFees).pct,
         total_gl: (h) => h.total_gl_eur,
@@ -85,7 +103,10 @@ export function sortPositions(
  * @param holding - Position summary.
  * @param totalValueEur - Market value of all open positions.
  */
-export function getPositionWeight(holding: HoldingSummary, totalValueEur: number): number {
+export function getPositionWeight(
+    holding: Pick<HoldingSummary, 'current_value_eur'>,
+    totalValueEur: number
+): number {
     return totalValueEur > 0 ? (holding.current_value_eur / totalValueEur) * 100 : 0
 }
 
@@ -94,7 +115,16 @@ export function getPositionWeight(holding: HoldingSummary, totalValueEur: number
  * number of open positions.
  * @param holdings - All holding summaries.
  */
-export function getPositionsTotals(holdings: HoldingSummary[]): PositionsTotals {
+export function getPositionsTotals(
+    holdings: Pick<
+        HoldingSummary,
+        | 'total_invested_eur'
+        | 'current_value_eur'
+        | 'realized_gl_eur'
+        | 'total_fees_eur'
+        | 'total_quantity'
+    >[]
+): PositionsTotals {
     return {
         ...computePortfolioTotals(holdings),
         totalFees: holdings.reduce((sum, h) => sum + h.total_fees_eur, 0),

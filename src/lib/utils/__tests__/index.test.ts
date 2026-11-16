@@ -71,7 +71,7 @@ const baseTicker: Omit<TickerData, 'ticker' | 'last_updated_at'> = {
     currency: Currency.EUR,
     symbol: '€',
     logo: '/assets/ethereum.webp',
-    hex_color: '#627EEA' as TickerData['hex_color'],
+    hex_color: '#627EEA',
     type: TickerType.Crypto,
 }
 
@@ -167,34 +167,36 @@ describe('groupAssetsByType', () => {
 
 // ─── getCambioRates ──────────────────────────────────────────────────────
 
-type PickTickerData = Pick<TickerData, 'ticker' | 'curr_price'>
-
 describe('getCambioRates', () => {
     it('should return correct rates for USD and USDC', () => {
-        const data: PickTickerData[] = [
+        const data: Pick<TickerData, 'ticker' | 'curr_price'>[] = [
             { ticker: Ticker.USD_EUR, curr_price: 0.92 },
             { ticker: Ticker.USDC_EUR, curr_price: 0.91 },
         ]
 
-        expect(getCambioRates(data as TickerData[])).toEqual({
+        expect(getCambioRates(data)).toEqual({
             usdToEur: 0.92,
             usdcToEur: 0.91,
         })
     })
 
     it('should fall back to the USDC rate when USD is missing', () => {
-        const data: PickTickerData[] = [{ ticker: Ticker.USDC_EUR, curr_price: 0.91 }]
+        const data: Pick<TickerData, 'ticker' | 'curr_price'>[] = [
+            { ticker: Ticker.USDC_EUR, curr_price: 0.91 },
+        ]
 
-        expect(getCambioRates(data as TickerData[])).toEqual({
+        expect(getCambioRates(data)).toEqual({
             usdToEur: 0.91,
             usdcToEur: 0.91,
         })
     })
 
     it('should fall back to the USD rate when USDC is missing', () => {
-        const data: PickTickerData[] = [{ ticker: Ticker.USD_EUR, curr_price: 0.92 }]
+        const data: Pick<TickerData, 'ticker' | 'curr_price'>[] = [
+            { ticker: Ticker.USD_EUR, curr_price: 0.92 },
+        ]
 
-        expect(getCambioRates(data as TickerData[])).toEqual({
+        expect(getCambioRates(data)).toEqual({
             usdToEur: 0.92,
             usdcToEur: 0.92,
         })

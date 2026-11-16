@@ -23,7 +23,9 @@ const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] })
  * @param asset - The asset to fetch the news for
  * @returns An Effect resolving to the asset's news, newest first as Yahoo returns them
  */
-export function getYahooNews(asset: NewsAsset): Effect.Effect<NewsItem[], GetYahooNewsError> {
+export function getYahooNews(
+    asset: Pick<NewsAsset, 'ticker' | 'type'>
+): Effect.Effect<NewsItem[], GetYahooNewsError> {
     return Effect.tryPromise({
         try: async () => {
             const { news } = await yahooFinance.search(toYahooNewsSymbol(asset), {
@@ -62,7 +64,7 @@ export function getYahooNews(asset: NewsAsset): Effect.Effect<NewsItem[], GetYah
  * @returns An Effect resolving to the stock's events (dates as UTC `YYYY-MM-DD`)
  */
 export function getYahooCalendarEvents(
-    asset: NewsAsset
+    asset: Pick<NewsAsset, 'ticker' | 'type'>
 ): Effect.Effect<PortfolioEvent[], GetYahooEventsError> {
     return Effect.tryPromise({
         try: async () => {
@@ -112,7 +114,7 @@ export function getYahooCalendarEvents(
  * @returns An Effect resolving to a map of ticker to name
  */
 export function getYahooNames(
-    assets: NewsAsset[]
+    assets: Pick<NewsAsset, 'ticker' | 'type'>[]
 ): Effect.Effect<Map<TickerData['ticker'], string>, GetYahooNamesError> {
     return Effect.tryPromise({
         try: async () => {

@@ -1,4 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { Data } from 'effect'
+import { describe, it, expect, vi } from 'vitest'
+import { serializeError } from '@/_bff/common/logger/logger'
 import {
     buildHistogramBuckets,
     countLevelFacets,
@@ -9,7 +11,14 @@ import {
 import { LOGS_HISTOGRAM_BUCKETS } from '@/modules/logs/logs.constants'
 import { LogLevel, type LogEntry } from '@/types/Log'
 
+vi.mock('server-only', () => ({}))
+
 const END = new Date('2026-09-30T12:00:00.000Z').getTime()
+
+class SampleLogError extends Data.TaggedError('SbQueryError')<{
+    cause: null
+    error_hash: string
+}> {}
 
 function makeLog(overrides: Partial<LogEntry>): LogEntry {
     return {
@@ -99,8 +108,11 @@ describe('buildHistogramBuckets', () => {
 
 describe('getLogErrorSummary', () => {
     it('reads the tagged error summary from metadata', () => {
+        const taggedError = serializeError(
+            new SampleLogError({ cause: null, error_hash: 'j2tb6x9q' })
+        )
         const log = makeLog({
-            metadata: { error: { _tag: 'SbQueryError', error_hash: 'j2tb6x9q' } },
+            metadata: { error: taggedError ?? null },
         })
 
         expect(getLogErrorSummary(log)).toEqual({ tag: 'SbQueryError', hash: 'j2tb6x9q' })

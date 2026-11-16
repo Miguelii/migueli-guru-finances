@@ -12,54 +12,62 @@ import {
     parsePercentInput,
     parseTargetInputs,
     toUnits,
+    type EtfPlan,
+    type EtfPlanningHolding,
 } from '@/modules/etf-planning/etf-planning-card.helpers'
 import { Ticker } from '@/types/core/Ticker'
 import { TickerType } from '@/types/core/TickerType'
-import type { HoldingSummary } from '@/types/Holding'
 
 const etf = (
-    ticker_id: string,
+    ticker_id: Ticker,
     current_value_eur: number,
     total_quantity = 10,
-    tickerType = TickerType.Etf
-) =>
-    ({
-        ticker_id: ticker_id as Ticker,
-        current_value_eur,
-        current_price_eur: total_quantity > 0 ? current_value_eur / total_quantity : 50,
-        total_quantity,
-        tickerType,
-    }) as HoldingSummary
+    tickerType: TickerType = TickerType.Etf
+): EtfPlanningHolding => ({
+    ticker_id,
+    current_value_eur,
+    current_price_eur: total_quantity > 0 ? current_value_eur / total_quantity : 50,
+    total_quantity,
+    tickerType,
+    tickerHexColor: undefined,
+})
 
-const rowOf = (plan: ReturnType<typeof getEtfPlan>, tickerId: string) =>
-    plan.rows.find((row) => row.holding.ticker_id === tickerId)!
+const rowOf = <T extends EtfPlanningHolding>(plan: EtfPlan<T>, tickerId: string) => {
+    const row = plan.rows.find((item) => item.holding.ticker_id === tickerId)
+    if (!row) throw new Error(`Missing ETF plan row for ${tickerId}`)
+    return row
+}
 
 describe('getEtfPositions', () => {
     it('should keep open ETF positions only, highest value first', () => {
         const positions = getEtfPositions(
             [
                 etf(Ticker.BTC, 9000, 1, TickerType.Crypto),
-                etf('CLOSED', 0, 0),
-                etf('SMALL', 100),
-                etf('BIG', 5000),
+                etf(Ticker.VUAA, 0, 0),
+                etf(Ticker.QDVE, 100),
+                etf(Ticker.SEC0, 5000),
             ],
             [],
             {}
         )
 
-        expect(positions.map((holding) => holding.ticker_id)).toEqual(['BIG', 'SMALL'])
+        expect(positions.map((holding) => holding.ticker_id)).toEqual([Ticker.SEC0, Ticker.QDVE])
     })
 
     it('should add targeted ETFs not held yet, never-bought or sold out', () => {
         const positions = getEtfPositions(
-            [etf(Ticker.VUAA, 6000), etf('SOLD', 0, 0)],
-            [etf(Ticker.SEC0, 0, 0), etf('OTHER', 0, 0), etf(Ticker.BTC, 0, 0, TickerType.Crypto)],
-            { [Ticker.VUAA]: 60, SOLD: 25, [Ticker.SEC0]: 15, [Ticker.BTC]: 10 }
+            [etf(Ticker.VUAA, 6000), etf(Ticker.QDVE, 0, 0)],
+            [
+                etf(Ticker.SEC0, 0, 0),
+                etf(Ticker.ATCH, 0, 0),
+                etf(Ticker.BTC, 0, 0, TickerType.Crypto),
+            ],
+            { [Ticker.VUAA]: 60, [Ticker.QDVE]: 25, [Ticker.SEC0]: 15, [Ticker.BTC]: 10 }
         )
 
         expect(positions.map((holding) => holding.ticker_id)).toEqual([
             Ticker.VUAA,
-            'SOLD',
+            Ticker.QDVE,
             Ticker.SEC0,
         ])
     })
@@ -67,9 +75,13 @@ describe('getEtfPositions', () => {
 
 describe('getInitialTargetInputs', () => {
     it('should default ETFs missing from the targets to 0', () => {
-        expect(getInitialTargetInputs([etf('A', 1), etf('B', 1)], { A: 60 })).toEqual({
-            A: '60',
-            B: '0',
+        expect(
+            getInitialTargetInputs([etf(Ticker.VUAA, 1), etf(Ticker.QDVE, 1)], {
+                [Ticker.VUAA]: 60,
+            })
+        ).toEqual({
+            [Ticker.VUAA]: '60',
+            [Ticker.QDVE]: '0',
         })
     })
 })
@@ -95,9 +107,13 @@ describe('input parsing', () => {
 
 describe('getEtfPlan', () => {
     it('should only buy the underweight ETF to reach a 60/40 split', () => {
-        const plan = getEtfPlan([etf('A', 5000), etf('B', 5000)], { A: 60, B: 40 }, 0)
-        const a = rowOf(plan, 'A')
-        const b = rowOf(plan, 'B')
+        const plan = getEtfPlan(
+            [etf(Ticker.VUAA, 5000), etf(Ticker.QDVE, 5000)],
+            { [Ticker.VUAA]: 60, [Ticker.QDVE]: 40 },
+            0
+        )
+        const a = rowOf(plan, Ticker.VUAA)
+        const b = rowOf(plan, Ticker.QDVE)
 
         // B at 5000 is the 40% → balanced total 12 500, A needs 7500
         expect(a.buyToBalanceEur).toBeCloseTo(2500)
@@ -110,7 +126,11 @@ describe('getEtfPlan', () => {
     })
 
     it('should not suggest buys when already balanced', () => {
-        const plan = getEtfPlan([etf('A', 6000), etf('B', 4000)], { A: 60, B: 40 }, 0)
+        const plan = getEtfPlan(
+            [etf(Ticker.VUAA, 6000), etf(Ticker.QDVE, 4000)],
+            { [Ticker.VUAA]: 60, [Ticker.QDVE]: 40 },
+            0
+        )
 
         expect(plan.minBuyToBalanceEur).toBeCloseTo(0)
         expect(plan.isBalanced).toBe(true)
@@ -118,29 +138,33 @@ describe('getEtfPlan', () => {
 
     it('should put a contribution below the minimum buy only into the most underweight ETF', () => {
         const plan = getEtfPlan(
-            [etf('A', 5000), etf('B', 5000), etf('C', 2000)],
-            { A: 50, B: 30, C: 20 },
+            [etf(Ticker.VUAA, 5000), etf(Ticker.QDVE, 5000), etf(Ticker.SEC0, 2000)],
+            { [Ticker.VUAA]: 50, [Ticker.QDVE]: 30, [Ticker.SEC0]: 20 },
             1000
         )
 
         // Ratios (value / weight): A 10 000, B 16 667, C 10 000 → A and C are filled together
-        expect(rowOf(plan, 'A').buyWithContributionEur).toBeCloseTo(714.29, 1)
-        expect(rowOf(plan, 'C').buyWithContributionEur).toBeCloseTo(285.71, 1)
-        expect(rowOf(plan, 'B').buyWithContributionEur).toBe(0)
+        expect(rowOf(plan, Ticker.VUAA).buyWithContributionEur).toBeCloseTo(714.29, 1)
+        expect(rowOf(plan, Ticker.SEC0).buyWithContributionEur).toBeCloseTo(285.71, 1)
+        expect(rowOf(plan, Ticker.QDVE).buyWithContributionEur).toBe(0)
     })
 
     it('should land exactly on target when the contribution covers the minimum buy', () => {
-        const plan = getEtfPlan([etf('A', 5000), etf('B', 5000)], { A: 60, B: 40 }, 5000)
+        const plan = getEtfPlan(
+            [etf(Ticker.VUAA, 5000), etf(Ticker.QDVE, 5000)],
+            { [Ticker.VUAA]: 60, [Ticker.QDVE]: 40 },
+            5000
+        )
 
         // Final total 15 000 → A 9000, B 6000
-        expect(rowOf(plan, 'A').buyWithContributionEur).toBeCloseTo(4000)
-        expect(rowOf(plan, 'B').buyWithContributionEur).toBeCloseTo(1000)
+        expect(rowOf(plan, Ticker.VUAA).buyWithContributionEur).toBeCloseTo(4000)
+        expect(rowOf(plan, Ticker.QDVE).buyWithContributionEur).toBeCloseTo(1000)
     })
 
     it('should always split the whole contribution', () => {
         const plan = getEtfPlan(
-            [etf('A', 1234), etf('B', 8765), etf('C', 300)],
-            { A: 40, B: 35, C: 25 },
+            [etf(Ticker.VUAA, 1234), etf(Ticker.QDVE, 8765), etf(Ticker.SEC0, 300)],
+            { [Ticker.VUAA]: 40, [Ticker.QDVE]: 35, [Ticker.SEC0]: 25 },
             777
         )
         const invested = plan.rows.reduce((sum, row) => sum + row.buyWithContributionEur, 0)
@@ -149,26 +173,36 @@ describe('getEtfPlan', () => {
     })
 
     it('should normalise targets that do not add up to 100', () => {
-        const plan = getEtfPlan([etf('A', 5000), etf('B', 5000)], { A: 30, B: 20 }, 0)
+        const plan = getEtfPlan(
+            [etf(Ticker.VUAA, 5000), etf(Ticker.QDVE, 5000)],
+            { [Ticker.VUAA]: 30, [Ticker.QDVE]: 20 },
+            0
+        )
 
         expect(plan.targetsSumPct).toBe(50)
-        expect(rowOf(plan, 'A').buyToBalanceEur).toBeCloseTo(2500)
+        expect(rowOf(plan, Ticker.VUAA).buyToBalanceEur).toBeCloseTo(2500)
         expect(getTargetSplitLabel(plan)).toBe('60/40')
     })
 
     it('should list held ETFs with a 0% target and never buy them', () => {
-        const plan = getEtfPlan([etf('A', 5000), etf('B', 1000)], { A: 100 }, 500)
+        const plan = getEtfPlan(
+            [etf(Ticker.VUAA, 5000), etf(Ticker.QDVE, 1000)],
+            {
+                [Ticker.VUAA]: 100,
+            },
+            500
+        )
 
-        expect(plan.untargetedHeld.map((holding) => holding.ticker_id)).toEqual(['B'])
-        expect(rowOf(plan, 'B').buyWithContributionEur).toBe(0)
-        expect(rowOf(plan, 'A').buyWithContributionEur).toBeCloseTo(500)
+        expect(plan.untargetedHeld.map((holding) => holding.ticker_id)).toEqual([Ticker.QDVE])
+        expect(rowOf(plan, Ticker.QDVE).buyWithContributionEur).toBe(0)
+        expect(rowOf(plan, Ticker.VUAA).buyWithContributionEur).toBeCloseTo(500)
         expect(plan.isBalanced).toBe(false)
     })
 
     it('should use the EUR unit price for each ETF', () => {
-        const plan = getEtfPlan([etf('A', 5000, 50)], { A: 100 }, 0)
+        const plan = getEtfPlan([etf(Ticker.VUAA, 5000, 50)], { [Ticker.VUAA]: 100 }, 0)
 
-        expect(rowOf(plan, 'A').unitPriceEur).toBe(100)
+        expect(rowOf(plan, Ticker.VUAA).unitPriceEur).toBe(100)
     })
 
     it('should buy a targeted ETF not held yet up to its share', () => {
@@ -213,7 +247,7 @@ describe('getEtfPlan', () => {
     })
 
     it('should return an empty plan without targets', () => {
-        const plan = getEtfPlan([etf('A', 5000)], {}, 100)
+        const plan = getEtfPlan([etf(Ticker.VUAA, 5000)], {}, 100)
 
         expect(plan.minBuyToBalanceEur).toBe(0)
         expect(plan.isBalanced).toBe(false)
@@ -252,7 +286,11 @@ describe('formatDrift', () => {
 
 describe('getAllocationSegments', () => {
     it('should build the current and the normalised target splits', () => {
-        const plan = getEtfPlan([etf('A', 7500), etf('B', 2500)], { A: 30, B: 20 }, 0)
+        const plan = getEtfPlan(
+            [etf(Ticker.VUAA, 7500), etf(Ticker.QDVE, 2500)],
+            { [Ticker.VUAA]: 30, [Ticker.QDVE]: 20 },
+            0
+        )
 
         expect(getAllocationSegments(plan, 'current').map((segment) => segment.pct)).toEqual([
             75, 25,
@@ -263,10 +301,14 @@ describe('getAllocationSegments', () => {
     })
 
     it('should leave out ETFs at 0%', () => {
-        const plan = getEtfPlan([etf('A', 5000), etf('B', 5000)], { A: 100 }, 0)
+        const plan = getEtfPlan(
+            [etf(Ticker.VUAA, 5000), etf(Ticker.QDVE, 5000)],
+            { [Ticker.VUAA]: 100 },
+            0
+        )
 
         expect(getAllocationSegments(plan, 'target').map((segment) => segment.tickerId)).toEqual([
-            'A',
+            Ticker.VUAA,
         ])
     })
 })

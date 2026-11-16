@@ -145,13 +145,17 @@ export function computeAnnualizedReturn(
 ): AnnualizedReturn | null {
     const currencyMap = new Map<Ticker, Currency>(tickerData.map((td) => [td.ticker, td.currency]))
 
-    const transactionFlows = transactions
-        .filter((tx) => !opening || tx.buy_date.slice(0, 10) > opening.date)
-        .map((tx) => ({
-            time: new Date(tx.buy_date.replace(' ', 'T')).getTime(),
-            day: tx.buy_date.slice(0, 10),
-            amountEur: getCashFlowEur(tx, currencyMap.get(tx.ticker_id) ?? Currency.EUR, rates),
-        }))
+    const transactionFlows = transactions.flatMap((tx) => {
+        if (opening && tx.buy_date.slice(0, 10) <= opening.date) return []
+
+        return [
+            {
+                time: new Date(tx.buy_date.replace(' ', 'T')).getTime(),
+                day: tx.buy_date.slice(0, 10),
+                amountEur: getCashFlowEur(tx, currencyMap.get(tx.ticker_id) ?? Currency.EUR, rates),
+            },
+        ]
+    })
 
     const openingFlows = opening ? [toOpeningFlow(opening)] : []
 

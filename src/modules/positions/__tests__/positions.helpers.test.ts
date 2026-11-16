@@ -12,23 +12,39 @@ import { Ticker } from '@/types/core/Ticker'
 import { TickerType } from '@/types/core/TickerType'
 import type { HoldingSummary } from '@/types/Holding'
 
-const holding = (ticker: Ticker, overrides: Partial<HoldingSummary> = {}) =>
-    ({
-        ticker_id: ticker,
-        symbol: ticker,
-        tickerType: TickerType.Crypto,
-        total_quantity: 1,
-        current_value_eur: 100,
-        total_invested_eur: 80,
-        total_fees_eur: 1,
-        realized_gl_eur: 0,
-        unrealized_gl_eur: 20,
-        unrealized_gl_eur_pct: 25,
-        unrealized_gl_with_fees_eur: 19,
-        unrealized_gl_with_fees_eur_pct: 23.75,
-        total_gl_eur: 20,
-        ...overrides,
-    }) as HoldingSummary
+type TestHolding = Pick<
+    HoldingSummary,
+    | 'ticker_id'
+    | 'symbol'
+    | 'tickerType'
+    | 'total_quantity'
+    | 'current_value_eur'
+    | 'total_invested_eur'
+    | 'total_fees_eur'
+    | 'realized_gl_eur'
+    | 'unrealized_gl_eur'
+    | 'unrealized_gl_eur_pct'
+    | 'unrealized_gl_with_fees_eur'
+    | 'unrealized_gl_with_fees_eur_pct'
+    | 'total_gl_eur'
+>
+
+const holding = (ticker: Ticker, overrides: Partial<TestHolding> = {}): TestHolding => ({
+    ticker_id: ticker,
+    symbol: ticker,
+    tickerType: TickerType.Crypto,
+    total_quantity: 1,
+    current_value_eur: 100,
+    total_invested_eur: 80,
+    total_fees_eur: 1,
+    realized_gl_eur: 0,
+    unrealized_gl_eur: 20,
+    unrealized_gl_eur_pct: 25,
+    unrealized_gl_with_fees_eur: 19,
+    unrealized_gl_with_fees_eur_pct: 23.75,
+    total_gl_eur: 20,
+    ...overrides,
+})
 
 const ETH = holding(Ticker.ETH, {
     current_value_eur: 300,

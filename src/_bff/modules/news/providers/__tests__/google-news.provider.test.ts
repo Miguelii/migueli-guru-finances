@@ -7,11 +7,10 @@ import {
 import { NewsProvider } from '@/types/News'
 import { Ticker } from '@/types/core/Ticker'
 import { TickerType } from '@/types/core/TickerType'
-import type { TickerData } from '@/types/Transaction'
 
 vi.mock('server-only', () => ({}))
 
-const asset = { ticker: Ticker.ATCH, type: TickerType.Stock } as unknown as TickerData
+const asset = { ticker: Ticker.ATCH, type: TickerType.Stock }
 
 const RSS = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0"><channel><title>Google News</title>

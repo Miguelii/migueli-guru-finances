@@ -44,7 +44,14 @@ export function PositionsToolbar({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Tabs
                 value={type}
-                onValueChange={(value) => onTypeChange(value as PositionTypeFilter)}
+                onValueChange={(value) => {
+                    if (
+                        value === ALL_POSITION_TYPES ||
+                        availableTypes.some((availableType) => availableType === value)
+                    ) {
+                        onTypeChange(value)
+                    }
+                }}
                 className="min-w-0"
             >
                 <TabsList className="rounded-none">

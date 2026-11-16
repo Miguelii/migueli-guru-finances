@@ -45,6 +45,7 @@ export const recordPortfolioSnapshots = Effect.fn('recordPortfolioSnapshots')(
                 new SbQueryError({ cause, error_hash: ErrorCode.SNAPSHOTS_SOURCE_QUERY }),
         })
 
+        // SAFETY: selectAllTickers reads the complete `data` table row, whose stored fields match TickerData.
         const tickers = (tickerRows ?? []) as TickerData[]
         const date = toDateKey(new Date(), SNAPSHOT_TIME_ZONE)
         const snapshots = [...Map.groupBy(transactions, (tx) => tx.user_id)].map(

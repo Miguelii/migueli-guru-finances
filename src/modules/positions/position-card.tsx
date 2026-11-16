@@ -34,6 +34,7 @@ export function PositionCard({ holding, includeFees, openValueEur, hidePrices, o
     const unrealized = getUnrealized(holding, includeFees)
     const weight = getPositionWeight(holding, openValueEur)
     const blurClass = { 'blur-sm select-none': hidePrices }
+    const assetType = holding.tickerType ? ASSET_TYPE_META[holding.tickerType] : undefined
 
     return (
         <li>
@@ -45,10 +46,7 @@ export function PositionCard({ holding, includeFees, openValueEur, hidePrices, o
             >
                 <span
                     aria-hidden="true"
-                    className={cn(
-                        'absolute inset-x-0 top-0 h-0.5',
-                        ASSET_TYPE_META[holding.tickerType].bgClassName
-                    )}
+                    className={cn('absolute inset-x-0 top-0 h-0.5', assetType?.bgClassName)}
                 />
                 <span className="flex items-start justify-between gap-3">
                     <PositionAsset holding={holding} hidePrices={hidePrices} />

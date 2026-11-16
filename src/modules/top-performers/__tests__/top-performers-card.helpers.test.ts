@@ -2,20 +2,21 @@ import { describe, it, expect } from 'vitest'
 import { getTopMovers } from '@/modules/top-performers/top-performers-card.helpers'
 import { Ticker } from '@/types/core/Ticker'
 import { TickerType } from '@/types/core/TickerType'
-import type { HoldingSummary } from '@/types/Holding'
 
 const holding = (
     ticker_id: Ticker,
     unrealized_gl_eur_pct: number,
-    overrides: Partial<HoldingSummary> = {}
-) =>
-    ({
-        ticker_id,
-        tickerType: TickerType.Crypto,
-        total_quantity: 1,
-        unrealized_gl_eur_pct,
-        ...overrides,
-    }) as HoldingSummary
+    overrides: {
+        tickerType?: TickerType
+        total_quantity?: number
+    } = {}
+) => ({
+    ticker_id,
+    tickerType: TickerType.Crypto,
+    total_quantity: 1,
+    unrealized_gl_eur_pct,
+    ...overrides,
+})
 
 describe('getTopMovers', () => {
     it('should return empty lists for no holdings', () => {

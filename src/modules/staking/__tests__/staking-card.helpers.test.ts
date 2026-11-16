@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { getStakingTotals, getStakingYields } from '@/modules/staking/staking-card.helpers'
 import { Ticker } from '@/types/core/Ticker'
-import type { HoldingSummary } from '@/types/Holding'
 
-const holding = (ticker_id: Ticker, total_quantity: number, current_value_eur: number) =>
-    ({ ticker_id, total_quantity, current_value_eur }) as HoldingSummary
+const holding = (ticker_id: Ticker, total_quantity: number, current_value_eur: number) => ({
+    ticker_id,
+    total_quantity,
+    current_value_eur,
+})
 
 const APY = { [Ticker.ETH]: 0.025, [Ticker.SOL]: 0.06 }
 

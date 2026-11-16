@@ -2,11 +2,11 @@ import { Ticker } from '@/types/core/Ticker'
 
 // Target weight per ETF `ticker_id` in % (should add up to 100), one line per ETF.
 // Keyed by string because ETFs added in-app are not all in the `Ticker` enum
-export const ETF_TARGET_ALLOCATION: Record<string, number> = {
+export const ETF_TARGET_ALLOCATION = {
     [Ticker.VUAA]: 65,
     [Ticker.QDVE]: 25,
     [Ticker.SEC0]: 10,
-}
+} satisfies Record<string, number>
 
 export const TARGET_TOTAL_PCT = 100
 

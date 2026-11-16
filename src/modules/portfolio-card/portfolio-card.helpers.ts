@@ -3,7 +3,7 @@ import {
     PORTFOLIO_CARD_IDS,
     type PortfolioCardId,
 } from '@/modules/portfolio-card/portfolio-card.constants'
-import { Effect, Schema } from 'effect'
+import { Effect, Predicate, Schema } from 'effect'
 
 const portfolioCardStateSchema = Schema.Record(Schema.String, Schema.Unknown)
 
@@ -26,10 +26,9 @@ export function parsePortfolioCardState(value?: string): Record<PortfolioCardId,
         return PORTFOLIO_CARD_IDS.reduce(
             (nextState, cardId) => {
                 const cardValue = state[cardId]
-                nextState[cardId] =
-                    typeof cardValue === 'boolean'
-                        ? cardValue
-                        : DEFAULT_PORTFOLIO_CARD_STATE[cardId]
+                nextState[cardId] = Predicate.isBoolean(cardValue)
+                    ? cardValue
+                    : DEFAULT_PORTFOLIO_CARD_STATE[cardId]
                 return nextState
             },
             { ...DEFAULT_PORTFOLIO_CARD_STATE }

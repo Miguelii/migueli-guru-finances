@@ -1,4 +1,4 @@
-import type { TickerData } from '@/types/Transaction'
+import type { PriceTicker } from '@/_bff/modules/assets/assets.dto'
 import YahooFinance from 'yahoo-finance2'
 import { Effect } from 'effect'
 import { addDaysToDateKey, toDateKey } from '@/lib/portfolio/portfolio-snapshots'
@@ -15,8 +15,8 @@ const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] })
  * @returns An Effect resolving to a map of ticker to price
  */
 export function getFinancePrices(
-    ticks: TickerData[]
-): Effect.Effect<Map<TickerData['ticker'], number>, GetFinancePriceError> {
+    ticks: Pick<PriceTicker, 'ticker'>[]
+): Effect.Effect<Map<string, number>, GetFinancePriceError> {
     return Effect.tryPromise({
         try: async () => {
             const symbols = ticks.map((tick) => tick.ticker.toUpperCase())
@@ -53,7 +53,7 @@ export function getFinancePrices(
  * @returns An Effect resolving to a map of day to close price
  */
 export function getFinancePriceHistory(
-    tick: TickerData,
+    tick: Pick<PriceTicker, 'ticker'>,
     from: string,
     to: string
 ): Effect.Effect<Map<string, number>, GetFinancePriceError> {

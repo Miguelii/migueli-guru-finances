@@ -8,7 +8,7 @@ type RebuildResult = {
  *
  * @param result - Rebuilt day count and the tickers that had no price history.
  */
-export function getRebuildToast(result: RebuildResult): { message: string; warning?: string } {
+export function getRebuildToast(result: RebuildResult) {
     const message =
         result.days === 0
             ? 'Nothing to rebuild yet: history starts the day after your first transaction'

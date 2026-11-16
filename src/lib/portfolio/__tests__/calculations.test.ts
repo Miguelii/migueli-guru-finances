@@ -25,7 +25,7 @@ const makeTd = (overrides: Partial<TickerData> & { ticker: Ticker }): TickerData
     currency: Currency.EUR,
     symbol: '€',
     logo: '/assets/ethereum.webp',
-    hex_color: '#627EEA' as TickerData['hex_color'],
+    hex_color: '#627EEA',
     type: TickerType.Crypto,
     ...overrides,
 })
@@ -693,7 +693,7 @@ describe('computePortfolioTotals', () => {
                 total_invested_eur: 1000,
                 current_value_eur: 2000,
                 realized_gl_eur: 0,
-            } as any,
+            },
         ]
         const result = computePortfolioTotals(holdings)
 
@@ -711,7 +711,7 @@ describe('computePortfolioTotals', () => {
                 total_invested_eur: 500, // After selling half
                 current_value_eur: 1000,
                 realized_gl_eur: 500, // Profit from selling half
-            } as any,
+            },
         ]
         const result = computePortfolioTotals(holdings)
 
@@ -729,7 +729,7 @@ describe('computePortfolioTotals', () => {
                 total_invested_eur: 0, // Sold everything
                 current_value_eur: 0,
                 realized_gl_eur: 500, // Profit from selling
-            } as any,
+            },
         ]
         const result = computePortfolioTotals(holdings)
 
@@ -747,13 +747,13 @@ describe('computePortfolioTotals', () => {
                 total_invested_eur: 850,
                 current_value_eur: 1700,
                 realized_gl_eur: 0,
-            } as any,
+            },
             {
                 ticker_id: Ticker.MON,
                 total_invested_eur: 150,
                 current_value_eur: 100,
                 realized_gl_eur: 50,
-            } as any,
+            },
         ]
         const result = computePortfolioTotals(holdings)
 
@@ -766,13 +766,12 @@ describe('computePortfolioTotals', () => {
 
 // ─── computeTypeBreakdown ────────────────────────────────────────────────────
 
-const makeTypeHolding = (tickerType: TickerType, current: number, invested: number) =>
-    ({
-        tickerType,
-        current_value_eur: current,
-        total_invested_eur: invested,
-        realized_gl_eur: 0,
-    }) as any
+const makeTypeHolding = (tickerType: TickerType, current: number, invested: number) => ({
+    tickerType,
+    current_value_eur: current,
+    total_invested_eur: invested,
+    realized_gl_eur: 0,
+})
 
 describe('computeTypeBreakdown', () => {
     it('should return an empty array for no holdings', () => {

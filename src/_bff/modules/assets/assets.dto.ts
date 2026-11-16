@@ -3,6 +3,11 @@ import { TickerService } from '@/types/core/TickerService'
 import { TickerType } from '@/types/core/TickerType'
 import { z } from 'zod'
 
+export type PriceTicker = {
+    ticker: string
+    currency: Currency
+}
+
 export const createAssetSchema = z.object({
     ticker: z
         .string()

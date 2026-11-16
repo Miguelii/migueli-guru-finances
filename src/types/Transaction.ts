@@ -37,7 +37,7 @@ export type TickerData = {
     currency: Currency
     symbol: '€' | '$' | '€-$' | '$-€'
     logo?: `/${string}` | null
-    hex_color?: `#${number}`
+    hex_color?: string
     type: TickerType
     /** Extra search terms for the news feed (e.g. 'AtlasClear lawsuit') */
     news_keywords?: string | null
