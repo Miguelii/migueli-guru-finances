@@ -11,7 +11,7 @@ Some cool highlighted tools this project uses:
 - **nuqs**: for type-safe URL search params
 - **yahoo-finance2**: a community API for Yahoo-Finance, for Stock/ETF market data
 - **Coinbase API**: Coinbase official exchange API for real-time crypto market data
-- **Enable Banking**: PSD2 open banking aggregator to read the bank account balance
+- **Enable Banking**: PSD2 open banking aggregator that reads the bank account balance for the emergency fund
 - **Vercel BotId** invisible CAPTCHA for bot protection
 - **Next.js PWA**: installable as a native app on mobile and desktop
 - **NextThemes**: For Light and Dark mode
