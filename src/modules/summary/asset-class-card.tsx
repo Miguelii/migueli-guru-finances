@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { DeltaBadge } from '@/components/ui/delta-badge'
 import { getDeltaTone } from '@/components/ui/delta-badge.helpers'
 import { ASSET_TYPE_META } from '@/lib/constants/asset-types'
@@ -27,10 +27,10 @@ const Item = ({ title, value, hidePrices, isSigned = false }: ItemProps) => {
     const tone = getDeltaTone(value)
 
     return (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
             <dt className="text-xs text-muted-foreground">{title}</dt>
             <dd
-                className={cn('text-xs font-medium tabular-nums', {
+                className={cn('text-xs font-medium whitespace-nowrap tabular-nums', {
                     'text-success': isSigned && tone === 'positive',
                     'text-destructive': isSigned && tone === 'negative',
                     'text-muted-foreground': isSigned && tone === 'neutral',
@@ -44,7 +44,7 @@ const Item = ({ title, value, hidePrices, isSigned = false }: ItemProps) => {
 }
 
 export function AssetClassCard({ type, item, hidePrices }: Props) {
-    const { label, icon: Icon, bgClassName } = ASSET_TYPE_META[type]
+    const { label, icon: Icon, bgClassName, softClassName } = ASSET_TYPE_META[type]
     const share = item?.share ?? 0
     const currentValue = item?.totals.currentValue ?? 0
     const totalInvested = item?.totals.totalInvested ?? 0
@@ -53,62 +53,56 @@ export function AssetClassCard({ type, item, hidePrices }: Props) {
     const totalRealized = item?.totals.totalRealized ?? 0
 
     return (
-        <Card className="relative gap-0 py-0 transition-shadow duration-200 hover:shadow-md">
-            <span
-                aria-hidden="true"
-                className={cn('absolute inset-x-0 top-0 h-0.5', bgClassName)}
-            />
-            <CardHeader className="flex flex-row items-center justify-between pt-4 pb-0">
-                <CardTitle className="flex items-center gap-2 text-sm font-medium">
+        <Card className="@container gap-4 p-5">
+            <div className="flex items-center justify-between gap-3">
+                <h2 className="flex items-center gap-3 text-sm font-medium">
                     <span
                         aria-hidden="true"
-                        className="grid size-7 place-items-center bg-muted text-foreground"
+                        className={cn(
+                            'grid size-9 shrink-0 place-items-center rounded-xl',
+                            softClassName
+                        )}
                     >
-                        <Icon className="size-4" />
+                        <Icon className="size-4.5" />
                     </span>
                     {label}
-                </CardTitle>
-                <DeltaBadge value={unrealizedGlPct} />
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4 py-4">
-                <div className="flex flex-col gap-2">
-                    <p
-                        className={cn('text-2xl font-semibold tabular-nums tracking-tight', {
-                            'blur-md select-none': hidePrices,
-                        })}
+                </h2>
+                <DeltaBadge value={unrealizedGlPct} className="rounded-md" />
+            </div>
+            <div className="flex flex-col gap-2">
+                {/* Amounts are never cut: the font shrinks with the card instead */}
+                <p
+                    className={cn(
+                        'text-xl font-semibold tracking-tight whitespace-nowrap tabular-nums @[15rem]:text-2xl @[20rem]:text-3xl',
+                        { 'blur-md select-none': hidePrices }
+                    )}
+                >
+                    {formatCurrency(currentValue, currency)}
+                </p>
+                <div className="flex items-center gap-3">
+                    <div
+                        className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"
+                        role="meter"
+                        aria-label={`${label} share of portfolio`}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={Math.round(share)}
                     >
-                        {formatCurrency(currentValue, currency)}
-                    </p>
-                    <div className="flex items-center gap-2">
                         <div
-                            className="h-1 flex-1 overflow-hidden bg-muted"
-                            role="meter"
-                            aria-label={`${label} share of portfolio`}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
-                            aria-valuenow={Math.round(share)}
-                        >
-                            <div
-                                className={cn('h-full', bgClassName)}
-                                style={{ width: `${share}%` }}
-                            />
-                        </div>
-                        <span className="text-xs text-muted-foreground tabular-nums">
-                            {share.toFixed(1)}% of portfolio
-                        </span>
+                            className={cn('h-full rounded-full', bgClassName)}
+                            style={{ width: `${share}%` }}
+                        />
                     </div>
+                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                        {share.toFixed(1)}% of portfolio
+                    </span>
                 </div>
-                <dl className="flex flex-col gap-2 border-t pt-3">
-                    <Item title="Invested" value={totalInvested} hidePrices={hidePrices} />
-                    <Item
-                        title="Unrealized"
-                        value={unrealizedGl}
-                        hidePrices={hidePrices}
-                        isSigned
-                    />
-                    <Item title="Realized" value={totalRealized} hidePrices={hidePrices} isSigned />
-                </dl>
-            </CardContent>
+            </div>
+            <dl className="flex flex-col gap-2 border-t pt-3">
+                <Item title="Invested" value={totalInvested} hidePrices={hidePrices} />
+                <Item title="Unrealized" value={unrealizedGl} hidePrices={hidePrices} isSigned />
+                <Item title="Realized" value={totalRealized} hidePrices={hidePrices} isSigned />
+            </dl>
         </Card>
     )
 }

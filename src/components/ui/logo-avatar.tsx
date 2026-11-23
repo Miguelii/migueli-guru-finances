@@ -17,11 +17,11 @@ export function LogoAvatar({ tickerLogo, ticker, tickerCurrency }: Props) {
                     alt={`${ticker} logo`}
                     width={24}
                     height={24}
-                    className="rounded-none w-6 h-6"
+                    className="size-6 rounded-full"
                     unoptimized
                 />
             ) : (
-                <div className="flex h-8 w-8 items-center justify-center rounded-none bg-muted text-xs font-semibold text-muted-foreground">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
                     {ticker.slice(0, 2)}
                 </div>
             )}

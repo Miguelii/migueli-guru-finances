@@ -19,7 +19,8 @@ export function SignOutApp() {
             size="icon"
             onClick={onClick}
             disabled={isPending}
-            className="h-8 w-full cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
+            aria-label="Sign out"
+            className="h-9 w-full cursor-pointer justify-start gap-2.5 rounded-lg px-2.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
         >
             {isPending ? (
                 <Loader2Icon className="size-4 animate-spin" />

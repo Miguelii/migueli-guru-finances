@@ -4,8 +4,22 @@ import {
     VALUE_RANGES,
     VALUE_RANGE_MONTHS,
     ValueRange,
-} from '@/modules/net-worth-hero/value-timeline-chart.constants'
+} from '@/modules/dashboard/performance-chart.constants'
 import { Currency } from '@/types/core/Currency'
+
+export type PerformancePoint = PortfolioSnapshotPoint & {
+    /** Unrealized gain at that month-end (`valueEur - investedEur`) */
+    gainEur: number
+}
+
+/**
+ * Adds the unrealized gain of each month-end so it can be drawn as its own series.
+ *
+ * @param points - Month-end snapshots, oldest first.
+ */
+export function toPerformancePoints(points: PortfolioSnapshotPoint[]): PerformancePoint[] {
+    return points.map((point) => ({ ...point, gainEur: point.valueEur - point.investedEur }))
+}
 
 export function isValueRange(value: string): value is ValueRange {
     return VALUE_RANGES.some((range) => range === value)
@@ -57,10 +71,10 @@ export function getRangeStart(range: ValueRange, latest: string): string | null 
  * @param points - Month-end snapshots, oldest first.
  * @param range - Selected range.
  */
-export function filterPointsByRange(
-    points: PortfolioSnapshotPoint[],
+export function filterPointsByRange<T extends PortfolioSnapshotPoint>(
+    points: T[],
     range: ValueRange
-): PortfolioSnapshotPoint[] {
+): T[] {
     const latest = points.at(-1)
     if (!latest) return []
 

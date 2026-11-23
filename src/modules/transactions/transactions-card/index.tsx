@@ -69,7 +69,7 @@ export function TransactionsCard({ transactions, tickerData, rates, hidePrices }
                     <Button
                         size="sm"
                         onClick={openCreate}
-                        className="h-8 cursor-pointer gap-1 rounded-none px-2.5"
+                        className="h-8 cursor-pointer gap-1 px-2.5"
                     >
                         <Plus className="size-4" />
                         Add

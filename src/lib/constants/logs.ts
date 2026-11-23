@@ -2,7 +2,7 @@ export const LOG_RANGES = ['30m', '1h', '24h', '7d', '30d'] as const
 
 export type LogRange = (typeof LOG_RANGES)[number]
 
-export const DEFAULT_LOG_RANGE: LogRange = '1h'
+export const DEFAULT_LOG_RANGE: LogRange = '30d'
 
 const MINUTE_MS = 60_000
 const HOUR_MS = 60 * MINUTE_MS

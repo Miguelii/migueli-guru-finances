@@ -1,16 +1,13 @@
 import { cookies } from 'next/headers'
+import { AppHeader } from '@/components/app-header/app-header'
+import { PageHeading } from '@/components/app-header/page-heading'
 import { AppSidebar } from '@/components/app-sidebar/app-sidebar'
 import { getNavCounts } from '@/components/app-sidebar/app-sidebar.helpers'
-import { Separator } from '@/components/ui/separator'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { HidePrices } from '@/modules/dashboard-actions/hide-prices'
-import { ToggleTheme } from '@/modules/dashboard-actions/toggle-theme'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Effect } from 'effect'
 import { PORTFOLIO_CARD_DISCLOSURE_COOKIE } from '@/modules/portfolio-card/portfolio-card.constants'
 import { parsePortfolioCardState } from '@/modules/portfolio-card/portfolio-card.helpers'
 import { PortfolioCardProvider } from '@/modules/portfolio-card/portfolio-card.provider'
-import { RefreshApp } from '@/modules/dashboard-actions/refresh-app'
-import { PortfolioExport } from '@/modules/portfolio-export/portfolio-export'
 import { getLatestUpdate } from '@/lib/utils'
 import { getPortfolioData } from '@/lib/portfolio/portfolio-data.server'
 
@@ -28,10 +25,8 @@ export default async function PortfolioDashboard({ children }: Props) {
             }))
 
             return {
-                sidebarState:
-                    cookieValues.sidebarState == null
-                        ? true
-                        : cookieValues.sidebarState !== 'false',
+                // Collapsed to the icon rail until the user expands it
+                sidebarState: cookieValues.sidebarState === 'true',
                 cardState: parsePortfolioCardState(cookieValues.cardState),
             }
         })
@@ -46,35 +41,16 @@ export default async function PortfolioDashboard({ children }: Props) {
                 // SAFETY: these are the CSS custom properties consumed by the sidebar layout.
                 {
                     '--sidebar-width': 'calc(var(--spacing) * 60)',
-                    '--header-height': 'calc(var(--spacing) * 12)',
+                    '--sidebar-width-icon': 'calc(var(--spacing) * 14)',
                 } as React.CSSProperties
             }
         >
-            <AppSidebar variant="inset" counts={getNavCounts(transactions, data, holdings)} />
-            <SidebarInset className="min-w-0 overflow-hidden">
+            <AppSidebar variant="sidebar" counts={getNavCounts(transactions, data, holdings)} />
+            <SidebarInset className="min-w-0 overflow-x-clip bg-background">
+                <AppHeader lastUpdate={getLatestUpdate(data)} holdings={holdings} />
                 <PortfolioCardProvider initialState={cardState}>
-                    <div className="flex flex-col gap-6 p-4 pt-2 md:p-6 md:pt-4 w-full min-w-0 overflow-hidden">
-                        <div className="flex w-full items-center gap-1 justify-center border-b border-muted-foreground/10 pt-2 sm:pt-0 pb-4">
-                            <SidebarTrigger className="-ml-1 h-8 cursor-pointer md:hidden" />
-                            <Separator
-                                orientation="vertical"
-                                className="mx-2 h-4 top-2 relative md:hidden"
-                            />
-                            <h1 className="text-base font-bold w-full">Portfolio</h1>
-                            <div className="flex flex-row gap-3">
-                                <HidePrices />
-                                <ToggleTheme />
-                            </div>
-                        </div>
-                        <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
-                            <span className="text-xs text-muted-foreground">
-                                Last Update: {getLatestUpdate(data)}
-                            </span>
-                            <div className="flex flex-col md:flex-row gap-5 md:gap-2 w-full md:w-fit">
-                                <RefreshApp />
-                                <PortfolioExport holdings={holdings} />
-                            </div>
-                        </div>
+                    <div className="flex w-full min-w-0 flex-col gap-6 p-4 md:p-6">
+                        <PageHeading />
                         {children}
                     </div>
                 </PortfolioCardProvider>

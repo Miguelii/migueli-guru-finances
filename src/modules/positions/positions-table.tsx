@@ -106,7 +106,7 @@ export function PositionsTable({
                                         onSelect(h.ticker_id)
                                     }}
                                     aria-label={`Open ${h.symbol} details`}
-                                    className="cursor-pointer rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                 >
                                     <PositionAsset holding={h} hidePrices={hidePrices} />
                                 </button>

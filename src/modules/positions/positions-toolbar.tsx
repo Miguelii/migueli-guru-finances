@@ -54,16 +54,12 @@ export function PositionsToolbar({
                 }}
                 className="min-w-0"
             >
-                <TabsList className="rounded-none">
-                    <TabsTrigger value={ALL_POSITION_TYPES} className="cursor-pointer rounded-none">
+                <TabsList>
+                    <TabsTrigger value={ALL_POSITION_TYPES} className="cursor-pointer">
                         All
                     </TabsTrigger>
                     {availableTypes.map((assetType) => (
-                        <TabsTrigger
-                            key={assetType}
-                            value={assetType}
-                            className="cursor-pointer rounded-none"
-                        >
+                        <TabsTrigger key={assetType} value={assetType} className="cursor-pointer">
                             {ASSET_TYPE_META[assetType].label}
                         </TabsTrigger>
                     ))}

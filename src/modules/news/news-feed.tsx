@@ -82,7 +82,7 @@ export function NewsFeed({ news, logos, hasPositions }: Props) {
                         <Button
                             variant="outline"
                             onClick={() => setVisibleCount((count) => count + NEWS_PAGE_SIZE)}
-                            className="h-10 w-full cursor-pointer gap-1.5 rounded-none"
+                            className="h-10 w-full cursor-pointer gap-1.5"
                         >
                             <span>Show more</span>
                             <span className="text-muted-foreground tabular-nums">

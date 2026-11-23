@@ -23,4 +23,6 @@ export type LogEntry = {
     message: string | null
     metadata: LogMetadataObject | null
     user_id: string | null
+    /** App that wrote the row (the table is shared) */
+    project: string
 }

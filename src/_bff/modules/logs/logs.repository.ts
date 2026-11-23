@@ -1,10 +1,11 @@
-import { DBTables } from '@/_bff/common/db/types'
+import { DBTables, LOGS_PROJECT } from '@/_bff/common/db/types'
 import type { SbClient } from '@/_bff/common/db/types'
 import { LOGS_FETCH_LIMIT } from '@/_bff/modules/logs/logs.constants'
 import { buildLogSearchFilter } from '@/_bff/modules/logs/helpers/log-search-filter.helper'
 
 /**
- * Selects the most recent logs created after `since`, optionally matching `search`.
+ * Selects this app's most recent logs (the table is shared, see `LOGS_PROJECT`) created
+ * after `since`, optionally matching `search`.
  * Not wrapped in `unstable_cache`: logs are written on every request and must be fresh.
  *
  * @param supabaseClient - Service-role client (the table has no RLS policies)
@@ -18,6 +19,7 @@ export function selectLogs(
     const query = supabaseClient
         .from(DBTables.LOGS)
         .select('*')
+        .eq('project', LOGS_PROJECT)
         .gte('created_at', since)
         .order('created_at', { ascending: false })
         .limit(LOGS_FETCH_LIMIT)

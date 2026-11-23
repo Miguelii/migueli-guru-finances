@@ -140,7 +140,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 
 ## Supabase
 
-- **Tables**: `data` (ticker metadata and current prices, `TickerData`, shared by all users), `transactions` (buy/sell/reward/fee rows, `Transaction`, per user) `bank_connections` (Enable Banking session + last synced cash balance, `BankConnection`, one row per user, RLS select-only, written with the service-role client) and `logs` (BFF logs, `LogEntry`, RLS enabled with no policies so only the service-role client reads and writes it, schema in `sql/logs.sql`)
+- **Tables**: `data` (ticker metadata and current prices, `TickerData`, shared by all users), `transactions` (buy/sell/reward/fee rows, `Transaction`, per user) `bank_connections` (Enable Banking session + last synced cash balance, `BankConnection`, one row per user, RLS select-only, written with the service-role client) and `logs` (BFF logs, `LogEntry`, RLS enabled with no policies so only the service-role client reads and writes it, schema in `sql/logs.sql`). `logs` is shared with another app in the same Supabase project: every insert writes `project: LOGS_PROJECT` (`'wallet'`, `src/_bff/common/db/types.ts`) and every read filters by it
 - **Storage**: bucket `public_assets` holds asset logos. Uploads are converted to WebP (`upload-asset-image.helper.ts`) and served through `GET /api/asset-logo` because the page CSP only allows same-origin images; build URLs with `buildLogoUrl`
 - **Server client**: `createDBServerClient(useSecretKey?, hooks?)` in `src/_bff/common/db/db.utils.ts`. Always create a new client per request (required for Fluid compute)
   - Default: `@supabase/ssr` with cookie-based session (RLS applies)
@@ -173,7 +173,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - It always writes to the console and, only when `NODE_ENV === 'production'`, inserts into `logs` via `after()` (plain fire-and-forget outside a request scope). `serializeError` keeps tagged error fields (`_tag`, `error_hash`, `cause`) and trims plain stacks to 4 lines
 - **Retention**: the `purge_old_logs()` SQL function (`src/_bff/common/db/sql/purge_old_logs.sql`) deletes logs older than 30 days, scheduled daily at 03:00 UTC via `pg_cron`
 - `runEffect` logs every failed tRPC call (`prefix: 'trpc'`, `message: <context>`), so services only log what they recover from themselves
-- `/portfolio/logs` (`src/modules/logs/`) is a Vercel-style explorer: range and search refetch on the server (`logs.getAll`, max 1000 rows), level/source/selected row are client-only (`shallow: true`) filters over the fetched rows. Any signed-in user can see every log for now
+- `/portfolio/logs` (`src/modules/logs/`, default range `30d`) is a Vercel-style explorer: range and search refetch on the server (`logs.getAll`, max 1000 rows), level/source/selected row are client-only (`shallow: true`) filters over the fetched rows. Any signed-in user can see every log for now
 
 ## Portfolio data
 
@@ -187,6 +187,12 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - **Capital gains tax** (`src/lib/portfolio/capital-gains-tax.ts`): rates per BUY (each lot's own holding period). Crypto 28% until 1 year, then exempt; ETFs and stocks 28% → 25.2% after 2 years → 22.4% after 5 → 19.6% after 8. The transactions list shows the current rate and the next step, the detail drawer the full bracket timeline
 - **Staking**: the Staking card (own page `/portfolio/staking`) estimates yearly rewards from a fixed APY per asset (`STAKING_APY` in `src/modules/staking/staking-card.constants.ts`) on the whole position (`current_value_eur * apy`, no compounding). Change a rate or add an asset there
 - Formatters use `Intl` / `toLocale*String` with the `pt-PT` locale, not date-fns
+
+## App shell and dashboard
+
+- Shell (`src/app/portfolio/layout.tsx`): icon-rail sidebar (`AppSidebar`, collapsed until the user expands it, state in the `sidebar_state` cookie), sticky top bar (`src/components/app-header/`: sidebar toggle, last price update, Update prices, Overview, hide prices, theme) and `PageHeading`, which titles every page from its sidebar entry (none on the dashboard)
+- The greeting reads `auth.me` (`get-current-user`): the name from the auth metadata (`full_name` / `name` / `display_name`, parsed with zod). Without a name the greeting has no name
+- Dashboard (`/portfolio`, `src/modules/dashboard/`): greeting, KPI cards with sparklines (net worth, invested, unrealized gain), asset class cards (crypto, ETFs, stocks: value, share, invested, unrealized and realized, `src/modules/summary/`), Performance chart (month-end snapshots plus the live point via `withLiveSnapshot`), Allocation overview (by type / by asset), Recent transactions, a receipt-style Last transaction card, Goals (emergency fund) and Top movers. Rows link to the transaction drawer via `buildTransactionHref`
 
 ## Code placement: helpers and constants
 
@@ -238,7 +244,8 @@ className={cn('text-xs font-medium', {
 
 ### Styling: ALWAYS use theme tokens
 - Tailwind token classes (`bg-background`, `text-primary`), never raw `var()` in `className`
-- Theme colors live in `src/styles/globals.css` (`@theme inline`, OKLch), including `success`, `warning`, the chart colors `chart-1` to `chart-5` and the asset type colors `asset-crypto` / `asset-etf` / `asset-stock` / `asset-cambio` (mapped per type in `src/lib/constants/asset-types.ts`)
+- Theme colors live in `src/styles/globals.css` (`@theme inline`, OKLch), including `success`, `warning`, `brand` (the blue accent for links, the active nav item and highlights; `primary` stays the near-black button color), the chart colors `chart-1` to `chart-5` and the asset type colors `asset-crypto` / `asset-etf` / `asset-stock` / `asset-cambio` (mapped per type in `src/lib/constants/asset-types.ts`)
+- Cards are rounded (`--radius: 0.625rem`, `Card` uses `rounded-xl` + the `shadow-card` token). The torn paper edge of the receipt card is the `receipt-edge` utility in `globals.css`
 - Typography tokens live in `src/styles/theme-typographic.css`
 
 ## Next.js Page & Layout Props

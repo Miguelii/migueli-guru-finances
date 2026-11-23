@@ -1,10 +1,12 @@
+import { Card } from '@/components/ui/card'
 import { DeltaBadge } from '@/components/ui/delta-badge'
-import { LogoAvatar } from '@/components/ui/logo-avatar'
+import { AssetLogo } from '@/components/ui/asset-logo'
+import { POSITIONS_ROUTE_PATH } from '@/lib/constants'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import type { HoldingSummary } from '@/types/Holding'
 import { Currency } from '@/types/core/Currency'
-import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
+import { DashboardCardHeader } from '@/modules/dashboard/dashboard-card-header'
 import { MOVERS_COUNT } from '@/modules/top-performers/top-performers-card.constants'
 import { getTopMovers } from '@/modules/top-performers/top-performers-card.helpers'
 
@@ -20,20 +22,14 @@ type MoversListProps = {
 }
 
 const MoversList = ({ title, holdings, hidePrices }: MoversListProps) => (
-    <div className="flex flex-col gap-2 w-full">
-        <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            {title}
-        </h3>
-        <ul className="flex flex-col divide-y">
+    <div className="flex flex-col gap-1">
+        <h3 className="text-xs text-muted-foreground">{title}</h3>
+        <ul className="flex flex-col">
             {holdings.map((h) => (
-                <li key={h.ticker_id} className="flex items-center justify-between gap-3 py-2.5">
-                    <LogoAvatar
-                        tickerLogo={h.tickerLogo}
-                        ticker={h.ticker_id}
-                        tickerCurrency={h.currency}
-                    />
-                    <div className="flex flex-col items-end gap-1">
-                        <DeltaBadge value={h.unrealized_gl_eur_pct} />
+                <li key={h.ticker_id} className="flex items-center gap-3 py-2">
+                    <AssetLogo logo={h.tickerLogo} ticker={h.ticker_id} className="size-8" />
+                    <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-sm font-medium">{h.ticker_id}</span>
                         <span
                             className={cn('text-xs text-muted-foreground tabular-nums', {
                                 'blur-sm select-none': hidePrices,
@@ -41,7 +37,8 @@ const MoversList = ({ title, holdings, hidePrices }: MoversListProps) => (
                         >
                             {formatCurrency(h.current_value_eur, Currency.EUR)}
                         </span>
-                    </div>
+                    </span>
+                    <DeltaBadge value={h.unrealized_gl_eur_pct} className="rounded-md" />
                 </li>
             ))}
         </ul>
@@ -52,23 +49,25 @@ export function TopPerformersCard({ holdings, hidePrices }: Props) {
     const { best, worst } = getTopMovers(holdings, MOVERS_COUNT)
 
     return (
-        <PortfolioCard
-            cardId="top-performers"
-            title="Performers"
-            className="shrink-0 w-full"
-            openHeightClassName="h-fit"
-            contentClassName="flex flex-col gap-5 lg:flex-row lg:gap-10 lg:justify-between lg:px-5 w-full"
-        >
+        <Card aria-labelledby="top-movers-title" className="gap-3 p-5">
+            <DashboardCardHeader
+                id="top-movers-title"
+                title="Top movers"
+                href={POSITIONS_ROUTE_PATH}
+                linkLabel="View all"
+            />
             {best.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No open positions yet</p>
+                <p className="py-4 text-center text-sm text-muted-foreground">
+                    No open positions yet
+                </p>
             ) : (
-                <>
+                <div className="flex flex-col gap-3">
                     <MoversList title="Best" holdings={best} hidePrices={hidePrices} />
                     {worst.length > 0 && (
                         <MoversList title="Worst" holdings={worst} hidePrices={hidePrices} />
                     )}
-                </>
+                </div>
             )}
-        </PortfolioCard>
+        </Card>
     )
 }

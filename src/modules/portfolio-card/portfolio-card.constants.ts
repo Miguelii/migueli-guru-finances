@@ -3,8 +3,6 @@ export const PORTFOLIO_CARD_DISCLOSURE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365
 
 export const PORTFOLIO_CARD_IDS = [
     'emergency-fund',
-    'allocation',
-    'top-performers',
     'staking',
     'etf-planning',
     'transactions',
@@ -19,8 +17,6 @@ export type PortfolioCardId = (typeof PORTFOLIO_CARD_IDS)[number]
 
 export const DEFAULT_PORTFOLIO_CARD_STATE: Record<PortfolioCardId, boolean> = {
     'emergency-fund': false,
-    allocation: true,
-    'top-performers': true,
     staking: true,
     'etf-planning': true,
     transactions: true,

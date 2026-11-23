@@ -3,6 +3,8 @@
 import { MoonIcon, SunIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
+import { HEADER_BUTTON_CLASS } from '@/components/app-header/app-header.constants'
+import { cn } from '@/lib/utils'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Themes } from '@/types/Themes'
 import { useCallback } from 'react'
@@ -27,11 +29,11 @@ export function ToggleTheme() {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="cursor-pointer ring-1 ring-foreground/10 h-8 relative"
+                        className={cn(HEADER_BUTTON_CLASS, 'relative w-9 px-0')}
                         onClick={() => onClickHandler()}
                     >
-                        <SunIcon className="h-[1.2rem] w-[1.2rem] block dark:hidden" />
-                        <MoonIcon className="h-[1.2rem] w-[1.2rem] hidden dark:block" />
+                        <SunIcon className="size-4 block dark:hidden" />
+                        <MoonIcon className="size-4 hidden dark:block" />
                         <span className="sr-only">Toggle theme</span>
                     </Button>
                 }

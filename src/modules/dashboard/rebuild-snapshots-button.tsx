@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { trpcClient } from '@/lib/trpc'
-import { getRebuildToast } from '@/modules/net-worth-hero/rebuild-snapshots-button.helpers'
+import { getRebuildToast } from '@/modules/dashboard/rebuild-snapshots-button.helpers'
 
 export function RebuildSnapshotsButton() {
     const router = useRouter()

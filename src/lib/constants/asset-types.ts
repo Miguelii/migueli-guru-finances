@@ -7,6 +7,8 @@ type AssetTypeMeta = {
     color: string
     /** Tailwind background token class for the same color */
     bgClassName: string
+    /** Tinted tile (soft background + colored icon) for the same color */
+    softClassName: string
     icon: LucideIcon
 }
 
@@ -15,24 +17,28 @@ export const ASSET_TYPE_META: Record<TickerType, AssetTypeMeta> = {
         label: 'Crypto',
         color: 'var(--color-asset-crypto)',
         bgClassName: 'bg-asset-crypto',
+        softClassName: 'bg-asset-crypto/10 text-asset-crypto',
         icon: Bitcoin,
     },
     [TickerType.Etf]: {
         label: 'ETFs',
         color: 'var(--color-asset-etf)',
         bgClassName: 'bg-asset-etf',
+        softClassName: 'bg-asset-etf/10 text-asset-etf',
         icon: BarChart3,
     },
     [TickerType.Stock]: {
         label: 'Stocks',
         color: 'var(--color-asset-stock)',
         bgClassName: 'bg-asset-stock',
+        softClassName: 'bg-asset-stock/10 text-asset-stock',
         icon: TrendingUp,
     },
     [TickerType.Cambio]: {
         label: 'FX',
         color: 'var(--color-asset-cambio)',
         bgClassName: 'bg-asset-cambio',
+        softClassName: 'bg-asset-cambio/10 text-asset-cambio',
         icon: ArrowLeftRight,
     },
 }

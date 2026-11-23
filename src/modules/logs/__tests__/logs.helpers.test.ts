@@ -29,6 +29,7 @@ function makeLog(overrides: Partial<LogEntry>): LogEntry {
         message: 'message',
         metadata: null,
         user_id: null,
+        project: 'wallet',
         ...overrides,
     }
 }

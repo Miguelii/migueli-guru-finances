@@ -1,11 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
-import { ValueRange } from '@/modules/net-worth-hero/value-timeline-chart.constants'
-import {
-    filterPointsByRange,
-    getRangeStart,
-} from '@/modules/net-worth-hero/value-timeline-chart.helpers'
-import { withLiveSnapshot } from '@/modules/net-worth-hero/net-worth-hero.helpers'
+import { ValueRange } from '@/modules/dashboard/performance-chart.constants'
+import { filterPointsByRange, getRangeStart } from '@/modules/dashboard/performance-chart.helpers'
+import { withLiveSnapshot } from '@/modules/dashboard/dashboard.helpers'
 
 const point = (
     date: string,

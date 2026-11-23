@@ -2,6 +2,8 @@
 
 import { Loader2Icon, RefreshCwIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { HEADER_BUTTON_CLASS } from '@/components/app-header/app-header.constants'
+import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { trpcClient } from '@/lib/trpc'
@@ -27,14 +29,15 @@ export function RefreshApp() {
             size="icon"
             onClick={onClick}
             disabled={updatePrices.isPending}
-            className="h-9 w-full md:w-fit cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
+            className={cn(HEADER_BUTTON_CLASS, 'w-fit')}
+            aria-label="Update prices"
         >
             {updatePrices.isPending ? (
                 <Loader2Icon className="size-4 animate-spin" />
             ) : (
                 <RefreshCwIcon className="size-4" />
             )}
-            <span>Update prices</span>
+            <span className="hidden lg:inline">Update prices</span>
         </Button>
     )
 }

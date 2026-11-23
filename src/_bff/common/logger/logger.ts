@@ -3,7 +3,7 @@ import 'server-only'
 import { after } from 'next/server'
 import { Predicate } from 'effect'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
-import { DBTables } from '@/_bff/common/db/types'
+import { DBTables, LOGS_PROJECT } from '@/_bff/common/db/types'
 import { ServerEnv } from '@/env/server'
 import type { LogLevel, LogMetadataObject, LogMetadataValue } from '@/types/Log'
 
@@ -141,6 +141,7 @@ async function persistLog({ level, prefix, message, error, metadata, userId }: P
         message: message ?? null,
         metadata: Object.keys(combinedMetadata).length > 0 ? combinedMetadata : null,
         user_id: userId ?? null,
+        project: LOGS_PROJECT,
     })
 
     if (insertError) throw new Error(insertError.message)

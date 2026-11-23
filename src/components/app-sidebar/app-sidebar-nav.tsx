@@ -49,7 +49,7 @@ export function NavMain({ isDev, counts }: Props) {
                         </SidebarGroupLabel>
                     )}
                     <SidebarGroupContent>
-                        <SidebarMenu className="gap-0.5">
+                        <SidebarMenu className="gap-1">
                             {group.items.map((item) => {
                                 const Icon = item.Icon
                                 const isActive = pathname === item.url
@@ -62,13 +62,18 @@ export function NavMain({ isDev, counts }: Props) {
                                         onClick={() => onClick()}
                                     >
                                         <SidebarMenuItem>
+                                            {isActive && (
+                                                <span
+                                                    aria-hidden="true"
+                                                    className="absolute top-1/2 -left-2 hidden h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-brand group-data-[collapsible=icon]:block"
+                                                />
+                                            )}
                                             <SidebarMenuButton
                                                 tooltip={item.title}
                                                 isActive={isActive}
                                                 className={cn(
-                                                    'h-7 cursor-pointer! gap-2 hover:bg-foreground/4 data-active:bg-foreground/6 [&_svg]:size-3.5 [&_svg]:text-muted-foreground',
+                                                    'h-9 cursor-pointer! gap-2.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground data-active:bg-brand/10 data-active:text-brand group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center [&_svg]:size-4.5',
                                                     {
-                                                        '[&_svg]:text-foreground': isActive,
                                                         'pr-10': item.countKey != null,
                                                     }
                                                 )}
@@ -77,7 +82,7 @@ export function NavMain({ isDev, counts }: Props) {
                                                 <span>{item.title}</span>
                                             </SidebarMenuButton>
                                             {item.countKey != null && (
-                                                <SidebarMenuBadge className="right-2 font-normal text-muted-foreground peer-data-[size=default]/menu-button:top-1">
+                                                <SidebarMenuBadge className="right-2 font-normal text-muted-foreground tabular-nums peer-data-[size=default]/menu-button:top-2">
                                                     {counts[item.countKey]}
                                                 </SidebarMenuBadge>
                                             )}

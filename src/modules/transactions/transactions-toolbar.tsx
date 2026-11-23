@@ -55,19 +55,12 @@ export function TransactionsToolbar({
                 }}
                 className="min-w-0"
             >
-                <TabsList className="rounded-none">
-                    <TabsTrigger
-                        value={ALL_TRANSACTION_TYPES}
-                        className="cursor-pointer rounded-none"
-                    >
+                <TabsList>
+                    <TabsTrigger value={ALL_TRANSACTION_TYPES} className="cursor-pointer">
                         All
                     </TabsTrigger>
                     {types.map((value) => (
-                        <TabsTrigger
-                            key={value}
-                            value={value}
-                            className="cursor-pointer rounded-none"
-                        >
+                        <TabsTrigger key={value} value={value} className="cursor-pointer">
                             {TYPE_LABEL[value]}
                         </TabsTrigger>
                     ))}

@@ -77,9 +77,7 @@ export function TransactionDetails({
                 <span className="flex min-w-0 items-center gap-2.5">
                     <AssetLogo logo={ticker?.logo} ticker={tx.ticker_id} />
                     <span className="truncate font-semibold">{tx.ticker_id}</span>
-                    <Badge variant={TYPE_BADGE_VARIANT[tx.type]} className="rounded-none">
-                        {TYPE_LABEL[tx.type]}
-                    </Badge>
+                    <Badge variant={TYPE_BADGE_VARIANT[tx.type]}>{TYPE_LABEL[tx.type]}</Badge>
                 </span>
                 <Button
                     variant="ghost"
@@ -181,11 +179,7 @@ export function TransactionDetails({
                                 >
                                     <span className="flex items-center gap-2 tabular-nums">
                                         {formatTaxRate(step.rate)}
-                                        {step.isCurrent && (
-                                            <Badge variant="outline" className="rounded-none">
-                                                Now
-                                            </Badge>
-                                        )}
+                                        {step.isCurrent && <Badge variant="outline">Now</Badge>}
                                     </span>
                                     <span className="text-xs text-muted-foreground tabular-nums">
                                         {getTaxStepPeriod(step, index === 0)}

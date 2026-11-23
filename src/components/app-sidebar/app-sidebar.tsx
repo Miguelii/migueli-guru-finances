@@ -1,16 +1,12 @@
 import * as React from 'react'
 
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarHeader,
-    SidebarTrigger,
-} from '@/components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '@/components/ui/sidebar'
 import Image from 'next/image'
+import Link from 'next/link'
 import { SignOutApp } from '@/modules/auth/sign-out-app'
 import { NavMain } from '@/components/app-sidebar/app-sidebar-nav'
 import type { NavCounts } from '@/components/app-sidebar/app-sidebar.constants'
+import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { getIsDev } from '@/lib/utils/index.server'
 
 type Props = React.ComponentProps<typeof Sidebar> & {
@@ -20,31 +16,35 @@ type Props = React.ComponentProps<typeof Sidebar> & {
 export function AppSidebar({ counts, ...props }: Props) {
     return (
         <Sidebar collapsible="icon" {...props}>
-            <SidebarHeader className="pt-3 pb-1">
-                <div className="flex items-center gap-3 px-1.5">
-                    <Image
-                        src="/assets/logo.webp"
-                        width={32}
-                        height={32}
-                        className="object-cover shrink-0 group-data-[collapsible=icon]:hidden"
-                        alt="Migueli Guru Finances Logo"
-                        unoptimized
-                    />
-                    <span className="text-base font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
+            <SidebarHeader className="h-16 justify-center border-b px-3 group-data-[collapsible=icon]:px-2">
+                <Link
+                    href={PRIVATE_ROUTE_PATH}
+                    className="flex items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+                >
+                    <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary">
+                        <Image
+                            src="/assets/logo.webp"
+                            width={28}
+                            height={28}
+                            className="size-7 object-cover"
+                            alt="Migueli Guru Finances Logo"
+                            unoptimized
+                        />
+                    </span>
+                    <span className="truncate text-sm font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
                         Migueli Finances
                     </span>
-                    <SidebarTrigger className="ml-auto cursor-pointer group-data-[collapsible=icon]:ml-0" />
-                </div>
+                </Link>
             </SidebarHeader>
-            <SidebarContent className="gap-1">
+            <SidebarContent className="gap-1 py-2">
                 <NavMain isDev={getIsDev()} counts={counts} />
             </SidebarContent>
-            <SidebarFooter className="py-3 flex flex-col gap-5">
+            <SidebarFooter className="flex flex-col gap-4 py-3">
                 <Image
                     src="/assets/funny.webp"
                     width={280}
                     height={200}
-                    className="w-full rounded-none group-data-[collapsible=icon]:hidden"
+                    className="w-full rounded-lg group-data-[collapsible=icon]:hidden"
                     alt="Vais ser pobre para sempre"
                     unoptimized
                     loading="eager"

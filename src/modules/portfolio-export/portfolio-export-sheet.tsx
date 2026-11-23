@@ -43,7 +43,7 @@ export function PortfolioExportSheet({ open, onOpenChange, overview }: Props) {
                 <div className="flex flex-1 px-4 pb-4">
                     <section
                         aria-label="Portfolio overview preview"
-                        className="grid min-h-96 w-full grid-cols-[max-content_3ch_max-content_3ch_max-content_3ch_max-content_3ch_max-content] overflow-auto rounded-none border border-input bg-muted/20 p-3 font-mono text-xs leading-relaxed text-foreground"
+                        className="grid min-h-96 w-full grid-cols-[max-content_3ch_max-content_3ch_max-content_3ch_max-content_3ch_max-content] overflow-auto rounded-lg border border-input bg-muted/20 p-3 font-mono text-xs leading-relaxed text-foreground"
                     >
                         {overviewLines.map((line) => {
                             if (line.kind === 'spacer') {

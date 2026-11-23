@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { FileTextIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { HEADER_BUTTON_CLASS } from '@/components/app-header/app-header.constants'
+import { cn } from '@/lib/utils'
 import { createPortfolioOverview } from '@/modules/portfolio-export/portfolio-export.helpers'
 import type { HoldingSummary } from '@/types/Holding'
 import { PortfolioExportSheet } from '@/modules/portfolio-export/portfolio-export-sheet'
@@ -23,10 +25,10 @@ export function PortfolioExport({ holdings }: Props) {
                 onClick={() => setOpen(true)}
                 title="Preview portfolio overview"
                 aria-label="Preview portfolio overview"
-                className="h-9 w-full md:w-fit cursor-pointer px-2.5 flex flex-row gap-1.5 ring-1 ring-foreground/10 bg-background"
+                className={cn(HEADER_BUTTON_CLASS, 'w-fit')}
             >
                 <FileTextIcon className="size-4" />
-                <span>Overview</span>
+                <span className="hidden lg:inline">Overview</span>
             </Button>
 
             <PortfolioExportSheet open={open} onOpenChange={setOpen} overview={overview} />

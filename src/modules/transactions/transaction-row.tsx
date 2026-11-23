@@ -82,16 +82,12 @@ export function TransactionRow({
         </span>
     )
 
-    const typeBadge = (
-        <Badge variant={TYPE_BADGE_VARIANT[tx.type]} className="rounded-none">
-            {TYPE_LABEL[tx.type]}
-        </Badge>
-    )
+    const typeBadge = <Badge variant={TYPE_BADGE_VARIANT[tx.type]}>{TYPE_LABEL[tx.type]}</Badge>
 
     const tax = taxBadge && (
         <Badge
             variant="outline"
-            className={cn('rounded-none font-normal', {
+            className={cn('font-normal', {
                 'border-success/40 text-success': taxBadge.isFinal,
                 'text-muted-foreground': !taxBadge.isFinal,
             })}

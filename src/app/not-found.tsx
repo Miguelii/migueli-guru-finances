@@ -7,13 +7,13 @@ export default function NotFound() {
         <main className="flex min-h-svh items-center justify-center p-4">
             {/* Background glow effects — same language as AuthPage */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
-                <div className="absolute -top-40 -left-40 h-80 w-80 rounded-none bg-chart-1/10 blur-3xl" />
-                <div className="absolute -right-40 -bottom-40 h-80 w-80 rounded-none bg-chart-3/10 blur-3xl" />
+                <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-chart-1/10 blur-3xl" />
+                <div className="absolute -right-40 -bottom-40 h-80 w-80 rounded-full bg-chart-3/10 blur-3xl" />
             </div>
 
             <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-10">
                 {/* Logo mark */}
-                <div className="flex h-14 w-14 items-center justify-center rounded-none bg-primary shadow-lg">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary shadow-lg">
                     <LockIcon className="h-7 w-7 text-primary-foreground" />
                 </div>
 
@@ -30,7 +30,7 @@ export default function NotFound() {
                 </div>
 
                 {/* Navigation hint */}
-                <div className="flex items-center gap-2 rounded-none border border-border bg-secondary/50 px-4 py-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary/50 px-4 py-2 text-xs text-muted-foreground">
                     <Compass className="h-3.5 w-3.5" />
                     <span>Double-check the URL or head back home</span>
                 </div>

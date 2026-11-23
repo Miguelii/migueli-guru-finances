@@ -14,7 +14,7 @@ export function AddAssetApp() {
                 variant="outline"
                 size="sm"
                 onClick={() => setOpen(true)}
-                className="cursor-pointer gap-1 rounded-none px-2 py-1.5 text-sm h-8.5"
+                className="cursor-pointer gap-1 px-2 py-1.5 text-sm h-8.5"
             >
                 <Plus className="size-4" />
                 Add asset

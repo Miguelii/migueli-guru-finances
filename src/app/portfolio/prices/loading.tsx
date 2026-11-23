@@ -15,7 +15,7 @@ export default function Loading() {
             <Card className="shadow-sm w-full min-w-0">
                 <CardHeader className="flex flex-row items-center gap-2">
                     <CardTitle>Assets</CardTitle>
-                    <Skeleton className="h-5 w-6 rounded-none" />
+                    <Skeleton className="h-5 w-6 rounded-xl" />
                 </CardHeader>
                 <CardContent className="grid gap-0 p-0">
                     {SKELETON_GROUPS.map((group) => (
@@ -31,7 +31,7 @@ export default function Loading() {
                                     className="flex items-center justify-between gap-4 border-t border-border/50 px-6 py-3 h-12"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <Skeleton className="h-8 w-8 rounded-none" />
+                                        <Skeleton className="h-8 w-8 rounded-xl" />
                                         <Skeleton className="h-4 w-12" />
                                     </div>
                                     <Skeleton className="h-4 w-20" />

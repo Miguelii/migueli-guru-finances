@@ -12,6 +12,10 @@ export enum DBTables {
     PORTFOLIO_SNAPSHOTS_MONTHLY = 'portfolio_snapshots_monthly',
 }
 
+// `logs` is shared with another app in the same Supabase project: rows are told apart by
+// `project`, this app writes and reads only its own
+export const LOGS_PROJECT = 'wallet'
+
 export enum DBBuckets {
     PUBLIC_ASSETS = 'public_assets',
 }

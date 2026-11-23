@@ -66,7 +66,7 @@ const EventRow = ({ event, logo, onShowNews }: EventRowProps) => (
             variant="ghost"
             size="sm"
             onClick={() => onShowNews(event.ticker)}
-            className="h-9 cursor-pointer gap-1.5 rounded-none text-xs"
+            className="h-9 cursor-pointer gap-1.5 text-xs"
             aria-label={`Show ${event.ticker} news`}
         >
             <NewspaperIcon aria-hidden="true" className="size-3.5" />
@@ -110,7 +110,7 @@ export function EventsCalendar({
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="size-9 cursor-pointer rounded-none"
+                            className="size-9 cursor-pointer"
                             aria-label="Previous month"
                             onClick={() => onMonthChange(shiftMonth(month, -1))}
                         >
@@ -119,7 +119,7 @@ export function EventsCalendar({
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 cursor-pointer rounded-none text-xs"
+                            className="h-9 cursor-pointer text-xs"
                             onClick={() => onGoToDay(today)}
                         >
                             Today
@@ -127,7 +127,7 @@ export function EventsCalendar({
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="size-9 cursor-pointer rounded-none"
+                            className="size-9 cursor-pointer"
                             aria-label="Next month"
                             onClick={() => onMonthChange(shiftMonth(month, 1))}
                         >
