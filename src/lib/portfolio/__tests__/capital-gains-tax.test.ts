@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { formatTaxRate, getCapitalGainsTax } from '@/lib/portfolio/capital-gains-tax'
+import {
+    formatTaxRate,
+    getCapitalGainsRateAt,
+    getCapitalGainsTax,
+} from '@/lib/portfolio/capital-gains-tax'
 import { Ticker } from '@/types/core/Ticker'
 import { TickerType } from '@/types/core/TickerType'
 import { TransactionType, type Transaction } from '@/types/Transaction'
@@ -82,6 +86,32 @@ describe('getCapitalGainsTax', () => {
                 at('2026-06-01T10:00:00')
             )!.next
         ).toEqual({ rate: 0, date: at('2027-01-01T10:00:00') })
+    })
+})
+
+describe('getCapitalGainsRateAt', () => {
+    it('should use the holding period between acquisition and sale', () => {
+        const acquired = '2025-02-06 00:00:00'
+
+        expect(getCapitalGainsRateAt(acquired, '2026-02-05 23:59:00', TickerType.Crypto)).toBe(0.28)
+        expect(getCapitalGainsRateAt(acquired, '2026-02-06 00:00:00', TickerType.Crypto)).toBe(0)
+        expect(getCapitalGainsRateAt(acquired, '2026-10-30 00:02:00', TickerType.Crypto)).toBe(0)
+    })
+
+    it('should pick the ETF/stock bracket reached at the sale date', () => {
+        const acquired = '2020-01-01 10:00:00'
+
+        expect(getCapitalGainsRateAt(acquired, '2021-06-01 10:00:00', TickerType.Etf)).toBe(0.28)
+        expect(getCapitalGainsRateAt(acquired, '2023-06-01 10:00:00', TickerType.Etf)).toBe(0.252)
+        expect(getCapitalGainsRateAt(acquired, '2026-06-01 10:00:00', TickerType.Stock)).toBe(0.224)
+        expect(getCapitalGainsRateAt(acquired, '2028-06-01 10:00:00', TickerType.Stock)).toBe(0.196)
+    })
+
+    it('should be null for asset types without rules', () => {
+        expect(
+            getCapitalGainsRateAt('2020-01-01 10:00:00', '2026-01-01 10:00:00', TickerType.Cambio)
+        ).toBeNull()
+        expect(getCapitalGainsRateAt('2020-01-01 10:00:00', '2026-01-01 10:00:00')).toBeNull()
     })
 })
 

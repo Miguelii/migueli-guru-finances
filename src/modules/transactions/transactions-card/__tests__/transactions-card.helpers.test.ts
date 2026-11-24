@@ -2,10 +2,14 @@ import { describe, expect, it } from 'vitest'
 import {
     calculateTransactionInvested,
     filterTransactions,
+    formatSaleTaxRate,
     formatTimeUntil,
+    getRowTaxBadge,
+    getSellTaxBadge,
     getTaxBadge,
     groupTransactionsByMonth,
 } from '@/modules/transactions/transactions-card/transactions-card.helpers'
+import type { FifoLot, FifoSell } from '@/lib/portfolio/fifo-ledger'
 import { getCapitalGainsTax } from '@/lib/portfolio/capital-gains-tax'
 import { Currency } from '@/types/core/Currency'
 import { Ticker } from '@/types/core/Ticker'
@@ -193,5 +197,74 @@ describe('formatTimeUntil', () => {
     it('should show years and months (no days) for spans over a year', () => {
         expect(formatTimeUntil(new Date('2028-03-17T12:00:00'), now)).toBe('1 year, 5 months')
         expect(formatTimeUntil(new Date('2029-10-01T12:00:00'), now)).toBe('3 years')
+    })
+})
+
+const sellWithRates = (taxRates: number[]): FifoSell => ({
+    lots: [],
+    costEur: 0,
+    gainEur: 0,
+    unmatchedQuantity: 0,
+    taxRates,
+})
+
+const lotWith = (isClosed: boolean): FifoLot => ({
+    acquiredQuantity: 1,
+    soldQuantity: isClosed ? 1 : 0.5,
+    remainingQuantity: isClosed ? 0 : 0.5,
+    isClosed,
+    sales: [],
+})
+
+describe('formatSaleTaxRate', () => {
+    it('should name exempt sales and format the rest as a rate', () => {
+        expect(formatSaleTaxRate(0)).toBe('Tax-free')
+        expect(formatSaleTaxRate(0.252)).toBe('25.2%')
+    })
+})
+
+describe('getSellTaxBadge', () => {
+    it('should be null without FIFO lots or tax rules', () => {
+        expect(getSellTaxBadge()).toBeNull()
+        expect(getSellTaxBadge(sellWithRates([]))).toBeNull()
+    })
+
+    it('should show a single shared rate', () => {
+        expect(getSellTaxBadge(sellWithRates([0]))).toEqual({ label: 'Tax-free', isFinal: true })
+        expect(getSellTaxBadge(sellWithRates([0.28]))).toEqual({ label: '28%', isFinal: false })
+    })
+
+    it('should flag mixed rates', () => {
+        expect(getSellTaxBadge(sellWithRates([0.28, 0]))?.label).toBe('Partly tax-free')
+        expect(getSellTaxBadge(sellWithRates([0.28, 0.252]))?.label).toBe('28% / 25.2%')
+    })
+})
+
+describe('getRowTaxBadge', () => {
+    const tax = getCapitalGainsTax(
+        {
+            id: 'buy',
+            ticker_id: Ticker.ETH,
+            type: TransactionType.Buy,
+            buy_date: '2020-01-01 10:00:00',
+            fee: 0,
+        },
+        TickerType.Crypto
+    )
+
+    it('should mark a lot sold in full as sold', () => {
+        expect(getRowTaxBadge(tax, undefined, lotWith(true))).toEqual({
+            label: 'Sold',
+            isFinal: false,
+        })
+    })
+
+    it('should keep the current rule for open and partly sold lots', () => {
+        expect(getRowTaxBadge(tax, undefined, lotWith(false))?.label).toBe('Tax-free')
+        expect(getRowTaxBadge(tax)?.label).toBe('Tax-free')
+    })
+
+    it('should use the FIFO outcome for sells', () => {
+        expect(getRowTaxBadge(null, sellWithRates([0.28]))?.label).toBe('28%')
     })
 })

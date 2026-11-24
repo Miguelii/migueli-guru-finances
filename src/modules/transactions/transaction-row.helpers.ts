@@ -17,3 +17,11 @@ export function formatTime(buyDate: Transaction['buy_date']): string {
 export function formatDateTime(buyDate: Transaction['buy_date']): string {
     return toDate(buyDate).toLocaleString(LOCALE, { dateStyle: 'medium', timeStyle: 'short' })
 }
+
+/**
+ * DOM id of a transaction row, used to scroll to it from a FIFO link.
+ * @param id - Transaction id.
+ */
+export function getTransactionRowId(id: Transaction['id']): string {
+    return `transaction-row-${id}`
+}

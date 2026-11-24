@@ -16,40 +16,62 @@ import {
     TYPE_BADGE_VARIANT,
     TYPE_LABEL,
 } from '@/modules/transactions/transactions-card/transactions-card.constants'
-import { getTaxBadge } from '@/modules/transactions/transactions-card/transactions-card.helpers'
+import { getRowTaxBadge } from '@/modules/transactions/transactions-card/transactions-card.helpers'
 import { getCapitalGainsTax } from '@/lib/portfolio/capital-gains-tax'
+import type { FifoLot, FifoSell } from '@/lib/portfolio/fifo-ledger'
 import {
     EMPTY_VALUE,
     TRANSACTION_ROW_GRID_CLASS,
 } from '@/modules/transactions/transaction-row.constants'
-import { formatDayMonth, formatTime } from '@/modules/transactions/transaction-row.helpers'
+import {
+    formatDayMonth,
+    formatTime,
+    getTransactionRowId,
+} from '@/modules/transactions/transaction-row.helpers'
+import { TransactionFifoTrail } from '@/modules/transactions/transaction-fifo-trail'
+import { buildFifoTrail } from '@/modules/transactions/transaction-fifo-trail.helpers'
 
 type Props = {
     transaction: Transaction
     ticker: TickerData | undefined
     rates: CambioRates
+    fifoSell: FifoSell | undefined
+    fifoLot: FifoLot | undefined
     isSelected: boolean
+    isHighlighted: boolean
     hidePrices: boolean
     onSelect: (id: string) => void
+    onJump: (id: string) => void
 }
 
 export function TransactionRow({
     transaction: tx,
     ticker,
     rates,
+    fifoSell,
+    fifoLot,
     isSelected,
+    isHighlighted,
     hidePrices,
     onSelect,
+    onJump,
 }: Props) {
     const currency = ticker?.currency ?? Currency.EUR
     const isNative = currency !== Currency.EUR
-    const taxBadge = getTaxBadge(getCapitalGainsTax(tx, ticker?.type))
+    const taxBadge = getRowTaxBadge(getCapitalGainsTax(tx, ticker?.type), fifoSell, fifoLot)
+    const trail = buildFifoTrail(fifoSell, fifoLot)
+    // A lot sold in full no longer counts towards the position
+    const isClosedLot = fifoLot?.isClosed ?? false
     const blurClass = { 'blur-sm select-none': hidePrices }
     const hasQuantity = tx.quantity != null && tx.type !== TransactionType.Fee
 
     const value =
         tx.value != null ? (
-            <span className={cn('font-medium tabular-nums', blurClass)}>
+            <span
+                className={cn('font-medium tabular-nums', blurClass, {
+                    'text-muted-foreground': isClosedLot,
+                })}
+            >
                 {formatCurrency(tx.value, currency)}
             </span>
         ) : (
@@ -63,7 +85,7 @@ export function TransactionRow({
     )
 
     const quantity = hasQuantity ? (
-        <span className={cn('tabular-nums', blurClass)}>
+        <span className={cn('tabular-nums', blurClass, { 'text-muted-foreground': isClosedLot })}>
             {formatQuantity(tx.quantity!)} {tx.ticker_id}
         </span>
     ) : (
@@ -97,16 +119,25 @@ export function TransactionRow({
     )
 
     return (
-        <li>
+        <li
+            id={getTransactionRowId(tx.id)}
+            className={cn(
+                'transition-colors duration-500 hover:bg-accent/50 has-[>button:focus-visible]:bg-accent',
+                {
+                    'bg-accent': isSelected,
+                    'bg-brand/10 hover:bg-brand/10': isHighlighted,
+                }
+            )}
+        >
             <button
                 type="button"
                 onClick={() => onSelect(tx.id)}
                 aria-current={isSelected}
                 aria-label={`${TYPE_LABEL[tx.type]} ${tx.ticker_id} on ${formatDayMonth(tx.buy_date)}`}
                 className={cn(
-                    'w-full cursor-pointer px-3 py-3 text-left text-sm transition-colors hover:bg-accent/50 focus-visible:bg-accent focus-visible:outline-none md:py-2.5',
+                    'w-full cursor-pointer px-3 py-3 text-left text-sm focus-visible:outline-none md:py-2.5',
                     TRANSACTION_ROW_GRID_CLASS,
-                    { 'bg-accent': isSelected }
+                    { 'pb-2 md:pb-1.5': trail !== null }
                 )}
             >
                 {/* Desktop: one grid row */}
@@ -157,6 +188,16 @@ export function TransactionRow({
                     </span>
                 </span>
             </button>
+
+            {trail && (
+                <TransactionFifoTrail
+                    trail={trail}
+                    ticker={tx.ticker_id}
+                    hidePrices={hidePrices}
+                    onJump={onJump}
+                    onShowAll={() => onSelect(tx.id)}
+                />
+            )}
         </li>
     )
 }

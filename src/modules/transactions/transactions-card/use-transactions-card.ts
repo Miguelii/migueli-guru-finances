@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { parseAsString, useQueryState } from 'nuqs'
 import { paramsUrlKeys, transactionIdParser, transactionTypeParser } from '@/lib/core/searchParams'
 import { ALL_TRANSACTION_ASSETS } from '@/lib/constants/transactions'
 import { summarizeTransactions } from '@/lib/portfolio/transactions-summary'
+import { buildFifoLedger } from '@/lib/portfolio/fifo-ledger'
 import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
 import type { Currency } from '@/types/core/Currency'
 import type { Ticker } from '@/types/core/Ticker'
@@ -12,6 +13,8 @@ import {
     groupTransactionsByMonth,
     type TransactionTypeFilter,
 } from '@/modules/transactions/transactions-card/transactions-card.helpers'
+import { HIGHLIGHT_DURATION_MS } from '@/modules/transactions/transactions-card/transactions-card.constants'
+import { getTransactionRowId } from '@/modules/transactions/transaction-row.helpers'
 
 type Props = {
     transactions: Transaction[]
@@ -82,6 +85,37 @@ export function useTransactionsCard({ transactions, tickerData, rates }: Props) 
         [transactions, tickerData]
     )
 
+    // Built from every transaction: filtering first would change which lots each sale consumes
+    const fifoLedger = useMemo(
+        () => buildFifoLedger(transactions, tickerData, rates),
+        [transactions, tickerData, rates]
+    )
+
+    const [highlightedId, setHighlightedId] = useState<string | null>(null)
+    const highlightTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const clearHighlightTimeout = () => {
+        if (highlightTimeout.current) clearTimeout(highlightTimeout.current)
+    }
+    useEffect(() => clearHighlightTimeout, [])
+
+    // Scrolls to a FIFO-linked row and flashes it; opens its details when the filters hide it
+    const jumpToTransaction = (id: string) => {
+        const row = document.querySelector<HTMLElement>(`#${getTransactionRowId(id)}`)
+
+        if (!row) {
+            void setSelectedId(id)
+            return
+        }
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        row.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' })
+        row.querySelector('button')?.focus({ preventScroll: true })
+
+        setHighlightedId(id)
+        clearHighlightTimeout()
+        highlightTimeout.current = setTimeout(() => setHighlightedId(null), HIGHLIGHT_DURATION_MS)
+    }
+
     const selected = transactions.find((tx) => tx.id === selectedId) ?? null
 
     // Keeps the last opened transaction while the drawer plays its closing animation
@@ -97,6 +131,8 @@ export function useTransactionsCard({ transactions, tickerData, rates }: Props) 
         groups,
         summary,
         investedByTransaction,
+        fifoLedger,
+        highlightedId,
         selected,
         drawerTransaction,
         hasTransactions: transactions.length > 0,
@@ -105,6 +141,7 @@ export function useTransactionsCard({ transactions, tickerData, rates }: Props) 
         },
         changeType: (type: TransactionTypeFilter) => void setSelectedType(type),
         selectTransaction: (id: string) => void setSelectedId(id),
+        jumpToTransaction,
         closeDetails: () => void setSelectedId(null),
     }
 }

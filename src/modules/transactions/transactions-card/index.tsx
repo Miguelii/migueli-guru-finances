@@ -37,12 +37,15 @@ export function TransactionsCard({ transactions, tickerData, rates, hidePrices }
         tickerMap,
         groups,
         investedByTransaction,
+        fifoLedger,
+        highlightedId,
         selected,
         drawerTransaction,
         hasTransactions,
         changeAsset,
         changeType,
         selectTransaction,
+        jumpToTransaction,
         closeDetails,
     } = useTransactionsCard({ transactions, tickerData, rates })
 
@@ -164,9 +167,13 @@ export function TransactionsCard({ transactions, tickerData, rates, hidePrices }
                                                 transaction={tx}
                                                 ticker={tickerMap.get(tx.ticker_id)}
                                                 rates={rates}
+                                                fifoSell={fifoLedger.sells.get(tx.id)}
+                                                fifoLot={fifoLedger.lots.get(tx.id)}
                                                 isSelected={selected?.id === tx.id}
+                                                isHighlighted={highlightedId === tx.id}
                                                 hidePrices={hidePrices}
                                                 onSelect={selectTransaction}
+                                                onJump={jumpToTransaction}
                                             />
                                         ))}
                                     </ul>
@@ -191,11 +198,15 @@ export function TransactionsCard({ transactions, tickerData, rates, hidePrices }
                     <SheetTitle className="sr-only">Transaction details</SheetTitle>
                     {drawerTransaction && (
                         <TransactionDetails
+                            key={drawerTransaction.id}
                             transaction={drawerTransaction}
                             ticker={tickerMap.get(drawerTransaction.ticker_id)}
                             rates={rates}
                             investedAfter={investedByTransaction.get(drawerTransaction.id)}
+                            fifoSell={fifoLedger.sells.get(drawerTransaction.id)}
+                            fifoLot={fifoLedger.lots.get(drawerTransaction.id)}
                             hidePrices={hidePrices}
+                            onSelectLinked={selectTransaction}
                             onEdit={(tx) => {
                                 closeDetails()
                                 openEdit(tx)

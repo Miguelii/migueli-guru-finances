@@ -5,12 +5,13 @@ import { Currency } from '@/types/core/Currency'
 import { type Transaction, type TickerData, TransactionType } from '@/types/Transaction'
 import type { Ticker } from '@/types/core/Ticker'
 import { formatTaxRate, type CapitalGainsTax } from '@/lib/portfolio/capital-gains-tax'
+import type { FifoLot, FifoSell } from '@/lib/portfolio/fifo-ledger'
 
 const DAY_MS = 1000 * 60 * 60 * 24
 
 export type TaxBadge = {
     label: string
-    /** Lowest rate reached (tax-free crypto or the last ETF/stock bracket) */
+    /** Shown in the success color: lowest rate reached (tax-free crypto or the last ETF/stock bracket), or a tax-free sale */
     isFinal: boolean
 }
 
@@ -71,6 +72,51 @@ export function getTaxBadge(tax: CapitalGainsTax | null, now = new Date()): TaxB
         label: `${formatTaxRate(tax.rate)} · ${formatTaxRate(tax.next.rate)} in ${timeLeft}`,
         isFinal: false,
     }
+}
+
+/**
+ * Tax rate applied to a sold lot: "Tax-free" when exempt, otherwise the rate ("28%").
+ * @param rate - Rate between 0 and 1.
+ */
+export function formatSaleTaxRate(rate: number): string {
+    return rate === 0 ? 'Tax-free' : formatTaxRate(rate)
+}
+
+/**
+ * Badge for the tax outcome of a SELL from the FIFO lots it consumed: "Tax-free" or a single
+ * rate when every lot shares it, "Partly tax-free" when only some lots are exempt and
+ * "28% / 25.2%" when the lots fall in different taxed brackets. `null` when no rule applies.
+ * @param sell - The SELL entry of the FIFO ledger.
+ */
+export function getSellTaxBadge(sell?: FifoSell): TaxBadge | null {
+    if (!sell || sell.taxRates.length === 0) return null
+
+    const [highest, ...rest] = sell.taxRates
+
+    if (rest.length === 0) {
+        return { label: formatSaleTaxRate(highest!), isFinal: highest === 0 }
+    }
+
+    if (sell.taxRates.includes(0)) return { label: 'Partly tax-free', isFinal: false }
+
+    return { label: sell.taxRates.map(formatTaxRate).join(' / '), isFinal: false }
+}
+
+/**
+ * Tax badge of a transaction row: the FIFO outcome for a SELL, "Sold" for a lot that was sold
+ * in full, otherwise the current capital gains rule of the BUY.
+ * @param tax - Result of `getCapitalGainsTax` for the transaction.
+ * @param sell - The transaction's SELL entry in the FIFO ledger, if any.
+ * @param lot - The transaction's lot entry in the FIFO ledger, if any.
+ */
+export function getRowTaxBadge(
+    tax: CapitalGainsTax | null,
+    sell?: FifoSell,
+    lot?: FifoLot
+): TaxBadge | null {
+    if (sell) return getSellTaxBadge(sell)
+    if (lot?.isClosed) return { label: 'Sold', isFinal: false }
+    return getTaxBadge(tax)
 }
 
 export function filterTransactions(

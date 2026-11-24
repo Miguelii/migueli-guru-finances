@@ -45,6 +45,38 @@ function addYears(date: Date, years: number): Date {
     return result
 }
 
+function parseBuyDate(buyDate: Transaction['buy_date']): Date {
+    return new Date(buyDate.replace(' ', 'T'))
+}
+
+/**
+ * Capital gains tax rate of a lot acquired at `acquiredAt` (BUY or REWARD) and sold at
+ * `soldAt`, from the holding period between the two dates. `null` for asset types without a
+ * rule (e.g. FX).
+ * @param acquiredAt - Date of the transaction that opened the lot.
+ * @param soldAt - Date of the SELL that consumed it.
+ * @param assetType - Asset type of the ticker.
+ */
+export function getCapitalGainsRateAt(
+    acquiredAt: Transaction['buy_date'],
+    soldAt: Transaction['buy_date'],
+    assetType?: TickerType
+): number | null {
+    const brackets = assetType ? CAPITAL_GAINS_BRACKETS[assetType] : undefined
+
+    if (!brackets) return null
+
+    const acquired = parseBuyDate(acquiredAt)
+    const sold = parseBuyDate(soldAt)
+
+    let rate = brackets[0]!.rate
+    for (const bracket of brackets) {
+        if (addYears(acquired, bracket.fromYears) <= sold) rate = bracket.rate
+    }
+
+    return rate
+}
+
 /**
  * Capital gains tax rate of a BUY today, the next (lower) rate and when it starts, and the
  * full bracket timeline from the purchase date. `null` for non-BUY transactions and asset
@@ -62,7 +94,7 @@ export function getCapitalGainsTax(
 
     if (!brackets || tx.type !== TransactionType.Buy) return null
 
-    const buyDate = new Date(tx.buy_date.replace(' ', 'T'))
+    const buyDate = parseBuyDate(tx.buy_date)
 
     const timeline = brackets.map((bracket, index) => {
         const from = addYears(buyDate, bracket.fromYears)

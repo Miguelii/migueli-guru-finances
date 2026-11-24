@@ -27,3 +27,6 @@ export const TRANSACTION_COLUMNS = [
 
 // Fixed card height: the transactions list scrolls inside instead of growing the page
 export const TRANSACTIONS_CARD_HEIGHT_CLASS = 'h-160'
+
+// How long a row stays highlighted after jumping to it from a FIFO link
+export const HIGHLIGHT_DURATION_MS = 1800

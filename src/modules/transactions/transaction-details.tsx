@@ -13,18 +13,26 @@ import {
     TYPE_BADGE_VARIANT,
     TYPE_LABEL,
 } from '@/modules/transactions/transactions-card/transactions-card.constants'
-import { getTaxBadge } from '@/modules/transactions/transactions-card/transactions-card.helpers'
+import {
+    getSellTaxBadge,
+    getTaxBadge,
+} from '@/modules/transactions/transactions-card/transactions-card.helpers'
 import { formatTaxRate, getCapitalGainsTax } from '@/lib/portfolio/capital-gains-tax'
 import { EMPTY_VALUE } from '@/modules/transactions/transaction-row.constants'
 import { formatDateTime } from '@/modules/transactions/transaction-row.helpers'
 import { getTaxStepPeriod, isPastTaxStep } from '@/modules/transactions/transaction-details.helpers'
+import type { FifoLot, FifoSell } from '@/lib/portfolio/fifo-ledger'
+import { TransactionFifoDetails } from '@/modules/transactions/transaction-fifo-details'
 
 type Props = {
     transaction: Transaction
     ticker: TickerData | undefined
     rates: CambioRates
     investedAfter: number | undefined
+    fifoSell: FifoSell | undefined
+    fifoLot: FifoLot | undefined
     hidePrices: boolean
+    onSelectLinked: (id: string) => void
     onEdit: (transaction: Transaction) => void
     onDelete: (transaction: Transaction) => void
     onClose: () => void
@@ -49,15 +57,19 @@ export function TransactionDetails({
     ticker,
     rates,
     investedAfter,
+    fifoSell,
+    fifoLot,
     hidePrices,
+    onSelectLinked,
     onEdit,
     onDelete,
     onClose,
 }: Props) {
     const currency = ticker?.currency ?? Currency.EUR
     const isNative = currency !== Currency.EUR
-    const tax = getCapitalGainsTax(tx, ticker?.type)
-    const taxBadge = getTaxBadge(tax)
+    // A lot sold in full has no tax left to pay later: its sales show the rate applied
+    const tax = fifoLot?.isClosed ? null : getCapitalGainsTax(tx, ticker?.type)
+    const taxBadge = fifoSell ? getSellTaxBadge(fifoSell) : getTaxBadge(tax)
     const blurClass = { 'blur-sm select-none': hidePrices }
 
     const withEur = (native: number, eur: number) => (
@@ -155,6 +167,14 @@ export function TransactionDetails({
                         </Row>
                     )}
                 </dl>
+
+                <TransactionFifoDetails
+                    transaction={tx}
+                    fifoSell={fifoSell}
+                    fifoLot={fifoLot}
+                    hidePrices={hidePrices}
+                    onSelectLinked={onSelectLinked}
+                />
 
                 {tax && tax.timeline.length > 1 && (
                     <section aria-labelledby="tax-brackets-title" className="flex flex-col gap-2">
