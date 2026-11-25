@@ -1,4 +1,3 @@
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { Logger } from '@/_bff/common/logger/logger'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import type { TickerData } from '@/types/Transaction'
@@ -8,12 +7,11 @@ import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { UpdateTickersError } from '@/_bff/modules/assets/assets.errors'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
-import { GET_ALL_TRANSACTIONS_CACHE_KEY } from '@/_bff/modules/transactions/transactions.constants'
 import type { PriceTicker } from '@/_bff/modules/assets/assets.dto'
 import { getCoinbasePrices } from '@/_bff/modules/assets/providers/coinbase.provider'
 import { getFinancePrices } from '@/_bff/modules/assets/providers/yahoo.provider'
 import { selectAllTickers, updateAssetPrice } from '@/_bff/modules/assets/assets.repository'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 
 type UpdateReturn = {
     success: boolean
@@ -220,7 +218,5 @@ export const updateTickers = Effect.fn('updateTickers')(function* () {
         })
     }
 
-    revalidateTag(GET_ASSETS_CACHE_KEY, 'max')
-    revalidateTag(GET_ALL_TRANSACTIONS_CACHE_KEY, 'max')
-    revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+    expireCacheTags(GET_ASSETS_CACHE_KEY)
 })

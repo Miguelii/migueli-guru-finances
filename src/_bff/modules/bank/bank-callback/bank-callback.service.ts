@@ -1,7 +1,7 @@
 import { Effect } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 import { type NextRequest, NextResponse } from 'next/server'
-import { EMERGENCY_FUND_ROUTE_PATH, HOME_PAGE_PATH, PRIVATE_ROUTE_PATH } from '@/lib/constants'
+import { EMERGENCY_FUND_ROUTE_PATH, HOME_PAGE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
@@ -116,8 +116,7 @@ export const bankCallback = Effect.fn('bankCallback')(
             consent_valid_until: session.access.valid_until,
         })
 
-        revalidateTag(getBankConnectionCacheTag(user.id), 'max')
-        revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+        expireCacheTags(getBankConnectionCacheTag(user.id))
 
         return redirectToEmergencyFund(request, 'connected')
     },

@@ -1,17 +1,15 @@
 import { ServerEnv } from '@/env/server'
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { verifyApiKey } from '@/_bff/common/db/db.utils'
 import { updateTickersPrices } from '@/_bff/modules/assets/update-tickers-prices/update-tickers-prices.service'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
-import { GET_ALL_TRANSACTIONS_CACHE_KEY } from '@/_bff/modules/transactions/transactions.constants'
 import { recordPortfolioSnapshots } from '@/_bff/modules/snapshots/record-portfolio-snapshots/record-portfolio-snapshots.service'
 import {
     UnauthorizedUpdateTickersError,
     UpdateTickersStatusError,
 } from '@/_bff/modules/assets/assets.errors'
 import { Effect, Match } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidateTag } from 'next/cache'
 import { type NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -58,8 +56,6 @@ export function externalUpdateTickers(request: NextRequest): Promise<NextRespons
         yield* recordPortfolioSnapshots()
 
         revalidateTag(GET_ASSETS_CACHE_KEY, 'max')
-        revalidateTag(GET_ALL_TRANSACTIONS_CACHE_KEY, 'max')
-        revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
 
         return NextResponse.json({ status: 200 })
     }).pipe(

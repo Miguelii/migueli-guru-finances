@@ -1,11 +1,10 @@
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { getPayslipsCacheTag } from '@/_bff/modules/payslips/payslips.constants'
 import { deletePayslipById } from '@/_bff/modules/payslips/payslips.repository'
 import { Effect } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 
 export const deletePayslip = Effect.fn('deletePayslip')(function* (userId: string, id: string) {
     const bd = yield* Effect.tryPromise({
@@ -27,6 +26,5 @@ export const deletePayslip = Effect.fn('deletePayslip')(function* (userId: strin
         })
     }
 
-    revalidateTag(getPayslipsCacheTag(userId), 'max')
-    revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+    expireCacheTags(getPayslipsCacheTag(userId))
 })
