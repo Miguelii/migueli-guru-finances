@@ -2,8 +2,12 @@
 
 import { DownloadIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import type { HoldingSummary } from '@/types/Holding'
 import { PORTFOLIO_EXPORT_FILENAME } from '@/modules/portfolio-export/portfolio-export.constants'
-import { parsePortfolioOverview } from '@/modules/portfolio-export/portfolio-export.helpers'
+import {
+    createPortfolioOverview,
+    parsePortfolioOverview,
+} from '@/modules/portfolio-export/portfolio-export.helpers'
 import {
     Drawer,
     DrawerContent,
@@ -15,10 +19,11 @@ import {
 type Props = {
     open: boolean
     onOpenChange: (open: boolean) => void
-    overview: string
+    holdings: HoldingSummary[]
 }
 
-export function PortfolioExportSheet({ open, onOpenChange, overview }: Props) {
+export function PortfolioExportSheet({ open, onOpenChange, holdings }: Props) {
+    const overview = createPortfolioOverview(holdings)
     const overviewLines = parsePortfolioOverview(overview)
 
     function downloadOverview() {

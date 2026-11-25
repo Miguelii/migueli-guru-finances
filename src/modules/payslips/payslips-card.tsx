@@ -1,6 +1,7 @@
 'use client'
 
 import { Plus } from 'lucide-react'
+import { useHasOpened } from '@/hooks/use-has-opened'
 import { Button } from '@/components/ui/button'
 import {
     Select,
@@ -12,7 +13,7 @@ import {
 import type { Payslip } from '@/types/Payslip'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 import { DeletePayslipDialog } from '@/modules/payslips/delete-payslip-dialog'
-import { PayslipDrawer } from '@/modules/payslips/payslip-drawer'
+import { LazyPayslipDrawer } from '@/modules/payslips/payslips-card.lazy'
 import { PayslipsSummary } from '@/modules/payslips/payslips-summary'
 import { PayslipsTable } from '@/modules/payslips/payslips-table'
 import { usePayslipsCard } from '@/modules/payslips/use-payslips-card'
@@ -37,6 +38,7 @@ export function PayslipsCard({ payslips, hidePrices }: Props) {
         onDrawerOpenChange,
         onDeleteDialogOpenChange,
     } = usePayslipsCard(payslips)
+    const hasOpenedDrawer = useHasOpened(drawer.open)
 
     const yearItems = years.map((value) => ({ value, label: String(value) }))
 
@@ -91,15 +93,17 @@ export function PayslipsCard({ payslips, hidePrices }: Props) {
                 />
             </PortfolioCard>
 
-            <PayslipDrawer
-                open={drawer.open}
-                onOpenChange={onDrawerOpenChange}
-                payslips={payslips}
-                payslip={drawer.open ? drawer.payslip : null}
-                year={year}
-                month={drawer.open ? drawer.month : null}
-                onDelete={openDelete}
-            />
+            {hasOpenedDrawer && (
+                <LazyPayslipDrawer
+                    open={drawer.open}
+                    onOpenChange={onDrawerOpenChange}
+                    payslips={payslips}
+                    payslip={drawer.open ? drawer.payslip : null}
+                    year={year}
+                    month={drawer.open ? drawer.month : null}
+                    onDelete={openDelete}
+                />
+            )}
 
             <DeletePayslipDialog
                 open={deleting !== null}

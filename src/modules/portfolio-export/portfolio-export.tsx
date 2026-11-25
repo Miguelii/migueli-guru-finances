@@ -5,9 +5,9 @@ import { FileTextIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { HEADER_BUTTON_CLASS } from '@/components/app-header/app-header.constants'
 import { cn } from '@/lib/utils'
-import { createPortfolioOverview } from '@/modules/portfolio-export/portfolio-export.helpers'
+import { useHasOpened } from '@/hooks/use-has-opened'
+import { LazyPortfolioExportSheet } from '@/modules/portfolio-export/portfolio-export.lazy'
 import type { HoldingSummary } from '@/types/Holding'
-import { PortfolioExportSheet } from '@/modules/portfolio-export/portfolio-export-sheet'
 
 type Props = {
     holdings: HoldingSummary[]
@@ -15,7 +15,7 @@ type Props = {
 
 export function PortfolioExport({ holdings }: Props) {
     const [open, setOpen] = useState(false)
-    const overview = createPortfolioOverview(holdings)
+    const hasOpenedSheet = useHasOpened(open)
 
     return (
         <>
@@ -31,7 +31,9 @@ export function PortfolioExport({ holdings }: Props) {
                 <span className="hidden lg:inline">Overview</span>
             </Button>
 
-            <PortfolioExportSheet open={open} onOpenChange={setOpen} overview={overview} />
+            {hasOpenedSheet && (
+                <LazyPortfolioExportSheet open={open} onOpenChange={setOpen} holdings={holdings} />
+            )}
         </>
     )
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
+import { useHasOpened } from '@/hooks/use-has-opened'
 import { Button } from '@/components/ui/button'
 import {
     Card,
@@ -14,7 +15,7 @@ import {
 } from '@/components/ui/card'
 import { SETTINGS_ROUTE_PATH } from '@/lib/constants'
 import type { Expense } from '@/types/Expense'
-import { AddExpenseDrawer } from '@/modules/expenses/add-expense-drawer'
+import { LazyAddExpenseDrawer } from '@/modules/expenses/expenses-card.lazy'
 import { ExpenseList } from '@/modules/expenses/expense-list'
 import { ExpensesSankey } from '@/modules/expenses/expenses-sankey'
 import { ExpensesSummary } from '@/modules/expenses/expenses-summary'
@@ -34,6 +35,7 @@ type Props = {
 
 export function ExpensesCard({ netSalaryEur, mealAllowanceEur, expenses, hidePrices }: Props) {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+    const hasOpenedDrawer = useHasOpened(isDrawerOpen)
 
     const income = { netSalaryEur: netSalaryEur ?? 0, mealAllowanceEur }
     const totals = getBudgetTotals(income, expenses)
@@ -96,7 +98,9 @@ export function ExpensesCard({ netSalaryEur, mealAllowanceEur, expenses, hidePri
                 </CardContent>
             </Card>
 
-            <AddExpenseDrawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen} />
+            {hasOpenedDrawer && (
+                <LazyAddExpenseDrawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen} />
+            )}
         </>
     )
 }
