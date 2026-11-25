@@ -1,14 +1,12 @@
 import { LifeBuoyIcon } from 'lucide-react'
+import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { getGoalProgress } from '@/components/goal-progress/goal-progress.helpers'
-import { EMERGENCY_FUND_ROUTE_PATH } from '@/lib/constants'
+import { EMERGENCY_FUND_ROUTE_PATH, SETTINGS_ROUTE_PATH } from '@/lib/constants'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import type { BankBalanceSummary } from '@/types/BankConnection'
-import {
-    DEFAULT_EMERGENCY_FUND_GOAL,
-    EMPTY_BALANCE_MESSAGE,
-} from '@/modules/emergency-fund/emergency-fund-card.constants'
+import { EMPTY_BALANCE_MESSAGE } from '@/modules/emergency-fund/emergency-fund-card.constants'
 import {
     getEmergencyFundStatus,
     toDisplayCurrency,
@@ -17,11 +15,12 @@ import { DashboardCardHeader } from '@/modules/dashboard/dashboard-card-header'
 
 type Props = {
     bankBalance: BankBalanceSummary
+    // `null` until it is set on the Settings page
+    goal: number | null
     hidePrices: boolean
 }
 
-export function GoalsCard({ bankBalance, hidePrices }: Props) {
-    const goal = DEFAULT_EMERGENCY_FUND_GOAL
+export function GoalsCard({ bankBalance, goal, hidePrices }: Props) {
     const currency = toDisplayCurrency(bankBalance.currency)
     const { balance } = bankBalance
 
@@ -46,6 +45,16 @@ export function GoalsCard({ bankBalance, hidePrices }: Props) {
                         <p className="text-xs text-muted-foreground">
                             {EMPTY_BALANCE_MESSAGE[getEmergencyFundStatus(bankBalance)]}
                         </p>
+                    </div>
+                ) : goal === null ? (
+                    <div className="flex min-w-0 flex-col gap-0.5">
+                        <p className="text-sm font-medium">Emergency fund</p>
+                        <Link
+                            href={SETTINGS_ROUTE_PATH}
+                            className="text-xs font-medium text-brand underline-offset-4 hover:underline"
+                        >
+                            Set a goal in Settings
+                        </Link>
                     </div>
                 ) : (
                     <EmergencyFundProgress

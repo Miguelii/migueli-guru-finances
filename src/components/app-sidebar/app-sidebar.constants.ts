@@ -1,16 +1,18 @@
 import type * as React from 'react'
 
 import {
+    BanknoteIcon,
     BriefcaseBusinessIcon,
     CircleDollarSignIcon,
-    CoinsIcon,
     DatabaseZapIcon,
+    HandCoinsIcon,
     LayoutDashboardIcon,
     LifeBuoyIcon,
     NewspaperIcon,
     ReceiptTextIcon,
     ScaleIcon,
     ScrollTextIcon,
+    SettingsIcon,
     TrendingUpIcon,
     type LucideProps,
 } from 'lucide-react'
@@ -18,13 +20,15 @@ import {
     CACHE_ROUTE_PATH,
     EMERGENCY_FUND_ROUTE_PATH,
     ETF_PLANNING_ROUTE_PATH,
+    EXPENSES_ROUTE_PATH,
     NEWS_ROUTE_PATH,
+    PAYSLIPS_ROUTE_PATH,
     PLANNING_ROUTE_PATH,
     LOGS_ROUTE_PATH,
     POSITIONS_ROUTE_PATH,
     PRICES_ROUTE_PATH,
     PRIVATE_ROUTE_PATH,
-    STAKING_ROUTE_PATH,
+    SETTINGS_ROUTE_PATH,
     TRANSACTIONS_ROUTE_PATH,
 } from '@/lib/constants'
 
@@ -96,9 +100,14 @@ export const NAV_GROUPS: NavGroup[] = [
                 Icon: ScaleIcon,
             },
             {
-                title: 'Staking',
-                url: STAKING_ROUTE_PATH,
-                Icon: CoinsIcon,
+                title: 'Payslips',
+                url: PAYSLIPS_ROUTE_PATH,
+                Icon: BanknoteIcon,
+            },
+            {
+                title: 'Expenses',
+                url: EXPENSES_ROUTE_PATH,
+                Icon: HandCoinsIcon,
             },
             {
                 title: 'Emergency Fund',
@@ -110,6 +119,11 @@ export const NAV_GROUPS: NavGroup[] = [
     {
         label: 'System',
         items: [
+            {
+                title: 'Settings',
+                url: SETTINGS_ROUTE_PATH,
+                Icon: SettingsIcon,
+            },
             {
                 title: 'Logs',
                 url: LOGS_ROUTE_PATH,

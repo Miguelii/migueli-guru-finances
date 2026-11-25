@@ -2,7 +2,7 @@
 
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer'
 import { formatCurrency } from '@/lib/portfolio/formaters'
 import { cn } from '@/lib/utils'
 import { Currency } from '@/types/core/Currency'
@@ -184,18 +184,14 @@ export function TransactionsCard({ transactions, tickerData, rates, hidePrices }
                 )}
             </PortfolioCard>
 
-            <Sheet
+            <Drawer
                 open={selected !== null}
                 onOpenChange={(open) => {
                     if (!open) closeDetails()
                 }}
             >
-                <SheetContent
-                    side="right"
-                    showCloseButton={false}
-                    className="w-full gap-0 p-0 sm:max-w-md"
-                >
-                    <SheetTitle className="sr-only">Transaction details</SheetTitle>
+                <DrawerContent>
+                    <DrawerTitle className="sr-only">Transaction details</DrawerTitle>
                     {drawerTransaction && (
                         <TransactionDetails
                             key={drawerTransaction.id}
@@ -218,8 +214,8 @@ export function TransactionsCard({ transactions, tickerData, rates, hidePrices }
                             onClose={closeDetails}
                         />
                     )}
-                </SheetContent>
-            </Sheet>
+                </DrawerContent>
+            </Drawer>
 
             <TransactionDrawer
                 open={isDrawerOpen}

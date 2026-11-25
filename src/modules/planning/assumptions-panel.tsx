@@ -81,8 +81,10 @@ export function AssumptionsPanel({
                     <li className={cn({ 'blur-sm select-none': hidePrices })}>
                         {formatPaymentEur(monthlySavingEur)} / month
                     </li>
-                    <li className={cn({ 'blur-sm select-none': hidePrices })}>
-                        {formatPaymentEur(netSalaryEur)} net salary
+                    <li className={cn({ 'blur-sm select-none': hidePrices && netSalaryEur > 0 })}>
+                        {netSalaryEur > 0
+                            ? `${formatPaymentEur(netSalaryEur)} net salary`
+                            : 'Net salary not set'}
                     </li>
                     <li>{annualRatePct}% TAN</li>
                     <li>{termYears} years</li>

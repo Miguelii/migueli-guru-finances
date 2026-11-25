@@ -12,14 +12,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-} from '@/components/ui/sheet'
+import { Drawer, DrawerContent } from '@/components/ui/drawer'
+import { DrawerFormLayout } from '@/components/ui/drawer-form-layout'
 import { trpcClient } from '@/lib/trpc'
 import { TickerType } from '@/types/core/TickerType'
 import { TransactionType, type TickerData, type Transaction } from '@/types/Transaction'
@@ -134,209 +128,215 @@ export function TransactionDrawer({
     const assets = tickerData.filter((tick) => tick.type !== TickerType.Cambio)
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="right" className="overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>{isEdit ? 'Edit transaction' : 'Add transaction'}</SheetTitle>
-                    <SheetDescription>
-                        {isEdit
-                            ? 'Update the transaction details below.'
-                            : 'Fill in the details of the new transaction.'}
-                    </SheetDescription>
-                </SheetHeader>
-
+        <Drawer open={open} onOpenChange={onOpenChange}>
+            <DrawerContent>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-1 flex-col gap-4 px-4 pb-4"
+                    className="flex min-h-0 flex-1 flex-col"
                 >
-                    <Controller
-                        name="ticker_id"
-                        control={form.control}
-                        rules={{ required: true }}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Asset</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger
-                                        id={field.name}
-                                        className="w-full"
-                                        aria-invalid={fieldState.invalid}
-                                    >
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {assets.map((tick) => (
-                                            <SelectItem key={tick.ticker} value={tick.ticker}>
-                                                {tick.ticker}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {fieldState.invalid && (
-                                    <FieldError>Please select an asset</FieldError>
+                    <DrawerFormLayout
+                        title={isEdit ? 'Edit transaction' : 'Add transaction'}
+                        description={
+                            isEdit
+                                ? 'Update the transaction details below.'
+                                : 'Fill in the details of the new transaction.'
+                        }
+                        closeLabel="Close transaction drawer"
+                        closeDisabled={isPending}
+                        onDismiss={() => onOpenChange(false)}
+                        primaryAction={
+                            <Button type="submit" disabled={isPending} className="cursor-pointer">
+                                {isPending ? (
+                                    <span className="flex items-center gap-2">
+                                        <Loader2Icon className="size-4 animate-spin" />
+                                        Saving...
+                                    </span>
+                                ) : (
+                                    getButtonLabel()
                                 )}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="type"
-                        control={form.control}
-                        rules={{ required: true }}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Type</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger
-                                        id={field.name}
-                                        className="w-full"
-                                        aria-invalid={fieldState.invalid}
-                                    >
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {Object.values(TransactionType).map((type) => (
-                                            <SelectItem key={type} value={type}>
-                                                {type}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {fieldState.invalid && (
-                                    <FieldError>Please select a type</FieldError>
-                                )}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="buy_date"
-                        control={form.control}
-                        rules={{ required: true }}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Date</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="datetime-local"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && <FieldError>Please pick a date</FieldError>}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="quantity"
-                        control={form.control}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor={field.name}>Quantity</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="number"
-                                    step="any"
-                                    min="0"
-                                    placeholder="0.00"
-                                />
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="transaction_price"
-                        control={form.control}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor={field.name}>Buy Price</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="number"
-                                    step="any"
-                                    min="0"
-                                    placeholder="0.00"
-                                />
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="value"
-                        control={form.control}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor={field.name}>Invested Value</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="number"
-                                    step="any"
-                                    min="0"
-                                    placeholder="0.00"
-                                />
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="fee"
-                        control={form.control}
-                        rules={{ required: true }}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Fee</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="number"
-                                    step="any"
-                                    min="0"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && <FieldError>Please enter a fee</FieldError>}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="exchange_rate"
-                        control={form.control}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor={field.name}>
-                                    Exchange rate (EUR per 1 USD/USDC)
-                                </FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="number"
-                                    step="any"
-                                    min="0"
-                                    placeholder="e.g. 0.87"
-                                />
-                            </Field>
-                        )}
-                    />
-
-                    {preview && <TransactionPreview preview={preview} />}
-
-                    <SheetFooter className="px-0">
-                        <Button type="submit" disabled={isPending} className="cursor-pointer">
-                            {isPending ? (
-                                <span className="flex items-center gap-2">
-                                    <Loader2Icon className="size-4 animate-spin" />
-                                    Saving...
-                                </span>
-                            ) : (
-                                getButtonLabel()
+                            </Button>
+                        }
+                    >
+                        <Controller
+                            name="ticker_id"
+                            control={form.control}
+                            rules={{ required: true }}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Asset</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger
+                                            id={field.name}
+                                            className="w-full"
+                                            aria-invalid={fieldState.invalid}
+                                        >
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {assets.map((tick) => (
+                                                <SelectItem key={tick.ticker} value={tick.ticker}>
+                                                    {tick.ticker}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {fieldState.invalid && (
+                                        <FieldError>Please select an asset</FieldError>
+                                    )}
+                                </Field>
                             )}
-                        </Button>
-                    </SheetFooter>
+                        />
+
+                        <Controller
+                            name="type"
+                            control={form.control}
+                            rules={{ required: true }}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Type</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger
+                                            id={field.name}
+                                            className="w-full"
+                                            aria-invalid={fieldState.invalid}
+                                        >
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {Object.values(TransactionType).map((type) => (
+                                                <SelectItem key={type} value={type}>
+                                                    {type}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {fieldState.invalid && (
+                                        <FieldError>Please select a type</FieldError>
+                                    )}
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="buy_date"
+                            control={form.control}
+                            rules={{ required: true }}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Date</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type="datetime-local"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError>Please pick a date</FieldError>
+                                    )}
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="quantity"
+                            control={form.control}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name}>Quantity</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type="number"
+                                        step="any"
+                                        min="0"
+                                        placeholder="0.00"
+                                    />
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="transaction_price"
+                            control={form.control}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name}>Buy Price</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type="number"
+                                        step="any"
+                                        min="0"
+                                        placeholder="0.00"
+                                    />
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="value"
+                            control={form.control}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name}>Invested Value</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type="number"
+                                        step="any"
+                                        min="0"
+                                        placeholder="0.00"
+                                    />
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="fee"
+                            control={form.control}
+                            rules={{ required: true }}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Fee</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type="number"
+                                        step="any"
+                                        min="0"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError>Please enter a fee</FieldError>
+                                    )}
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="exchange_rate"
+                            control={form.control}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name}>
+                                        Exchange rate (EUR per 1 USD/USDC)
+                                    </FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        type="number"
+                                        step="any"
+                                        min="0"
+                                        placeholder="e.g. 0.87"
+                                    />
+                                </Field>
+                            )}
+                        />
+
+                        {preview && <TransactionPreview preview={preview} />}
+                    </DrawerFormLayout>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DrawerContent>
+        </Drawer>
     )
 }

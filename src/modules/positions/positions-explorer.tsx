@@ -1,6 +1,6 @@
 'use client'
 
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer'
 import type { HoldingSummary } from '@/types/Holding'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 import { ClosedPositions } from '@/modules/positions/closed-positions'
@@ -87,18 +87,14 @@ export function PositionsExplorer({ holdings, hidePrices }: Props) {
 
             <ClosedPositions positions={closed} hidePrices={hidePrices} onSelect={selectPosition} />
 
-            <Sheet
+            <Drawer
                 open={selected !== null}
                 onOpenChange={(open) => {
                     if (!open) closeDetails()
                 }}
             >
-                <SheetContent
-                    side="right"
-                    showCloseButton={false}
-                    className="w-full gap-0 p-0 sm:max-w-md"
-                >
-                    <SheetTitle className="sr-only">Position details</SheetTitle>
+                <DrawerContent>
+                    <DrawerTitle className="sr-only">Position details</DrawerTitle>
                     {drawerHolding && (
                         <PositionDetails
                             holding={drawerHolding}
@@ -107,8 +103,8 @@ export function PositionsExplorer({ holdings, hidePrices }: Props) {
                             onClose={closeDetails}
                         />
                     )}
-                </SheetContent>
-            </Sheet>
+                </DrawerContent>
+            </Drawer>
         </>
     )
 }

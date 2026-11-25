@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { cn, getBuildId, getCambioRates, getLatestUpdate, groupAssetsByType } from '@/lib/utils'
+import {
+    cn,
+    getBuildId,
+    parseDecimalInput,
+    getCambioRates,
+    getLatestUpdate,
+    groupAssetsByType,
+} from '@/lib/utils'
 import type { TickerData } from '@/types/Transaction'
 import { Currency } from '@/types/core/Currency'
 import { Ticker } from '@/types/core/Ticker'
@@ -207,5 +214,21 @@ describe('getCambioRates', () => {
             usdToEur: 0,
             usdcToEur: 0,
         })
+    })
+})
+
+describe('parseDecimalInput', () => {
+    it.each([
+        ['2532.28', 2532.28],
+        ['2532,28', 2532.28],
+        ['2.532,28', 2532.28],
+        ['2 532,28 €', 2532.28],
+        ['0', 0],
+    ])('parses %s', (input, expected) => {
+        expect(parseDecimalInput(input)).toBe(expected)
+    })
+
+    it.each(['', '   ', 'abc', '-10'])('rejects %j', (input) => {
+        expect(parseDecimalInput(input)).toBeNull()
     })
 })

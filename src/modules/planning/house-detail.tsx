@@ -74,13 +74,15 @@ const StarRow = ({
                                 / month
                             </span>
                         </span>
-                        <span
-                            className={cn('text-xs font-medium', {
-                                'blur-sm select-none': hidePrices,
-                            })}
-                        >
-                            {formatEffortRate(star.monthlyPaymentEur, netSalaryEur)} effort rate
-                        </span>
+                        {netSalaryEur > 0 && (
+                            <span
+                                className={cn('text-xs font-medium', {
+                                    'blur-sm select-none': hidePrices,
+                                })}
+                            >
+                                {formatEffortRate(star.monthlyPaymentEur, netSalaryEur)} effort rate
+                            </span>
+                        )}
                     </span>
                     <span className="text-xs text-muted-foreground">
                         {getPaymentNote(star.monthlyPaymentEur)}

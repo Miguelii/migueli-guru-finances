@@ -4,7 +4,13 @@ import { DownloadIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PORTFOLIO_EXPORT_FILENAME } from '@/modules/portfolio-export/portfolio-export.constants'
 import { parsePortfolioOverview } from '@/modules/portfolio-export/portfolio-export.helpers'
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+    Drawer,
+    DrawerContent,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerTitle,
+} from '@/components/ui/drawer'
 
 type Props = {
     open: boolean
@@ -31,16 +37,13 @@ export function PortfolioExportSheet({ open, onOpenChange, overview }: Props) {
     }
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent
-                side="right"
-                className="w-[95vw] max-w-[95vw] overflow-y-auto sm:w-[60vw]! sm:max-w-[60vw]!"
-            >
-                <SheetHeader>
-                    <SheetTitle className="text-lg font-semibold">Portfolio overview</SheetTitle>
-                </SheetHeader>
+        <Drawer open={open} onOpenChange={onOpenChange}>
+            <DrawerContent className="data-[swipe-direction=right]:max-w-[60vw]">
+                <DrawerHeader className="shrink-0 border-b">
+                    <DrawerTitle className="text-lg font-semibold">Portfolio overview</DrawerTitle>
+                </DrawerHeader>
 
-                <div className="flex flex-1 px-4 pb-4">
+                <div className="flex min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
                     <section
                         aria-label="Portfolio overview preview"
                         className="grid min-h-96 w-full grid-cols-[max-content_3ch_max-content_3ch_max-content_3ch_max-content_3ch_max-content] overflow-auto rounded-lg border border-input bg-muted/20 p-3 font-mono text-xs leading-relaxed text-foreground"
@@ -105,18 +108,18 @@ export function PortfolioExportSheet({ open, onOpenChange, overview }: Props) {
                     </section>
                 </div>
 
-                <SheetFooter className="px-4 pt-0">
+                <DrawerFooter className="shrink-0 border-t pb-[max(1rem,env(safe-area-inset-bottom))]">
                     <Button
                         type="button"
-                        className="cursor-pointer!"
+                        className="h-11 cursor-pointer! md:h-9"
                         onClick={downloadOverview}
                         disabled={!overview}
                     >
                         <DownloadIcon />
                         Download TXT
                     </Button>
-                </SheetFooter>
-            </SheetContent>
-        </Sheet>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
     )
 }

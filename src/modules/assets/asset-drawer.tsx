@@ -12,14 +12,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-} from '@/components/ui/sheet'
+import { Drawer, DrawerContent } from '@/components/ui/drawer'
+import { DrawerFormLayout } from '@/components/ui/drawer-form-layout'
 import { trpcClient } from '@/lib/trpc'
 import {
     ASSET_TYPES,
@@ -89,220 +83,222 @@ export function AssetDrawer({ open, onOpenChange, asset }: Props) {
     }
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="right" className="overflow-y-auto">
-                <SheetHeader>
-                    <SheetTitle>{isEdit ? 'Edit asset' : 'Add asset'}</SheetTitle>
-                    <SheetDescription>
-                        The current price is fetched automatically from the selected provider.
-                    </SheetDescription>
-                </SheetHeader>
-
+        <Drawer open={open} onOpenChange={onOpenChange}>
+            <DrawerContent>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-1 flex-col gap-4 px-4 pb-4"
+                    className="flex min-h-0 flex-1 flex-col"
                 >
-                    <Controller
-                        name="ticker"
-                        control={form.control}
-                        rules={{ required: true, pattern: /^[A-Za-z0-9.\-=]+$/u }}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Ticker</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    className="uppercase"
-                                    placeholder="e.g. BTC, VUAA"
-                                    disabled={isEdit}
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError>Please enter a valid ticker symbol</FieldError>
+                    <DrawerFormLayout
+                        title={isEdit ? 'Edit asset' : 'Add asset'}
+                        description="The current price is fetched automatically from the selected provider."
+                        closeLabel="Close asset drawer"
+                        closeDisabled={isPending}
+                        onDismiss={() => onOpenChange(false)}
+                        primaryAction={
+                            <Button type="submit" disabled={isPending} className="cursor-pointer">
+                                {isPending ? (
+                                    <span className="flex items-center gap-2">
+                                        <Loader2Icon className="size-4 animate-spin" />
+                                        {isEdit ? 'Saving...' : 'Creating...'}
+                                    </span>
+                                ) : (
+                                    getButtonLabel()
                                 )}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="type"
-                        control={form.control}
-                        rules={{ required: true }}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor={field.name}>Type</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger id={field.name} className="w-full">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {ASSET_TYPES.map((type) => (
-                                            <SelectItem key={type} value={type}>
-                                                {type}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="currency"
-                        control={form.control}
-                        rules={{ required: true }}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor={field.name}>Currency</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger id={field.name} className="w-full">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {Object.values(Currency).map((currency) => (
-                                            <SelectItem key={currency} value={currency}>
-                                                {currency}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="service"
-                        control={form.control}
-                        rules={{ required: true }}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor={field.name}>Price provider</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger id={field.name} className="w-full">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {SERVICES.map((service) => (
-                                            <SelectItem key={service} value={service}>
-                                                {service}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="symbol"
-                        control={form.control}
-                        rules={{ required: true }}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor={field.name}>Symbol</FieldLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger id={field.name} className="w-full">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {SYMBOLS.map((symbol) => (
-                                            <SelectItem key={symbol} value={symbol}>
-                                                {symbol}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="hex_color"
-                        control={form.control}
-                        rules={{ pattern: /^#[0-9a-fA-F]{6}$/u }}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Hex color (optional)</FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    placeholder="#627eea"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError>Use the #rrggbb format</FieldError>
-                                )}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="news_keywords"
-                        control={form.control}
-                        rules={{ maxLength: 120 }}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>
-                                    News search terms (optional)
-                                </FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    placeholder="AtlasClear lawsuit"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError>Use at most 120 characters</FieldError>
-                                )}
-                            </Field>
-                        )}
-                    />
-
-                    <Controller
-                        name="image"
-                        control={form.control}
-                        rules={{
-                            validate: (file) =>
-                                !file ||
-                                (file.type.startsWith('image/') &&
-                                    file.size <= MAX_IMAGE_SIZE_BYTES),
-                        }}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Logo (optional)</FieldLabel>
-                                <Input
-                                    id={field.name}
-                                    name={field.name}
-                                    ref={field.ref}
-                                    type="file"
-                                    accept="image/*"
-                                    onBlur={field.onBlur}
-                                    onChange={(event) =>
-                                        field.onChange(event.target.files?.[0] ?? null)
-                                    }
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError>Please choose an image up to 2MB</FieldError>
-                                )}
-                            </Field>
-                        )}
-                    />
-
-                    <SheetFooter className="px-0">
-                        <Button type="submit" disabled={isPending} className="cursor-pointer">
-                            {isPending ? (
-                                <span className="flex items-center gap-2">
-                                    <Loader2Icon className="size-4 animate-spin" />
-                                    {isEdit ? 'Saving...' : 'Creating...'}
-                                </span>
-                            ) : (
-                                getButtonLabel()
+                            </Button>
+                        }
+                    >
+                        <Controller
+                            name="ticker"
+                            control={form.control}
+                            rules={{ required: true, pattern: /^[A-Za-z0-9.\-=]+$/u }}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Ticker</FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        className="uppercase"
+                                        placeholder="e.g. BTC, VUAA"
+                                        disabled={isEdit}
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError>Please enter a valid ticker symbol</FieldError>
+                                    )}
+                                </Field>
                             )}
-                        </Button>
-                    </SheetFooter>
+                        />
+
+                        <Controller
+                            name="type"
+                            control={form.control}
+                            rules={{ required: true }}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name}>Type</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger id={field.name} className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {ASSET_TYPES.map((type) => (
+                                                <SelectItem key={type} value={type}>
+                                                    {type}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="currency"
+                            control={form.control}
+                            rules={{ required: true }}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name}>Currency</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger id={field.name} className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {Object.values(Currency).map((currency) => (
+                                                <SelectItem key={currency} value={currency}>
+                                                    {currency}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="service"
+                            control={form.control}
+                            rules={{ required: true }}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name}>Price provider</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger id={field.name} className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {SERVICES.map((service) => (
+                                                <SelectItem key={service} value={service}>
+                                                    {service}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="symbol"
+                            control={form.control}
+                            rules={{ required: true }}
+                            render={({ field }) => (
+                                <Field>
+                                    <FieldLabel htmlFor={field.name}>Symbol</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger id={field.name} className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {SYMBOLS.map((symbol) => (
+                                                <SelectItem key={symbol} value={symbol}>
+                                                    {symbol}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="hex_color"
+                            control={form.control}
+                            rules={{ pattern: /^#[0-9a-fA-F]{6}$/u }}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>
+                                        Hex color (optional)
+                                    </FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        placeholder="#627eea"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError>Use the #rrggbb format</FieldError>
+                                    )}
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="news_keywords"
+                            control={form.control}
+                            rules={{ maxLength: 120 }}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>
+                                        News search terms (optional)
+                                    </FieldLabel>
+                                    <Input
+                                        {...field}
+                                        id={field.name}
+                                        placeholder="AtlasClear lawsuit"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError>Use at most 120 characters</FieldError>
+                                    )}
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name="image"
+                            control={form.control}
+                            rules={{
+                                validate: (file) =>
+                                    !file ||
+                                    (file.type.startsWith('image/') &&
+                                        file.size <= MAX_IMAGE_SIZE_BYTES),
+                            }}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name}>Logo (optional)</FieldLabel>
+                                    <Input
+                                        id={field.name}
+                                        name={field.name}
+                                        ref={field.ref}
+                                        type="file"
+                                        accept="image/*"
+                                        onBlur={field.onBlur}
+                                        onChange={(event) =>
+                                            field.onChange(event.target.files?.[0] ?? null)
+                                        }
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError>Please choose an image up to 2MB</FieldError>
+                                    )}
+                                </Field>
+                            )}
+                        />
+                    </DrawerFormLayout>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DrawerContent>
+        </Drawer>
     )
 }

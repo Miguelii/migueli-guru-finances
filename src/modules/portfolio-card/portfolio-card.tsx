@@ -1,6 +1,5 @@
 'use client'
 
-import { ChevronDown } from 'lucide-react'
 import { LazyMotion, domAnimation, m } from 'motion/react'
 import { type PropsWithChildren, use } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -40,12 +39,12 @@ export function PortfolioCard({
             })}
         >
             <CardHeader
-                className="flex cursor-pointer flex-row items-center justify-between gap-2"
+                className="flex flex-row items-center justify-between gap-2"
                 role="button"
                 tabIndex={0}
                 aria-expanded={isOpen}
                 aria-controls={contentId}
-                onClick={(event) => {
+                /* onClick={(event) => {
                     if (
                         event.target instanceof Element &&
                         event.target.closest('[data-portfolio-card-actions]') !== null
@@ -54,8 +53,8 @@ export function PortfolioCard({
                     }
 
                     context.toggle(cardId)
-                }}
-                onKeyDown={(event) => {
+                }} */
+                /* onKeyDown={(event) => {
                     if (
                         event.target instanceof Element &&
                         event.target.closest('[data-portfolio-card-actions]') !== null
@@ -67,17 +66,17 @@ export function PortfolioCard({
                         event.preventDefault()
                         context.toggle(cardId)
                     }
-                }}
+                }} */
             >
                 <CardTitle>{title}</CardTitle>
                 <div className="flex items-center gap-2" data-portfolio-card-actions>
                     {actions}
-                    <ChevronDown
+                    {/* <ChevronDown
                         aria-hidden="true"
                         className={cn('size-4 transition-transform duration-200', {
                             'rotate-180': isOpen,
                         })}
-                    />
+                    /> */}
                 </div>
             </CardHeader>
             <LazyMotion features={domAnimation} strict>

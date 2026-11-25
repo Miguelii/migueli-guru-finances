@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { LOG_RANGE_LABEL, type LogRange } from '@/lib/constants/logs'
 import { LogDetails } from '@/modules/logs/log-details'
@@ -108,17 +109,17 @@ export function LogsExplorer({ logs, isTruncated, range, fetchedAt }: Props) {
                 </SheetContent>
             </Sheet>
 
-            <Sheet
+            <Drawer
                 open={selectedLog !== null}
                 onOpenChange={(open) => {
                     if (!open) closeDetails()
                 }}
             >
-                <SheetContent side="right" showCloseButton={false} className="w-full gap-0 p-0">
-                    <SheetTitle className="sr-only">Log details</SheetTitle>
+                <DrawerContent className="data-[swipe-direction=right]:max-w-2xl">
+                    <DrawerTitle className="sr-only">Log details</DrawerTitle>
                     {drawerLog && <LogDetails log={drawerLog} onClose={closeDetails} />}
-                </SheetContent>
-            </Sheet>
+                </DrawerContent>
+            </Drawer>
         </section>
     )
 }

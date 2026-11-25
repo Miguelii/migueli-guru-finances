@@ -39,6 +39,7 @@ export const paramsUrlKeys: UrlKeys<typeof paramsParsers> = {
     news_asset: 'news_asset',
     planning_tab: 'planning_tab',
     house_price: 'house_price',
+    payslips_year: 'payslips_year',
 }
 
 // Result of the bank connection flow (Enable Banking), set by /api/bank/callback
@@ -80,6 +81,9 @@ export const planningTabParser =
     parseAsStringLiteral(PLANNING_TABS).withDefault(DEFAULT_PLANNING_TAB)
 export const housePriceParser = parseAsInteger
 
+// Payslips page: client-only year shown in the table (defaults to the latest year with payslips)
+export const payslipsYearParser = parseAsInteger
+
 const paramsParsers = {
     hide_prices: parseAsBoolean.withDefault(false),
     filter_asset: parseAsString.withDefault(ALL_TRANSACTION_ASSETS),
@@ -99,6 +103,7 @@ const paramsParsers = {
     news_asset: newsAssetParser,
     planning_tab: planningTabParser,
     house_price: housePriceParser,
+    payslips_year: payslipsYearParser,
 } as const
 
 export const searchParamsCache = createSearchParamsCache(paramsParsers)

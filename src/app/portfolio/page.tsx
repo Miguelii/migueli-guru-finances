@@ -9,15 +9,13 @@ import { toDateKey } from '@/lib/portfolio/portfolio-snapshots'
 import { getIsDev } from '@/lib/utils/index.server'
 import { Card } from '@/components/ui/card'
 import { AllocationOverviewCard } from '@/modules/dashboard/allocation-overview-card'
+import { DashboardHighlights } from '@/modules/dashboard/dashboard-highlights'
 import { DashboardGreeting } from '@/modules/dashboard/dashboard-greeting'
 import { withLiveSnapshot } from '@/modules/dashboard/dashboard.helpers'
-import { GoalsCard } from '@/modules/dashboard/goals-card'
 import { KpiCards } from '@/modules/dashboard/kpi-cards'
-import { LatestTransactionCard } from '@/modules/dashboard/latest-transaction-card'
 import { PerformanceChart } from '@/modules/dashboard/performance-chart'
 import { RecentTransactionsCard } from '@/modules/dashboard/recent-transactions-card'
 import { AssetClassCards } from '@/modules/summary/asset-class-cards'
-import { TopPerformersCard } from '@/modules/top-performers/top-performers-card'
 
 export const metadata: Metadata = {
     title: 'Portfolio | Migueli Guru Finances',
@@ -28,14 +26,21 @@ type Props = PageProps<'/portfolio'>
 export default async function PortfolioPage(props: Props) {
     const trpc = await createCaller()
 
-    const [{ holdings, transactions, data, rates }, snapshots, bankBalance, user, searchParams] =
-        await Promise.all([
-            getPortfolioData(),
-            trpc.snapshots.getAll(),
-            trpc.bank.get(),
-            trpc.auth.me(),
-            searchParamsCache.parse(props.searchParams),
-        ])
+    const [
+        { holdings, transactions, data, rates },
+        snapshots,
+        bankBalance,
+        settings,
+        user,
+        searchParams,
+    ] = await Promise.all([
+        getPortfolioData(),
+        trpc.snapshots.getAll(),
+        trpc.bank.get(),
+        trpc.settings.get(),
+        trpc.auth.me(),
+        searchParamsCache.parse(props.searchParams),
+    ])
 
     const hidePrices = searchParams.hide_prices
     const totals = computePortfolioTotals(holdings)
@@ -87,16 +92,15 @@ export default async function PortfolioPage(props: Props) {
                 />
             </div>
 
-            <aside aria-label="Highlights" className="flex min-w-0 flex-col gap-6">
-                <LatestTransactionCard
-                    transactions={transactions}
-                    tickerData={data}
-                    rates={rates}
-                    hidePrices={hidePrices}
-                />
-                <GoalsCard bankBalance={bankBalance} hidePrices={hidePrices} />
-                <TopPerformersCard holdings={holdings} hidePrices={hidePrices} />
-            </aside>
+            <DashboardHighlights
+                transactions={transactions}
+                tickerData={data}
+                rates={rates}
+                holdings={holdings}
+                bankBalance={bankBalance}
+                emergencyFundGoalEur={settings.emergencyFundGoalEur}
+                hidePrices={hidePrices}
+            />
         </main>
     )
 }

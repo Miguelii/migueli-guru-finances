@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { searchParamsCache } from '@/lib/core/searchParams'
 import { computePortfolioTotals } from '@/lib/portfolio/calculations'
+import { createCaller } from '@/_bff/trpc/caller'
 import { getPortfolioData } from '@/lib/portfolio/portfolio-data.server'
 import { HousePlannerCard } from '@/modules/planning/house-planner-card'
 import { PlanningCard } from '@/modules/planning/planning-card'
@@ -13,8 +14,11 @@ export const metadata: Metadata = {
 type Props = PageProps<'/portfolio/planning'>
 
 export default async function PlanningPage(props: Props) {
-    const [{ holdings, transactions }, searchParams] = await Promise.all([
+    const trpc = await createCaller()
+
+    const [{ holdings, transactions }, settings, searchParams] = await Promise.all([
         getPortfolioData(),
+        trpc.settings.get(),
         searchParamsCache.parse(props.searchParams),
     ])
 
@@ -27,6 +31,7 @@ export default async function PlanningPage(props: Props) {
                 house={
                     <HousePlannerCard
                         portfolioValueEur={portfolioValueEur}
+                        netSalaryEur={settings.netMonthlySalaryEur}
                         hidePrices={hidePrices}
                     />
                 }

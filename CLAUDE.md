@@ -124,7 +124,7 @@ const transactions = await caller.transactions.getAll()
 
 ## Backend module layout
 
-All backend code lives under `src/_bff/modules/<module>/` (`assets`, `auth`, `bank`, `cache`, `logs`, `transactions`):
+All backend code lives under `src/_bff/modules/<module>/` (`assets`, `auth`, `bank`, `cache`, `logs`, `payslips`, `settings`, `transactions`):
 
 - `<module>.router.ts`: module composition root, exports `<MODULE>_ROUTER`
 - `<use-case>/<use-case>.controller.ts` + `<use-case>/<use-case>.service.ts`: one folder per route (e.g. `create-transaction/`). A use case with no tRPC route (plain HTTP handler, e.g. `external-update-tickers/`) has only the service
@@ -140,7 +140,7 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 
 ## Supabase
 
-- **Tables**: `data` (ticker metadata and current prices, `TickerData`, shared by all users), `transactions` (buy/sell/reward/fee rows, `Transaction`, per user) `bank_connections` (Enable Banking session + last synced cash balance, `BankConnection`, one row per user, RLS select-only, written with the service-role client) and `logs` (BFF logs, `LogEntry`, RLS enabled with no policies so only the service-role client reads and writes it, schema in `sql/logs.sql`). `logs` is shared with another app in the same Supabase project: every insert writes `project: LOGS_PROJECT` (`'wallet'`, `src/_bff/common/db/types.ts`) and every read filters by it
+- **Tables**: `data` (ticker metadata and current prices, `TickerData`, shared by all users), `transactions` (buy/sell/reward/fee rows, `Transaction`, per user), `payslips` (net salary + meal allowance per month, `Payslip`, per user, `UNIQUE (user_id, year, month)`, full RLS CRUD on own rows, schema in `sql/payslips.sql`), `user_settings` (one row per user: nullable `net_monthly_salary_eur` / `emergency_fund_goal_eur` and the `monthly_expenses` JSON array, RLS select/insert/update on own row, schema in `sql/user_settings.sql`, migration for older tables in `sql/user_settings_expenses.sql`), `bank_connections` (Enable Banking session + last synced cash balance, `BankConnection`, one row per user, RLS select-only, written with the service-role client) and `logs` (BFF logs, `LogEntry`, RLS enabled with no policies so only the service-role client reads and writes it, schema in `sql/logs.sql`). `logs` is shared with another app in the same Supabase project: every insert writes `project: LOGS_PROJECT` (`'wallet'`, `src/_bff/common/db/types.ts`) and every read filters by it
 - **Storage**: bucket `public_assets` holds asset logos. Uploads are converted to WebP (`upload-asset-image.helper.ts`) and served through `GET /api/asset-logo` because the page CSP only allows same-origin images; build URLs with `buildLogoUrl`
 - **Server client**: `createDBServerClient(useSecretKey?, hooks?)` in `src/_bff/common/db/db.utils.ts`. Always create a new client per request (required for Fluid compute)
   - Default: `@supabase/ssr` with cookie-based session (RLS applies)
@@ -177,6 +177,9 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 
 ## Portfolio data
 
+- **User settings** (`/portfolio/settings`, module `settings`): there are no default values in the app: `settings.get` returns `null` for each value until the user saves it (`toUserSettings`), and `settings.update` upserts the row. Consumers show a "Set a goal in Settings" / "not set" state for `null`. Pages read them through the caller and pass them down: the emergency fund goal (Emergency Fund card, dashboard Goals card) and the House planner starting salary. Never hardcode these values in components
+- **Expenses** (`/portfolio/expenses`, `src/modules/expenses/`): recurring monthly expenses live in `user_settings.monthly_expenses` (`{ id, name, amountEur, category }[]`, `ExpenseCategory` in `src/types/Expense.ts`). `settings.addExpense` / `settings.removeExpense` read the list uncached, change it and upsert it back; reads parse it with `storedExpensesSchema`, which drops invalid items. The page draws a Recharts `Sankey` (net salary from settings + meal allowance of the newest payslip → Income → categories → expenses, plus Left over or a Shortfall source). Category colors are the `expense-*` tokens in `globals.css`
+
 - Assets are dynamic: created in-app via the Watchlist "Add asset" form (`assets.create` mutation). The `Ticker` enum in `src/types/core/Ticker.ts` only covers the long-standing ones
 - Transaction types: `BUY`, `SELL`, `REWARD`, `FEE`
 - Pure functions for all calculations, no side effects. The portfolio engine lives in `src/lib/portfolio/`
@@ -185,14 +188,14 @@ Shared backend infra: `src/_bff/common/db/` (Supabase clients, table/bucket name
 - **Multi-currency** (EUR/USD/USDC per asset) with historical FX: costs and realized G/L convert to EUR at each transaction's `exchange_rate` (EUR per 1 USD/USDC at transaction date, e.g. `0.87`; fallback: current rate when absent), market value converts at the current rate
 - EUR conversion happens ONLY in `src/lib/portfolio/` (`fifo.ts`, `calculations.ts`, `transactions-summary.ts` for transaction values, month totals and the monthly purchases chart): `HoldingSummary` carries precomputed `_eur` fields and UI components consume them as-is (never convert in components)
 - **Capital gains tax** (`src/lib/portfolio/capital-gains-tax.ts`): rates per BUY (each lot's own holding period). Crypto 28% until 1 year, then exempt; ETFs and stocks 28% → 25.2% after 2 years → 22.4% after 5 → 19.6% after 8. The transactions list shows the current rate and the next step, the detail drawer the full bracket timeline
-- **Staking**: the Staking card (own page `/portfolio/staking`) estimates yearly rewards from a fixed APY per asset (`STAKING_APY` in `src/modules/staking/staking-card.constants.ts`) on the whole position (`current_value_eur * apy`, no compounding). Change a rate or add an asset there
+- **Staking**: the Staking card (dashboard side column, under Top movers) estimates yearly rewards from a fixed APY per asset (`STAKING_APY` in `src/modules/staking/staking-card.constants.ts`) on the whole position (`current_value_eur * apy`, no compounding). Change a rate or add an asset there
 - Formatters use `Intl` / `toLocale*String` with the `pt-PT` locale, not date-fns
 
 ## App shell and dashboard
 
 - Shell (`src/app/portfolio/layout.tsx`): icon-rail sidebar (`AppSidebar`, collapsed until the user expands it, state in the `sidebar_state` cookie), sticky top bar (`src/components/app-header/`: sidebar toggle, last price update, Update prices, Overview, hide prices, theme) and `PageHeading`, which titles every page from its sidebar entry (none on the dashboard)
 - The greeting reads `auth.me` (`get-current-user`): the name from the auth metadata (`full_name` / `name` / `display_name`, parsed with zod). Without a name the greeting has no name
-- Dashboard (`/portfolio`, `src/modules/dashboard/`): greeting, KPI cards with sparklines (net worth, invested, unrealized gain), asset class cards (crypto, ETFs, stocks: value, share, invested, unrealized and realized, `src/modules/summary/`), Performance chart (month-end snapshots plus the live point via `withLiveSnapshot`), Allocation overview (by type / by asset), Recent transactions, a receipt-style Last transaction card, Goals (emergency fund) and Top movers. Rows link to the transaction drawer via `buildTransactionHref`
+- Dashboard (`/portfolio`, `src/modules/dashboard/`): greeting, KPI cards with sparklines (net worth, invested, unrealized gain), asset class cards (crypto, ETFs, stocks: value, share, invested, unrealized and realized, `src/modules/summary/`), Performance chart (month-end snapshots plus the live point via `withLiveSnapshot`), Allocation overview (by type / by asset), Recent transactions, a receipt-style Last transaction card, Goals (emergency fund), Top movers and Staking. Rows link to the transaction drawer via `buildTransactionHref`
 
 ## Code placement: helpers and constants
 
@@ -208,6 +211,7 @@ The component helpers/constants split is **strictly mandatory, no exceptions**.
 
 - React 19: use `use()` instead of `useContext()`, and pass `ref` as a regular prop (no `forwardRef`)
 - Server Components by default; add `"use client"` only when state, effects, or browser APIs are needed
+- **Drawers** use `Drawer` (`src/components/ui/drawer.tsx`, Base UI `Drawer`): a bottom sheet with a drag handle and swipe-down to dismiss below `md`, a right side panel from `md` up. Form drawers wrap `DrawerFormLayout` (title + close button, scrollable body, Cancel and the primary action pinned at the bottom) inside their `<form>`. `Sheet` is only for the left panels (mobile sidebar, log filters)
 
 ### Props: ALWAYS use a named `type Props`
 
@@ -276,6 +280,7 @@ Rules:
 - Transactions page (`src/modules/transactions/`): `filter_asset`, `filter_type` and `transaction_id` (detail drawer with Edit/Delete, deep-linkable) are client-only; `filter_year` drives the Monthly Purchases chart
 - Positions page (`src/modules/positions/`): `positions_type`, `positions_sort`, `positions_fees` and `positions_id` (detail drawer, deep-linkable) are client-only filters over the holdings rendered by the server
 - News page (`src/modules/news/`): `news_asset` is a client-only filter shared by the feed and the calendar
+- Payslips page (`src/modules/payslips/`): `payslips_year` is a client-only filter (defaults to the newest year with payslips). The table always shows the 12 months; a duplicate month fails with `PayslipMonthTakenError` (`CONFLICT`), shown inline on the Month field
 
 ## Security and bot protection
 

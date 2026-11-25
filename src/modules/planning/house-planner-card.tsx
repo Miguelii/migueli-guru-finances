@@ -10,7 +10,6 @@ import { HouseLevelPicker } from '@/modules/planning/house-level-picker'
 import { getAffordability, getPaymentFactor } from '@/modules/planning/house-loan.helpers'
 import {
     DEFAULT_ANNUAL_RATE_PCT,
-    DEFAULT_NET_MONTHLY_SALARY_EUR,
     DEFAULT_TERM_YEARS,
     HOUSE_PRICES_EUR,
 } from '@/modules/planning/house-planner-card.constants'
@@ -26,11 +25,19 @@ import { NextStarBanner } from '@/modules/planning/next-star-banner'
 
 type Props = {
     portfolioValueEur: number
+    // Saved on the Settings page, the starting value of the salary assumption (`null` when unset)
+    netSalaryEur: number | null
     hidePrices: boolean
 }
 
-export function HousePlannerCard({ portfolioValueEur, hidePrices }: Props) {
-    const [inputs, setInputs] = useState(() => getInitialHouseInputs(portfolioValueEur))
+export function HousePlannerCard({
+    portfolioValueEur,
+    netSalaryEur: savedNetSalaryEur,
+    hidePrices,
+}: Props) {
+    const [inputs, setInputs] = useState(() =>
+        getInitialHouseInputs(portfolioValueEur, savedNetSalaryEur)
+    )
     const [selectedPriceEur, setSelectedPriceEur] = useQueryState(
         paramsUrlKeys.house_price!,
         housePriceParser.withOptions({ shallow: true })
@@ -38,7 +45,7 @@ export function HousePlannerCard({ portfolioValueEur, hidePrices }: Props) {
 
     const savedEur = parseAmountInput(inputs.saved)
     const monthlySavingEur = parseAmountInput(inputs.monthlySaving)
-    const netSalaryEur = parseAmountInput(inputs.netSalary) || DEFAULT_NET_MONTHLY_SALARY_EUR
+    const netSalaryEur = parseAmountInput(inputs.netSalary)
     const annualRatePct = parseAmountInput(inputs.annualRate) || DEFAULT_ANNUAL_RATE_PCT
     const termYears = parseAmountInput(inputs.term) || DEFAULT_TERM_YEARS
     const loan = { annualRatePct, termYears }
@@ -89,7 +96,9 @@ export function HousePlannerCard({ portfolioValueEur, hidePrices }: Props) {
                 termYears={termYears}
                 hidePrices={hidePrices}
                 onChange={handleInputChange}
-                onReset={() => setInputs(getInitialHouseInputs(portfolioValueEur))}
+                onReset={() =>
+                    setInputs(getInitialHouseInputs(portfolioValueEur, savedNetSalaryEur))
+                }
             />
 
             <p className="max-w-prose text-xs text-muted-foreground">

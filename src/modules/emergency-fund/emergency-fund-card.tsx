@@ -1,15 +1,17 @@
 import type { PropsWithChildren } from 'react'
+import Link from 'next/link'
 import { Target } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { GoalProgress } from '@/components/goal-progress/goal-progress'
+import { SETTINGS_ROUTE_PATH } from '@/lib/constants'
 import { formatCurrency } from '@/lib/portfolio/formaters'
+import { cn } from '@/lib/utils'
 import type { BankBalanceSummary } from '@/types/BankConnection'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 import { BankConnectionToast } from '@/modules/emergency-fund/bank-connection-toast'
 import { ConnectBankButton } from '@/modules/emergency-fund/connect-bank-button'
 import {
     CONNECT_BUTTON_LABEL,
-    DEFAULT_EMERGENCY_FUND_GOAL,
     EMPTY_BALANCE_MESSAGE,
     STATUS_BADGE,
 } from '@/modules/emergency-fund/emergency-fund-card.constants'
@@ -24,7 +26,8 @@ import {
 type Props = {
     summary: BankBalanceSummary
     hidePrices: boolean
-    goal?: number
+    // `null` until it is set on the Settings page
+    goal: number | null
 }
 
 type DetailRowProps = PropsWithChildren<{
@@ -38,11 +41,7 @@ const DetailRow = ({ title, children }: DetailRowProps) => (
     </div>
 )
 
-export function EmergencyFundCard({
-    summary,
-    hidePrices,
-    goal = DEFAULT_EMERGENCY_FUND_GOAL,
-}: Props) {
+export function EmergencyFundCard({ summary, hidePrices, goal }: Props) {
     const status = getEmergencyFundStatus(summary)
     const badge = STATUS_BADGE[status]
     const buttonLabel = CONNECT_BUTTON_LABEL[status]
@@ -58,10 +57,12 @@ export function EmergencyFundCard({
                 <>
                     {/* In the header so a connection needing attention is visible while collapsed */}
                     <Badge variant={badge.variant}>{badge.label}</Badge>
-                    <div className="flex items-center gap-1 text-xs font-medium tabular-nums text-muted-foreground">
-                        <Target className="h-4 w-4 text-muted-foreground" />
-                        <span>Target {formatCurrency(goal, currency)}</span>
-                    </div>
+                    {goal !== null && (
+                        <div className="flex items-center gap-1 text-xs font-medium tabular-nums text-muted-foreground">
+                            <Target className="h-4 w-4 text-muted-foreground" />
+                            <span>Target {formatCurrency(goal, currency)}</span>
+                        </div>
+                    )}
                 </>
             }
             contentClassName="py-4 flex flex-row justify-between w-full"
@@ -69,6 +70,23 @@ export function EmergencyFundCard({
             <BankConnectionToast />
             {summary.balance === null ? (
                 <p className="text-sm text-muted-foreground">{EMPTY_BALANCE_MESSAGE[status]}</p>
+            ) : goal === null ? (
+                <div className="flex min-w-0 flex-col gap-1">
+                    <p className="text-xs text-muted-foreground">Bank balance</p>
+                    <p
+                        className={cn('text-xl font-semibold tracking-tight tabular-nums', {
+                            'blur-md select-none': hidePrices,
+                        })}
+                    >
+                        {formatCurrency(summary.balance, currency)}
+                    </p>
+                    <Link
+                        href={SETTINGS_ROUTE_PATH}
+                        className="text-xs font-medium text-brand underline-offset-4 hover:underline"
+                    >
+                        Set a goal in Settings
+                    </Link>
+                </div>
             ) : (
                 <GoalProgress
                     label="Bank balance"

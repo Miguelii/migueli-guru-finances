@@ -24,6 +24,25 @@ export function parseAmountInput(value: string): number {
 }
 
 /**
+ * Parses a typed amount in either notation (`2532.28`, `2532,28`, `2.532,28`, `2 532,28 €`).
+ * When both separators appear the dot is read as the thousands separator (pt-PT).
+ * Returns `null` for empty, invalid or negative input.
+ *
+ * @param value - Raw input value.
+ */
+export function parseDecimalInput(value: string): number | null {
+    const compact = value.replaceAll(/[\s€]/gu, '')
+    if (compact === '') return null
+
+    const normalized = compact.includes(',')
+        ? compact.replaceAll('.', '').replace(',', '.')
+        : compact
+    const parsed = Number(normalized)
+
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : null
+}
+
+/**
  * Returns the build timestamp used for cache-busting.
  * Falls back to `'1'` in local development.
  * @public

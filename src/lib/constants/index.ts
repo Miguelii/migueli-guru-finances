@@ -20,13 +20,17 @@ export const PLANNING_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/planning` as const
 
 export const ETF_PLANNING_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/etf-planning` as const
 
-export const STAKING_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/staking` as const
+export const PAYSLIPS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/payslips` as const
+
+export const EXPENSES_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/expenses` as const
 
 export const EMERGENCY_FUND_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/emergency-fund` as const
 
 export const NEWS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/news` as const
 
 export const PRICES_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/prices` as const
+
+export const SETTINGS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/settings` as const
 
 export const LOGS_ROUTE_PATH = `${PRIVATE_ROUTE_PATH}/logs` as const
 

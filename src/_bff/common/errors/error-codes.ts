@@ -56,6 +56,21 @@ export enum ErrorCode {
     // Cache (dev tools)
     CACHE_REVALIDATE_DEV_ONLY = 'f4rw9k2t',
 
+    // Payslips
+    PAYSLIPS_DB_CLIENT = 'l5ptiwfi',
+    PAYSLIPS_GET_ALL_QUERY = '1it7lr9t',
+    PAYSLIPS_CREATE_QUERY = 'gi9yywco',
+    PAYSLIPS_UPDATE_QUERY = 'jxs7f9rt',
+    PAYSLIPS_DELETE_QUERY = 'lhtd4lnp',
+    PAYSLIPS_MONTH_TAKEN = 'pbj9t8lt',
+
+    // Settings
+    SETTINGS_DB_CLIENT = 'mw5axygw',
+    SETTINGS_GET_QUERY = 'r94zmtdu',
+    SETTINGS_UPDATE_QUERY = 'glchvv45',
+    SETTINGS_EXPENSES_READ_QUERY = 'rmuxl0y5',
+    SETTINGS_EXPENSES_WRITE_QUERY = '6n4dekj4',
+
     // Logs
     LOGS_DB_CLIENT = 'w5fk8r2c',
     LOGS_GET_QUERY = 'j2tb6x9q',

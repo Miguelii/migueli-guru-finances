@@ -3,7 +3,6 @@ import { Currency } from '@/types/core/Currency'
 import {
     DEFAULT_ANNUAL_RATE_PCT,
     DEFAULT_MONTHLY_SAVING_EUR,
-    DEFAULT_NET_MONTHLY_SALARY_EUR,
     DEFAULT_TERM_YEARS,
     DOWN_PAYMENT_RATIOS,
     HEALTHY_PAYMENT_EUR,
@@ -236,11 +235,11 @@ export function formatPaymentEur(valueEur: number): string {
     return formatCurrency(Math.round(valueEur), Currency.EUR, 0)
 }
 
-export function getInitialHouseInputs(portfolioValueEur: number) {
+export function getInitialHouseInputs(portfolioValueEur: number, netSalaryEur: number | null) {
     return {
         saved: String(Math.round(portfolioValueEur)),
         monthlySaving: String(DEFAULT_MONTHLY_SAVING_EUR),
-        netSalary: String(DEFAULT_NET_MONTHLY_SALARY_EUR),
+        netSalary: netSalaryEur === null ? '' : String(netSalaryEur),
         annualRate: String(DEFAULT_ANNUAL_RATE_PCT),
         term: String(DEFAULT_TERM_YEARS),
     }

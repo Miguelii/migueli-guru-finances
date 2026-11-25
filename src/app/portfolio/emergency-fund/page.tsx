@@ -12,8 +12,9 @@ type Props = PageProps<'/portfolio/emergency-fund'>
 export default async function EmergencyFundPage(props: Props) {
     const trpc = await createCaller()
 
-    const [bankBalance, searchParams] = await Promise.all([
+    const [bankBalance, settings, searchParams] = await Promise.all([
         trpc.bank.get(),
+        trpc.settings.get(),
         searchParamsCache.parse(props.searchParams),
     ])
 
@@ -21,7 +22,11 @@ export default async function EmergencyFundPage(props: Props) {
 
     return (
         <main className="flex flex-col gap-6 mb-24 min-w-0" id="main">
-            <EmergencyFundCard summary={bankBalance} hidePrices={hidePrices} />
+            <EmergencyFundCard
+                summary={bankBalance}
+                hidePrices={hidePrices}
+                goal={settings.emergencyFundGoalEur}
+            />
         </main>
     )
 }
