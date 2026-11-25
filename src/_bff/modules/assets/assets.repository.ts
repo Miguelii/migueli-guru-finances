@@ -12,9 +12,8 @@ import type { CreateAssetProps } from '@/_bff/modules/assets/assets.dto'
  * Creates a cached function that fetches all ticker data from the database.
  *
  * @param supabaseClient
- * @param userId - For cache key
  */
-export const getAssetsFn = (supabaseClient: SbClient, userId: string) =>
+export const getAssetsFn = (supabaseClient: SbClient) =>
     unstable_cache(
         async () => {
             const { data, error } = await supabaseClient
@@ -27,7 +26,7 @@ export const getAssetsFn = (supabaseClient: SbClient, userId: string) =>
             // SAFETY: select('*') returns all `data` table columns represented by TickerData.
             return data as TickerData[]
         },
-        [GET_ASSETS_CACHE_KEY, userId],
+        [GET_ASSETS_CACHE_KEY],
         {
             revalidate: GET_DATA_REVALIDATE_TIME,
             tags: [GET_ASSETS_CACHE_KEY],
