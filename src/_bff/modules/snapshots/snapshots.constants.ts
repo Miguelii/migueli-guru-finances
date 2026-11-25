@@ -16,9 +16,6 @@ export const getPortfolioSnapshotsCacheTag = (userId: string) =>
 
 export const PORTFOLIO_SNAPSHOT_COLUMNS = 'snapshot_date, value_eur, invested_eur, realized_gl_eur'
 
-// Supabase caps every select at 1000 rows (PostgREST `max-rows`), so long reads are paged
-export const SELECT_PAGE_SIZE = 1000
-
 export const UPSERT_CHUNK_SIZE = 500
 
 // Coinbase Exchange allows ~10 public requests per second: keep the history fetches
