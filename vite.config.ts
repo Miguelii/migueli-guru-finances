@@ -86,7 +86,7 @@ export default defineConfig({
             'build',
             'node_modules',
             'src/components/ui',
-            'scripts',
+            'tools',
             'src/lib/__tests__',
             'src/hooks/__tests__',
             '.agent/**',
