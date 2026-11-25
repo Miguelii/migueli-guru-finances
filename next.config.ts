@@ -5,6 +5,11 @@ const buildTimestamp = Date.now().toString()
 
 const nextConfig: NextConfig = {
     experimental: {
+        // Client Router Cache: a page visited in the last 5 minutes is shown again without a
+        // server round-trip (no loading.tsx). Mutations call router.refresh(), which clears it
+        staleTimes: {
+            dynamic: 300,
+        },
         optimizePackageImports: [
             '@base-ui/react',
             '@hookform/resolvers',
