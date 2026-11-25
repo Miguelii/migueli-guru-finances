@@ -30,8 +30,11 @@ export const NEWS_MAX_ITEMS = 60
 // Assets fetched at the same time (each one fires 2 or 3 source requests)
 export const NEWS_FETCH_CONCURRENCY = 4
 
-// Same policy as the price updates: ~2s → ~4s, max 2 retries
+// Per-source cap on user-facing reads, so a hanging source cannot stall the page
+export const NEWS_SOURCE_TIMEOUT = '5 seconds'
+
+// Short retry for user-facing reads: ~500ms, max 1 retry (the crons keep the 2s policy)
 export const NEWS_RETRY_POLICY = Schedule.max([
-    Schedule.exponential('2 second').pipe(Schedule.jittered),
-    Schedule.recurs(2),
+    Schedule.exponential('500 millis').pipe(Schedule.jittered),
+    Schedule.recurs(1),
 ])

@@ -52,6 +52,8 @@ The project is on **Effect v4**. Translate v3 snippets from older docs or the sk
 - `error_hash` is an `ErrorCode` member (random 8-char hash in `src/_bff/common/errors/error-codes.ts`) so client-visible messages correlate with server logs without leaking details
 - tRPC services let typed errors reach `runEffect`. Fire-and-forget flows end with `Effect.catch` (log + safe fallback) and run with `Effect.runPromise`
 - **Retries** on external APIs (Coinbase, Yahoo Finance): `Schedule.max([Schedule.exponential('2 second').pipe(Schedule.jittered), Schedule.recurs(2)])`, i.e. ~2s → ~4s, max 2 retries (see `update-tickers-prices.service.ts`). Use `Schedule.max` (recurs while every schedule recurs, longest delay wins) to cap retries and always add `Schedule.jittered`
+- **User-facing reads** (news, events) run on the request path instead: `Effect.timeout(NEWS_SOURCE_TIMEOUT)` (5s) + `NEWS_RETRY_POLICY` (~500ms, 1 retry), both in `news.constants.ts`. The cron flows (prices, bank, snapshots) keep the 2s retry
+- Every `fetch` inside `Effect.tryPromise` passes the `signal` (`try: (signal) => fetch(url, { signal })`), so `Effect.timeout` or fiber interruption cancels the HTTP request. `yahoo-finance2` takes no signal: the timeout cuts the fiber and the request finishes in the background
 - Parallel work: `Effect.forEach(..., { concurrency: 'unbounded' })`
 
 ## tRPC: controllers, services, repositories
