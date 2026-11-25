@@ -11,10 +11,10 @@ const t = initTRPC.context<Context>().create()
 export const publicProcedure = t.procedure
 
 /**
- * Resolves the session once (request-cached) and injects the authenticated
- * `user` into ctx. Infrastructure failures map to 500; a missing user maps to
+ * Resolves the session once (request-cached, verified locally from the JWT
+ * claims via `getClaims()`) and injects the authenticated `user` into ctx. Infrastructure failures map to 500; a missing user maps to
  * 401. Protected services receive `ctx.user` and no longer resolve the session
- * themselves — they keep creating their own Supabase client for queries so each
+ * themselves: they keep creating their own Supabase client for queries so each
  * one stays in control of which key (publishable vs service-role) it uses.
  **/
 const isAuthed = t.middleware(async ({ next }) => {
@@ -34,7 +34,7 @@ const isAuthed = t.middleware(async ({ next }) => {
 })
 
 /**
- * Protected procedure — guarantees a non-null authenticated `ctx.user`.
+ * Protected procedure: guarantees a non-null authenticated `ctx.user`.
  **/
 export const protectedProcedure = t.procedure.use(isAuthed)
 

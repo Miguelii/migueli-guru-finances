@@ -114,7 +114,7 @@ const transactions = await caller.transactions.getAll()
 - `UNAUTHORIZED` (401) is reserved for an invalid session: never map business errors (e.g. wrong password → `BAD_REQUEST`) to it
 - `createCaller()` redirects to `GET /api/auth/sign-out` on 401 (via `onError`), and the client `unauthorizedLink` (`src/lib/trpc/trpc-unauthorized-link.ts`) hard-navigates there
 - That route (`force-sign-out.service.ts`) signs out locally and deletes all `sb-*` cookies, so it works even when the session is already dead
-- `runEffect` upgrades PostgREST JWT rejections (`PGRST301` to `PGRST303`) to 401. `getSession` only returns "no user" for invalid-session auth errors (network/5xx stay 500 so users aren't signed out by outages)
+- `runEffect` upgrades PostgREST JWT rejections (`PGRST301` to `PGRST303`) to 401. `getSession` verifies the JWT locally with `auth.getClaims()` (no Auth round-trip with asymmetric keys; a revoked session stays valid until the access token expires) and only returns "no user" for invalid-session auth errors (network/5xx stay 500 so users aren't signed out by outages)
 
 ### Mutations and caching
 - Create/update/delete services end with `revalidateTag(<tag>, 'max')` + `revalidatePath(PRIVATE_ROUTE_PATH, 'layout')`, and the client calls `router.refresh()` on success. Without the tag revalidation the `unstable_cache` data would stay stale
