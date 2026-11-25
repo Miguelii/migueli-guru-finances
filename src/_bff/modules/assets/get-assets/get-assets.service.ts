@@ -4,7 +4,7 @@ import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import { getAssetsFn } from '@/_bff/modules/assets/assets.repository'
 import { Effect } from 'effect'
 
-export const getAssets = Effect.fn('getAssets')(function* (userId: string) {
+export const getAssets = Effect.fn('getAssets')(function* () {
     const bd = yield* Effect.tryPromise({
         try: () => createDBServerClient(),
         catch: (cause) =>
@@ -12,7 +12,7 @@ export const getAssets = Effect.fn('getAssets')(function* (userId: string) {
     })
 
     const data = yield* Effect.tryPromise({
-        try: () => getAssetsFn(bd, userId)(),
+        try: () => getAssetsFn(bd)(),
         catch: (cause) => new SbQueryError({ cause, error_hash: ErrorCode.ASSETS_GET_ALL_QUERY }),
     })
 

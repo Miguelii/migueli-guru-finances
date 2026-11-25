@@ -1,4 +1,3 @@
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
@@ -8,7 +7,7 @@ import { insertAsset } from '@/_bff/modules/assets/assets.repository'
 import { fetchPrice } from '@/_bff/modules/assets/update-tickers-prices/update-tickers-prices.service'
 import { uploadAssetImage } from '@/_bff/modules/assets/helpers/upload-asset-image.helper'
 import { Effect } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 
 export const createAsset = Effect.fn('createAsset')(function* (props: CreateAssetProps) {
     const bd = yield* Effect.tryPromise({
@@ -42,6 +41,5 @@ export const createAsset = Effect.fn('createAsset')(function* (props: CreateAsse
         })
     }
 
-    revalidateTag(GET_ASSETS_CACHE_KEY, 'max')
-    revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+    expireCacheTags(GET_ASSETS_CACHE_KEY)
 })

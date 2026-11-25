@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import { revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
@@ -72,7 +72,7 @@ export const recordPortfolioSnapshots = Effect.fn('recordPortfolioSnapshots')(
             })
         }
 
-        revalidateTag(GET_PORTFOLIO_SNAPSHOTS_CACHE_KEY, 'max')
+        expireCacheTags(GET_PORTFOLIO_SNAPSHOTS_CACHE_KEY)
     },
     Effect.catch((error) => {
         Logger({

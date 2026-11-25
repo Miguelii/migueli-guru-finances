@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { AssetDrawer } from '@/modules/assets/asset-drawer'
+import { LazyAssetDrawer } from '@/modules/assets/asset-actions.lazy'
+import { useHasOpened } from '@/hooks/use-has-opened'
 import { DeleteAssetDialog } from '@/modules/assets/delete-asset-dialog'
 import type { TickerData } from '@/types/Transaction'
 import { Pencil, Trash2 } from 'lucide-react'
@@ -14,6 +15,7 @@ type Props = {
 export function AssetActions({ asset }: Props) {
     const [editing, setEditing] = useState(false)
     const [deleting, setDeleting] = useState(false)
+    const hasOpenedDrawer = useHasOpened(editing)
 
     return (
         <div className="flex justify-end gap-1">
@@ -36,13 +38,15 @@ export function AssetActions({ asset }: Props) {
                 <Trash2 />
             </Button>
 
-            <AssetDrawer
-                open={editing}
-                onOpenChange={(open) => {
-                    if (!open) setEditing(false)
-                }}
-                asset={asset}
-            />
+            {hasOpenedDrawer && (
+                <LazyAssetDrawer
+                    open={editing}
+                    onOpenChange={(open) => {
+                        if (!open) setEditing(false)
+                    }}
+                    asset={asset}
+                />
+            )}
 
             <DeleteAssetDialog
                 open={deleting}

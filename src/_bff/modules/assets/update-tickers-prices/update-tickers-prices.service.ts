@@ -1,19 +1,16 @@
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { Logger } from '@/_bff/common/logger/logger'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import type { TickerData } from '@/types/Transaction'
-import type { SbClient } from '@/_bff/common/db/types'
 import { Effect, Schedule } from 'effect'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { UpdateTickersError } from '@/_bff/modules/assets/assets.errors'
 import { GET_ASSETS_CACHE_KEY } from '@/_bff/modules/assets/assets.constants'
-import { GET_ALL_TRANSACTIONS_CACHE_KEY } from '@/_bff/modules/transactions/transactions.constants'
 import type { PriceTicker } from '@/_bff/modules/assets/assets.dto'
 import { getCoinbasePrices } from '@/_bff/modules/assets/providers/coinbase.provider'
 import { getFinancePrices } from '@/_bff/modules/assets/providers/yahoo.provider'
-import { selectAllTickers, updateAssetPrice } from '@/_bff/modules/assets/assets.repository'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { selectAllTickers, updateAssetPrices } from '@/_bff/modules/assets/assets.repository'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 
 type UpdateReturn = {
     success: boolean
@@ -41,8 +38,8 @@ const retryPolicy = Schedule.max([
 ])
 
 /**
- * Fetches all assets, prices them with one batched request per provider and updates
- * each one concurrently using Effect's `forEach` with unbounded concurrency.
+ * Fetches all assets, prices them with one batched request per provider and writes
+ * every fetched price in a single RPC call (assets without a price are skipped).
  *
  * @returns A promise resolving to `{ success, status }`, always resolves, never rejects
  */
@@ -65,9 +62,19 @@ export function updateTickersPrices(): Promise<UpdateReturn> {
 
         const prices = yield* fetchPrices(tickers)
 
-        yield* Effect.forEach(tickers, (t) => updateTicker(bd, t, prices.get(t.ticker)), {
-            concurrency: 'unbounded',
+        const pricedTickers = tickers.flatMap((t) => {
+            const price = prices.get(t.ticker)
+            return price ? [{ ticker: t.ticker, price }] : []
         })
+
+        if (pricedTickers.length > 0) {
+            const { error } = yield* Effect.tryPromise({
+                try: () => updateAssetPrices(bd, pricedTickers),
+                catch: (cause) => new SbQueryError({ cause }),
+            })
+
+            if (error) return yield* new SbQueryError({ cause: error, message: error.message })
+        }
 
         return {
             success: true,
@@ -150,44 +157,6 @@ export function fetchPrice(tick: FetchableTicker): Effect.Effect<number | null> 
 }
 
 /**
- * Updates an asset current price in Supabase, skipping assets without a fetched price.
- * Silently logs and recovers from any errors, never fails the overall pipeline.
- *
- * @param supabaseClient
- * @param tick - The asset data to update
- * @param price - The fetched price, `undefined` when the provider had none
- * @returns An Effect that always succeeds with `void`
- */
-function updateTicker(
-    supabaseClient: SbClient,
-    tick: TickerData,
-    price: number | undefined
-): Effect.Effect<void> {
-    return Effect.gen(function* () {
-        if (!price) return
-
-        const { error } = yield* Effect.tryPromise({
-            try: () => updateAssetPrice(supabaseClient, tick.ticker, price),
-            catch: (cause) => new SbQueryError({ cause }),
-        })
-
-        if (error)
-            return yield* Effect.fail(new SbQueryError({ cause: error, message: error?.message }))
-    }).pipe(
-        Effect.catch((error) => {
-            Logger({
-                level: 'error',
-                prefix: 'updateTicker',
-                message: `${error._tag} failed`,
-                error,
-                metadata: { ticker: tick.ticker },
-            })
-            return Effect.void
-        })
-    )
-}
-
-/**
  * tRPC-facing update flow: blocks bots, runs `updateTickersPrices`, and
  * revalidates the affected caches on success. The `POST /api/updateTickers`
  * HTTP route stays alongside for the Supabase cron (x-api-key auth).
@@ -220,7 +189,5 @@ export const updateTickers = Effect.fn('updateTickers')(function* () {
         })
     }
 
-    revalidateTag(GET_ASSETS_CACHE_KEY, 'max')
-    revalidateTag(GET_ALL_TRANSACTIONS_CACHE_KEY, 'max')
-    revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+    expireCacheTags(GET_ASSETS_CACHE_KEY)
 })

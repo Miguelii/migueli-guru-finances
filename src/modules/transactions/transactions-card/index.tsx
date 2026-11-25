@@ -1,6 +1,7 @@
 'use client'
 
 import { Plus } from 'lucide-react'
+import { useHasOpened } from '@/hooks/use-has-opened'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer'
 import { formatCurrency } from '@/lib/portfolio/formaters'
@@ -10,7 +11,6 @@ import type { CambioRates, TickerData, Transaction } from '@/types/Transaction'
 import { DeleteTransactionDialog } from '@/modules/transactions/delete-transaction-dialog'
 import { PortfolioCard } from '@/modules/portfolio-card/portfolio-card'
 import { TransactionDetails } from '@/modules/transactions/transaction-details'
-import { TransactionDrawer } from '@/modules/transactions/transaction-drawer'
 import { TransactionRow } from '@/modules/transactions/transaction-row'
 import { TRANSACTION_ROW_GRID_CLASS } from '@/modules/transactions/transaction-row.constants'
 import { TransactionsToolbar } from '@/modules/transactions/transactions-toolbar'
@@ -18,6 +18,7 @@ import {
     TRANSACTION_COLUMNS,
     TRANSACTIONS_CARD_HEIGHT_CLASS,
 } from '@/modules/transactions/transactions-card/transactions-card.constants'
+import { LazyTransactionDrawer } from '@/modules/transactions/transactions-card/transactions-card.lazy'
 import { useTransactionsCard } from '@/modules/transactions/transactions-card/use-transactions-card'
 import { useTransactionsCardActions } from '@/modules/transactions/transactions-card/use-transactions-card-actions'
 
@@ -60,6 +61,7 @@ export function TransactionsCard({ transactions, tickerData, rates, hidePrices }
         onDrawerOpenChange,
         onDeleteDialogOpenChange,
     } = useTransactionsCardActions()
+    const hasOpenedDrawer = useHasOpened(isDrawerOpen)
 
     return (
         <>
@@ -217,13 +219,15 @@ export function TransactionsCard({ transactions, tickerData, rates, hidePrices }
                 </DrawerContent>
             </Drawer>
 
-            <TransactionDrawer
-                open={isDrawerOpen}
-                onOpenChange={onDrawerOpenChange}
-                tickerData={tickerData}
-                transactions={transactions}
-                transaction={editing}
-            />
+            {hasOpenedDrawer && (
+                <LazyTransactionDrawer
+                    open={isDrawerOpen}
+                    onOpenChange={onDrawerOpenChange}
+                    tickerData={tickerData}
+                    transactions={transactions}
+                    transaction={editing}
+                />
+            )}
 
             <DeleteTransactionDialog
                 open={isDeleteDialogOpen}

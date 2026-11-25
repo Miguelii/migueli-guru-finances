@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { AssetDrawer } from '@/modules/assets/asset-drawer'
+import { LazyAssetDrawer } from '@/modules/assets/add-asset-app.lazy'
+import { useHasOpened } from '@/hooks/use-has-opened'
 import { Plus } from 'lucide-react'
 
 export function AddAssetApp() {
     const [open, setOpen] = useState(false)
+    const hasOpenedDrawer = useHasOpened(open)
 
     return (
         <>
@@ -20,7 +22,7 @@ export function AddAssetApp() {
                 Add asset
             </Button>
 
-            <AssetDrawer open={open} onOpenChange={setOpen} asset={null} />
+            {hasOpenedDrawer && <LazyAssetDrawer open={open} onOpenChange={setOpen} asset={null} />}
         </>
     )
 }

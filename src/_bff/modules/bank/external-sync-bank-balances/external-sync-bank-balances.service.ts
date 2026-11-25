@@ -1,8 +1,7 @@
 import { Effect, Match } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 import { type NextRequest, NextResponse } from 'next/server'
 import { ServerEnv } from '@/env/server'
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient, verifyApiKey } from '@/_bff/common/db/db.utils'
@@ -69,8 +68,7 @@ export const externalSyncBankBalances = Effect.fn('externalSyncBankBalances')(
             { concurrency: 'unbounded' }
         )
 
-        revalidateTag(GET_BANK_CONNECTION_CACHE_KEY, 'max')
-        revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+        expireCacheTags(GET_BANK_CONNECTION_CACHE_KEY)
 
         return NextResponse.json({ status: 200, synced: connections?.length ?? 0 })
     },

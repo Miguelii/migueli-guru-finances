@@ -79,4 +79,26 @@ describe('getGoogleNews', () => {
 
         expect(Result.isFailure(result) && result.failure._tag).toBe('GetGoogleNewsError')
     })
+
+    it('passes an abort signal to fetch', async () => {
+        const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(RSS))
+        await Effect.runPromise(getGoogleNews(asset, { query: 'AtlasClear', fromKeywords: false }))
+        expect(fetchSpy.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal)
+    })
+
+    it('aborts the request when the effect times out', async () => {
+        let signal: AbortSignal | undefined
+        vi.spyOn(globalThis, 'fetch').mockImplementation((_url, init) => {
+            signal = init?.signal ?? undefined
+            return new Promise(() => {})
+        })
+        const result = await Effect.runPromise(
+            getGoogleNews(asset, { query: 'AtlasClear', fromKeywords: false }).pipe(
+                Effect.timeout('10 millis'),
+                Effect.result
+            )
+        )
+        expect(Result.isFailure(result)).toBe(true)
+        expect(signal?.aborted).toBe(true)
+    })
 })

@@ -12,9 +12,8 @@ import type { CreateAssetProps } from '@/_bff/modules/assets/assets.dto'
  * Creates a cached function that fetches all ticker data from the database.
  *
  * @param supabaseClient
- * @param userId - For cache key
  */
-export const getAssetsFn = (supabaseClient: SbClient, userId: string) =>
+export const getAssetsFn = (supabaseClient: SbClient) =>
     unstable_cache(
         async () => {
             const { data, error } = await supabaseClient
@@ -27,7 +26,7 @@ export const getAssetsFn = (supabaseClient: SbClient, userId: string) =>
             // SAFETY: select('*') returns all `data` table columns represented by TickerData.
             return data as TickerData[]
         },
-        [GET_ASSETS_CACHE_KEY, userId],
+        [GET_ASSETS_CACHE_KEY],
         {
             revalidate: GET_DATA_REVALIDATE_TIME,
             tags: [GET_ASSETS_CACHE_KEY],
@@ -87,19 +86,15 @@ export function deleteAssetByTicker(supabaseClient: SbClient, ticker: string) {
 }
 
 /**
- * Updates a single ticker's current price and last-updated timestamp.
+ * Updates the current price of every given ticker in one RPC call
+ * (`update_ticker_prices`, see `src/_bff/common/db/sql/update_ticker_prices.sql`).
  *
- * @param supabaseClient
- * @param ticker - The ticker symbol to update
- * @param price - The new current price
+ * @param supabaseClient - Must be the service-role client, the only role allowed to execute it
+ * @param prices - The tickers and their new prices
  */
-export function updateAssetPrice(
-    supabaseClient: SbClient,
-    ticker: TickerData['ticker'],
-    price: number
+export function updateAssetPrices(
+    supabaseClient: Pick<SbClient, 'rpc'>,
+    prices: { ticker: string; price: number }[]
 ) {
-    return supabaseClient
-        .from(DBTables.DATA)
-        .update({ curr_price: price, last_updated_at: 'now()' })
-        .eq('ticker', ticker)
+    return supabaseClient.rpc('update_ticker_prices', { prices })
 }

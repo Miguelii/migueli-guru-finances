@@ -49,10 +49,10 @@ function toCoinbasePair(tick: PriceTicker) {
  */
 function getQuotePrices(quote: string, pairs: CoinbasePair[]) {
     return Effect.tryPromise({
-        try: async () => {
+        try: async (signal) => {
             const res = await fetch(
                 `${COINBASE_API_URL}/exchange-rates?currency=${encodeURIComponent(quote)}`,
-                { method: 'GET' }
+                { method: 'GET', signal }
             )
 
             if (!res.ok) throw new Error(`Fetch Failed status=${res.status} quote=${quote}`)
@@ -101,7 +101,7 @@ export function getCoinbasePrices(
  */
 function getCandlesWindow(product: string, start: string, end: string) {
     return Effect.tryPromise({
-        try: async () => {
+        try: async (signal) => {
             const params = new URLSearchParams({
                 granularity: String(COINBASE_DAILY_GRANULARITY),
                 start: `${start}T00:00:00Z`,
@@ -110,7 +110,7 @@ function getCandlesWindow(product: string, start: string, end: string) {
 
             const res = await fetch(
                 `${COINBASE_EXCHANGE_API_URL}/products/${encodeURIComponent(product)}/candles?${params}`,
-                { method: 'GET' }
+                { method: 'GET', signal }
             )
 
             if (!res.ok) throw new Error(`Fetch Failed status=${res.status} product=${product}`)

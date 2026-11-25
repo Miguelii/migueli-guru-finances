@@ -2,6 +2,7 @@ import type { Transaction } from '@/types/Transaction'
 import { DBTables } from '@/_bff/common/db/types'
 import { unstable_cache } from 'next/cache'
 import type { SbClient } from '@/_bff/common/db/types'
+import { selectAllPages } from '@/_bff/common/db/select-all-pages.helper'
 import {
     GET_ALL_TRANSACTIONS_CACHE_KEY,
     GET_ALL_TRANSACTIONS_REVALIDATE_TIME,
@@ -13,25 +14,26 @@ import type {
 } from '@/_bff/modules/transactions/transactions.dto'
 
 /**
- * Creates a cached function that fetches all transactions owned by the given user.
+ * Creates a cached function that fetches all transactions owned by the given user, paged past
+ * the row cap.
  *
  * @param supabaseClient
  * @param userId - Scopes the query (`user_id` filter) and the cache key
  */
 export const getAllTransactionsByUserIdFn = (supabaseClient: SbClient, userId: string) =>
     unstable_cache(
-        async () => {
-            const { data, error } = await supabaseClient
-                .from(DBTables.TRANSACTIONS)
-                .select('*')
-                .eq('user_id', userId)
-                .order('buy_date', { ascending: false })
-
-            if (error) throw error
-
-            // SAFETY: the select returns all transaction columns defined by the database schema.
-            return data as Transaction[]
-        },
+        async () =>
+            selectAllPages<Transaction>((from, to) =>
+                supabaseClient
+                    .from(DBTables.TRANSACTIONS)
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('buy_date', { ascending: false })
+                    // Tie-breaker so rows with the same date keep a stable order across pages
+                    .order('id', { ascending: true })
+                    .range(from, to)
+                    .overrideTypes<Transaction[]>()
+            ),
         [GET_ALL_TRANSACTIONS_CACHE_KEY, userId],
         {
             revalidate: GET_ALL_TRANSACTIONS_REVALIDATE_TIME,

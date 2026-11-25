@@ -1,4 +1,3 @@
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
@@ -10,7 +9,7 @@ import { type CreatePayslipProps } from '@/_bff/modules/payslips/payslips.dto'
 import { PayslipMonthTakenError } from '@/_bff/modules/payslips/payslips.errors'
 import { insertPayslip } from '@/_bff/modules/payslips/payslips.repository'
 import { Effect } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 
 export const createPayslip = Effect.fn('createPayslip')(function* (
     userId: string,
@@ -43,6 +42,5 @@ export const createPayslip = Effect.fn('createPayslip')(function* (
         })
     }
 
-    revalidateTag(getPayslipsCacheTag(userId), 'max')
-    revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+    expireCacheTags(getPayslipsCacheTag(userId))
 })

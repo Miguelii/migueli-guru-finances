@@ -1,11 +1,10 @@
 import { Effect } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
 import type { SbClient } from '@/_bff/common/db/types'
 import { Logger } from '@/_bff/common/logger/logger'
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { SNAPSHOT_TIME_ZONE } from '@/lib/constants/portfolio-snapshots'
 import {
     type PriceHistory,
@@ -170,8 +169,7 @@ export const rebuildPortfolioSnapshots = Effect.fn('rebuildPortfolioSnapshots')(
             .map((tick) => tick.ticker)
     }
 
-    revalidateTag(getPortfolioSnapshotsCacheTag(userId), 'max')
-    revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+    expireCacheTags(getPortfolioSnapshotsCacheTag(userId))
 
     return result
 })

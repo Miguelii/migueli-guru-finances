@@ -1,4 +1,3 @@
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { CreateSbClientError, SbQueryError } from '@/_bff/common/errors/shared.errors'
 import { createDBServerClient } from '@/_bff/common/db/db.utils'
@@ -6,7 +5,7 @@ import { getAllTransactionsCacheTag } from '@/_bff/modules/transactions/transact
 import { type UpdateTransactionProps } from '@/_bff/modules/transactions/transactions.dto'
 import { updateTransactionById } from '@/_bff/modules/transactions/transactions.repository'
 import { Effect } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 
 export const updateTransaction = Effect.fn('updateTransaction')(function* (
     userId: string,
@@ -32,6 +31,5 @@ export const updateTransaction = Effect.fn('updateTransaction')(function* (
         })
     }
 
-    revalidateTag(getAllTransactionsCacheTag(userId), 'max')
-    revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+    expireCacheTags(getAllTransactionsCacheTag(userId))
 })

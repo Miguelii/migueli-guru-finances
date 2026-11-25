@@ -12,6 +12,7 @@ import {
     GET_ASSET_EVENTS_REVALIDATE_TIME,
     NEWS_FETCH_CONCURRENCY,
     NEWS_RETRY_POLICY,
+    NEWS_SOURCE_TIMEOUT,
 } from '@/_bff/modules/news/news.constants'
 import { GetYahooEventsError } from '@/_bff/modules/news/news.errors'
 
@@ -19,7 +20,12 @@ import { GetYahooEventsError } from '@/_bff/modules/news/news.errors'
 const getCachedAssetEvents = (asset: NewsAsset) =>
     unstable_cache(
         (): Promise<PortfolioEvent[]> =>
-            Effect.runPromise(getYahooCalendarEvents(asset).pipe(Effect.retry(NEWS_RETRY_POLICY))),
+            Effect.runPromise(
+                getYahooCalendarEvents(asset).pipe(
+                    Effect.timeout(NEWS_SOURCE_TIMEOUT),
+                    Effect.retry(NEWS_RETRY_POLICY)
+                )
+            ),
         [GET_ASSET_EVENTS_CACHE_KEY, asset.ticker],
         { revalidate: GET_ASSET_EVENTS_REVALIDATE_TIME, tags: [GET_ASSET_EVENTS_CACHE_KEY] }
     )

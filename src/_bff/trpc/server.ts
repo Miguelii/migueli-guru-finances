@@ -1,7 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server'
-import { Effect, Exit } from 'effect'
+import { Exit } from 'effect'
 import type { Context } from '@/_bff/trpc/context'
-import { getSession } from '@/_bff/modules/auth/helpers/get-session.helper'
 
 const t = initTRPC.context<Context>().create()
 
@@ -11,14 +10,15 @@ const t = initTRPC.context<Context>().create()
 export const publicProcedure = t.procedure
 
 /**
- * Resolves the session once (request-cached) and injects the authenticated
- * `user` into ctx. Infrastructure failures map to 500; a missing user maps to
- * 401. Protected services receive `ctx.user` and no longer resolve the session
- * themselves — they keep creating their own Supabase client for queries so each
- * one stays in control of which key (publishable vs service-role) it uses.
+ * Reads the session from the context (resolved once per request, verified locally from
+ * the JWT claims via `getClaims()`) and injects the authenticated `user` into ctx.
+ * Infrastructure failures map to 500; a missing user maps to 401. Protected services
+ * receive `ctx.user` and no longer resolve the session themselves: they keep creating
+ * their own Supabase client for queries so each one stays in control of which key
+ * (publishable vs service-role) it uses.
  **/
-const isAuthed = t.middleware(async ({ next }) => {
-    const session = await Effect.runPromiseExit(getSession())
+const isAuthed = t.middleware(async ({ ctx, next }) => {
+    const session = await ctx.session()
 
     if (Exit.isFailure(session)) {
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' })
@@ -34,7 +34,7 @@ const isAuthed = t.middleware(async ({ next }) => {
 })
 
 /**
- * Protected procedure — guarantees a non-null authenticated `ctx.user`.
+ * Protected procedure: guarantees a non-null authenticated `ctx.user`.
  **/
 export const protectedProcedure = t.procedure.use(isAuthed)
 

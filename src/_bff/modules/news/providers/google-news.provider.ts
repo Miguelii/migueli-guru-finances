@@ -118,9 +118,9 @@ export function getGoogleNews(
     { query, fromKeywords }: NewsQuery
 ): Effect.Effect<NewsItem[], GetGoogleNewsError> {
     return Effect.tryPromise({
-        try: async () => {
+        try: async (signal) => {
             const params = new URLSearchParams({ q: query, hl: 'en-US', gl: 'US', ceid: 'US:en' })
-            const res = await fetch(`${GOOGLE_NEWS_RSS_URL}?${params}`, { method: 'GET' })
+            const res = await fetch(`${GOOGLE_NEWS_RSS_URL}?${params}`, { method: 'GET', signal })
 
             if (!res.ok) throw new Error(`Fetch Failed status=${res.status}`)
 

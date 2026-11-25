@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache'
 import { DBTables } from '@/_bff/common/db/types'
+import { selectAllPages } from '@/_bff/common/db/select-all-pages.helper'
 import type { SbClient } from '@/_bff/common/db/types'
 import type { PortfolioSnapshotPoint } from '@/lib/portfolio/portfolio-snapshots'
 import type { Transaction } from '@/types/Transaction'
@@ -7,7 +8,6 @@ import {
     GET_PORTFOLIO_SNAPSHOTS_CACHE_KEY,
     GET_PORTFOLIO_SNAPSHOTS_REVALIDATE_TIME,
     PORTFOLIO_SNAPSHOT_COLUMNS,
-    SELECT_PAGE_SIZE,
     getPortfolioSnapshotsCacheTag,
 } from '@/_bff/modules/snapshots/snapshots.constants'
 
@@ -19,30 +19,6 @@ type PortfolioSnapshotRow = {
 }
 
 export type UserTransaction = Transaction & { user_id: string }
-
-type PageResult<T> = PromiseLike<{ data: T[] | null; error: Error | null }>
-
-/**
- * Reads every row of a query page by page, past the 1000-row cap of Supabase selects.
- * Throws the query error, so callers wrap it in a single `Effect.tryPromise`.
- *
- * @param fetchPage - Runs the query for the inclusive row range `[from, to]`
- */
-async function selectAllPages<T>(fetchPage: (from: number, to: number) => PageResult<T>) {
-    const rows: T[] = []
-
-    for (let from = 0; ; from += SELECT_PAGE_SIZE) {
-        // Sequential on purpose: the next page only exists if this one came back full
-        // oxlint-disable-next-line no-await-in-loop
-        const { data, error } = await fetchPage(from, from + SELECT_PAGE_SIZE - 1)
-
-        if (error) throw error
-
-        rows.push(...(data ?? []))
-
-        if (!data || data.length < SELECT_PAGE_SIZE) return rows
-    }
-}
 
 /**
  * Creates a cached function that fetches the user's month-end snapshots (the last stored

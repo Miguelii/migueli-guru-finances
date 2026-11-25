@@ -1,4 +1,4 @@
-import { Effect, Result } from 'effect'
+import { type Cause, Effect, Result } from 'effect'
 import { unstable_cache } from 'next/cache'
 import { Logger } from '@/_bff/common/logger/logger'
 import type { NewsItem } from '@/types/News'
@@ -17,6 +17,7 @@ import {
     GET_ASSET_NEWS_REVALIDATE_TIME,
     NEWS_FETCH_CONCURRENCY,
     NEWS_RETRY_POLICY,
+    NEWS_SOURCE_TIMEOUT,
 } from '@/_bff/modules/news/news.constants'
 import {
     GetGoogleNewsError,
@@ -25,21 +26,29 @@ import {
     NewsSourcesUnavailableError,
 } from '@/_bff/modules/news/news.errors'
 
-// Yahoo search plus one Google News query per search phrase, all in parallel with
-// retries. A failing source is logged and skipped; only when every source fails the
+// Yahoo search plus one Google News query per search phrase, all in parallel, each
+// attempt bounded by a timeout and retried. A failing source is logged and skipped; only when every source fails the
 // asset fails, so an outage is never cached as "no news"
 const fetchAssetNews = Effect.fn('fetchAssetNews')(function* (
     asset: NewsAsset,
     name: string | undefined
 ) {
-    const sources: Effect.Effect<NewsItem[], GetYahooNewsError | GetGoogleNewsError>[] = [
+    const sources: Effect.Effect<
+        NewsItem[],
+        GetYahooNewsError | GetGoogleNewsError | Cause.TimeoutError
+    >[] = [
         getYahooNews(asset),
         ...buildNewsQueries(asset, name).map((newsQuery) => getGoogleNews(asset, newsQuery)),
     ]
 
     const results = yield* Effect.forEach(
         sources,
-        (source) => source.pipe(Effect.retry(NEWS_RETRY_POLICY), Effect.result),
+        (source) =>
+            source.pipe(
+                Effect.timeout(NEWS_SOURCE_TIMEOUT),
+                Effect.retry(NEWS_RETRY_POLICY),
+                Effect.result
+            ),
         { concurrency: 'unbounded' }
     )
 
@@ -75,7 +84,12 @@ const getCachedAssetNames = (assets: NewsAsset[]) =>
     unstable_cache(
         async (): Promise<Record<string, string>> =>
             Object.fromEntries(
-                await Effect.runPromise(getYahooNames(assets).pipe(Effect.retry(NEWS_RETRY_POLICY)))
+                await Effect.runPromise(
+                    getYahooNames(assets).pipe(
+                        Effect.timeout(NEWS_SOURCE_TIMEOUT),
+                        Effect.retry(NEWS_RETRY_POLICY)
+                    )
+                )
             ),
         [
             'getAssetNames',

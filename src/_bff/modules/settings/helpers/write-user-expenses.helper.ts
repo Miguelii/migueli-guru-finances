@@ -1,4 +1,3 @@
-import { PRIVATE_ROUTE_PATH } from '@/lib/constants'
 import type { Expense } from '@/types/Expense'
 import { ErrorCode } from '@/_bff/common/errors/error-codes'
 import { SbQueryError } from '@/_bff/common/errors/shared.errors'
@@ -6,7 +5,7 @@ import type { SbClient } from '@/_bff/common/db/types'
 import { getUserSettingsCacheTag } from '@/_bff/modules/settings/settings.constants'
 import { upsertUserExpenses } from '@/_bff/modules/settings/settings.repository'
 import { Effect } from 'effect'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 
 // Stores the whole expense list and invalidates the user's cached settings
 export const writeUserExpenses = Effect.fn('writeUserExpenses')(function* (
@@ -28,6 +27,5 @@ export const writeUserExpenses = Effect.fn('writeUserExpenses')(function* (
         })
     }
 
-    revalidateTag(getUserSettingsCacheTag(userId), 'max')
-    revalidatePath(PRIVATE_ROUTE_PATH, 'layout')
+    expireCacheTags(getUserSettingsCacheTag(userId))
 })

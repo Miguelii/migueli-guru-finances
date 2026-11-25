@@ -102,7 +102,7 @@ function requestEnableBanking<S extends z.ZodType>(
         })
 
         const response = yield* Effect.tryPromise({
-            try: () =>
+            try: (signal) =>
                 fetch(`${ENABLE_BANKING_API_URL}${path}`, {
                     method: body ? 'POST' : 'GET',
                     headers: {
@@ -111,6 +111,7 @@ function requestEnableBanking<S extends z.ZodType>(
                     },
                     body: body ? JSON.stringify(body) : undefined,
                     cache: 'no-store',
+                    signal,
                 }),
             catch: (cause) => new EnableBankingUnavailableError({ cause, error_hash: errorHash }),
         })
