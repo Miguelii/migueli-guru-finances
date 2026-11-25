@@ -9,7 +9,8 @@ SELECT indexname, indexdef FROM pg_indexes WHERE tablename IN ('transactions', '
 
 -- 2) RLS policies: every auth.uid() should be wrapped as (SELECT auth.uid())
 --    The data SELECT policy must NOT filter rows by auth.uid(): the assets list is cached
---    once for all users, so a per-user filter would let the first user's rows be served to everyone.
+--    once for all users, so a per-user filter would let the first user's rows be served to
+--    everyone.
 SELECT tablename, policyname, qual, with_check FROM pg_policies
   WHERE tablename IN ('transactions', 'data');
 

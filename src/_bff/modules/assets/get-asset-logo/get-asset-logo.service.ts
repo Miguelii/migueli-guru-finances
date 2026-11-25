@@ -16,8 +16,8 @@ export const getAssetLogo = Effect.fn('getAssetLogo')(function* (rawPath: string
     const path = parsed.data
 
     const response = yield* Effect.tryPromise({
-        try: async () => {
-            const res = await fetch(buildBucketAssetUrl(path), { cache: 'force-cache' })
+        try: async (signal) => {
+            const res = await fetch(buildBucketAssetUrl(path), { cache: 'force-cache', signal })
             if (!res.ok) throw new Error(`unexpected status ${res.status}`)
 
             return new NextResponse(await res.arrayBuffer(), {

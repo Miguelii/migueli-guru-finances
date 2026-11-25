@@ -26,8 +26,8 @@ import {
     NewsSourcesUnavailableError,
 } from '@/_bff/modules/news/news.errors'
 
-// Yahoo search plus one Google News query per search phrase, all in parallel with
-// retries. A failing source is logged and skipped; only when every source fails the
+// Yahoo search plus one Google News query per search phrase, all in parallel, each
+// attempt bounded by a timeout and retried. A failing source is logged and skipped; only when every source fails the
 // asset fails, so an outage is never cached as "no news"
 const fetchAssetNews = Effect.fn('fetchAssetNews')(function* (
     asset: NewsAsset,
@@ -84,7 +84,12 @@ const getCachedAssetNames = (assets: NewsAsset[]) =>
     unstable_cache(
         async (): Promise<Record<string, string>> =>
             Object.fromEntries(
-                await Effect.runPromise(getYahooNames(assets).pipe(Effect.retry(NEWS_RETRY_POLICY)))
+                await Effect.runPromise(
+                    getYahooNames(assets).pipe(
+                        Effect.timeout(NEWS_SOURCE_TIMEOUT),
+                        Effect.retry(NEWS_RETRY_POLICY)
+                    )
+                )
             ),
         [
             'getAssetNames',

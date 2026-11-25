@@ -12,10 +12,11 @@ export const publicProcedure = t.procedure
 
 /**
  * Resolves the session once (request-cached, verified locally from the JWT
- * claims via `getClaims()`) and injects the authenticated `user` into ctx. Infrastructure failures map to 500; a missing user maps to
- * 401. Protected services receive `ctx.user` and no longer resolve the session
- * themselves: they keep creating their own Supabase client for queries so each
- * one stays in control of which key (publishable vs service-role) it uses.
+ * claims via `getClaims()`) and injects the authenticated `user` into ctx.
+ * Infrastructure failures map to 500; a missing user maps to 401. Protected services
+ * receive `ctx.user` and no longer resolve the session themselves: they keep creating
+ * their own Supabase client for queries so each one stays in control of which key
+ * (publishable vs service-role) it uses.
  **/
 const isAuthed = t.middleware(async ({ next }) => {
     const session = await Effect.runPromiseExit(getSession())

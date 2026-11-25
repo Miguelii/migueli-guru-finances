@@ -9,7 +9,7 @@ import {
     UpdateTickersStatusError,
 } from '@/_bff/modules/assets/assets.errors'
 import { Effect, Match } from 'effect'
-import { revalidateTag } from 'next/cache'
+import { expireCacheTags } from '@/_bff/common/cache/expire-cache-tags.helper'
 import { type NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -55,7 +55,7 @@ export function externalUpdateTickers(request: NextRequest): Promise<NextRespons
         // Values today's snapshot with the prices just fetched (never fails)
         yield* recordPortfolioSnapshots()
 
-        revalidateTag(GET_ASSETS_CACHE_KEY, 'max')
+        expireCacheTags(GET_ASSETS_CACHE_KEY)
 
         return NextResponse.json({ status: 200 })
     }).pipe(
