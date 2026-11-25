@@ -24,6 +24,7 @@ export const getAssetLogo = Effect.fn('getAssetLogo')(function* (rawPath: string
                 headers: {
                     'Content-Type': res.headers.get('content-type') ?? 'image/webp',
                     'Cache-Control': 'public, max-age=31536000, immutable',
+                    'CDN-Cache-Control': 'public, max-age=31536000, immutable',
                 },
             })
         },
@@ -37,7 +38,12 @@ export const getAssetLogo = Effect.fn('getAssetLogo')(function* (rawPath: string
                 error,
                 metadata: { path },
             })
-            return Effect.succeed(new NextResponse('not found', { status: 404 }))
+            return Effect.succeed(
+                new NextResponse('not found', {
+                    status: 404,
+                    headers: { 'Cache-Control': 'no-store' },
+                })
+            )
         })
     )
 
