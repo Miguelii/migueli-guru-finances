@@ -7,13 +7,20 @@ import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 
 // A bottom sheet on a phone (swipe down to dismiss), a side panel from the right on wider screens
-function Drawer({ swipeDirection, ...props }: DrawerPrimitive.Root.Props) {
+function Drawer({ swipeDirection, open, ...props }: DrawerPrimitive.Root.Props) {
     const isMobile = useIsMobile()
+    // Base UI only plays the enter animation when `open` turns true after mount, so a lazily
+    // mounted drawer (already open on its first render) starts closed and opens one commit later.
+    // This also lets `useIsMobile` settle first, so the first open slides in the right direction
+    const [hasMounted, setHasMounted] = React.useState(false)
+
+    React.useEffect(() => setHasMounted(true), [])
 
     return (
         <DrawerPrimitive.Root
             data-slot="drawer"
             swipeDirection={swipeDirection ?? (isMobile ? 'down' : 'right')}
+            open={open === undefined ? undefined : open && hasMounted}
             {...props}
         />
     )
